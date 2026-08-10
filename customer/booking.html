@@ -63,19 +63,36 @@
     <!-- Leaflet Free Maps JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // OpenStreetMap Setup (Default Delhi)
+        // OpenStreetMap Setup (Default Delhi Location)
         var map = L.map('map').setView([28.6139, 77.2090], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Dummy Fare Calculation (Base ₹30 + ₹10/KM)
-        function calculateFare() {
+        // 🔗 Aapka Live Vercel Backend URL
+        const BACKEND_URL = "https://go-bike-backend.vercel.app";
+
+        // Live Backend API Fare Calculation
+        async function calculateFare() {
             let km = document.getElementById('distance').value;
+            
             if(km > 0) {
-                let fare = 30 + (km * 10);
-                document.getElementById('total-fare').innerText = "₹" + fare;
+                try {
+                    // Vercel Server se calculation fetch kar rahe hain
+                    let response = await fetch(`${BACKEND_URL}/api/calculate-fare`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ distanceKm: Number(km) })
+                    });
+                    
+                    let data = await response.json();
+                    document.getElementById('total-fare').innerText = "₹" + data.totalFare;
+                } catch (error) {
+                    // Server issue hone par offline fallback rate (Base ₹30 + ₹10/KM)
+                    let fallbackFare = 30 + (km * 10);
+                    document.getElementById('total-fare').innerText = "₹" + fallbackFare;
+                }
             } else {
                 document.getElementById('total-fare').innerText = "₹0";
             }
@@ -83,10 +100,13 @@
 
         function placeOrder() {
             let fare = document.getElementById('total-fare').innerText;
-            if(fare === "₹0") {
-                alert("Kripya sahi distance daalein!");
+            let pickup = document.getElementById('pickup').value;
+            let drop = document.getElementById('drop').value;
+
+            if(fare === "₹0" || !pickup || !drop) {
+                alert("Kripya Pickup, Drop location aur Distance sahi se bharein!");
             } else {
-                alert("🎉 Order Book Ho Gaya! Paas ke Go Bike Driver ko alert bhej diya gaya hai.");
+                alert(`🎉 Order Book Ho Gaya!\n\nPickup: ${pickup}\nDrop: ${drop}\nFare: ${fare}\n\nPaas ke Go Bike Driver ko notification bhej diya gaya hai.`);
             }
         }
     </script>
