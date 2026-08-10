@@ -5,131 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go Bike - Express Parcel Service</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; }
-
-        /* 1. Splash Screen Animation */
-        #splash-screen {
-            position: fixed; inset: 0; background: #090d16;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 1000; transition: opacity 0.8s ease, visibility 0.8s;
-        }
-        .logo-box { text-align: center; animation: zoomIn 1.2s ease-out; }
-        .logo-icon { width: 90px; height: 90px; background: #18181b; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; border: 2px solid #f97316; box-shadow: 0 0 25px rgba(249, 115, 22, 0.4); }
-        .logo-text { font-size: 32px; font-weight: 900; margin-top: 15px; letter-spacing: 1px; }
-        .orange { color: #f97316; }
-
-        @keyframes zoomIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Main Container */
-        .app-container { width: 100%; max-width: 420px; padding: 20px; display: none; opacity: 0; transition: opacity 0.5s ease; }
-        .card { background: #1e293b; border-radius: 16px; padding: 25px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         
-        /* Buttons & Forms */
-        .role-btn { width: 100%; padding: 16px; margin: 12px 0; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
-        .btn-cust { background: #f97316; color: white; }
-        .btn-driver { background: #10b981; color: white; }
-        .role-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .card { background: #1e293b; border-radius: 20px; padding: 30px; border: 1px solid #334155; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .logo { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+        .orange { color: #f97316; }
+        .tagline { color: #94a3b8; font-size: 14px; margin-bottom: 30px; }
 
-        input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-size: 15px; }
-        .hidden { display: none; }
-        .back-btn { background: transparent; border: none; color: #94a3b8; cursor: pointer; margin-bottom: 15px; float: left; font-size: 14px; }
+        .btn-choice { width: 100%; padding: 16px; margin: 10px 0; border-radius: 12px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; text-decoration: none; display: block; transition: 0.2s; }
+        .btn-customer { background: #f97316; color: white; }
+        .btn-customer:hover { background: #ea580c; }
+        .btn-driver { background: #334155; color: white; border: 1px solid #475569; }
+        .btn-driver:hover { background: #475569; }
+
+        .admin-link { display: inline-block; margin-top: 25px; color: #64748b; font-size: 12px; text-decoration: none; }
+        .admin-link:hover { color: #f97316; }
     </style>
 </head>
 <body>
 
-    <!-- 1. Animated Splash Screen -->
-    <div id="splash-screen" onclick="startApp()">
-        <div class="logo-box">
-            <div class="logo-icon">
-                <svg width="50" height="50" viewBox="0 0 100 100">
-                    <path d="M 68 32 C 60 22, 42 22, 30 34 C 18 46, 18 64, 30 76 C 42 88, 62 88, 70 74 C 74 66, 74 54, 74 54 L 48 54" fill="none" stroke="#f97316" stroke-width="9" stroke-linecap="round"/>
-                    <polygon points="52,18 36,52 50,52 42,82 66,42 50,42" fill="#eab308"/>
-                </svg>
-            </div>
-            <div class="logo-text">GO <span class="orange">BIKE</span></div>
-            <p style="color:#64748b; font-size: 13px; margin-top: 5px;">Tap anywhere to Start</p>
-        </div>
+    <div class="card">
+        <div class="logo">GO <span class="orange">BIKE</span></div>
+        <p class="tagline">Fast & Safe Express Parcel Delivery</p>
+
+        <!-- Direct Page Redirect Links -->
+        <a href="./customer/booking.html" class="btn-choice btn-customer">📦 I Am Customer (Book Parcel)</a>
+        <a href="./driver/dashboard.html" class="btn-choice btn-driver">🏍️ I Am Driver (Start Duty)</a>
+
+        <a href="./admin-secret/index.html" class="admin-link">🔐 Master Admin Control</a>
     </div>
 
-    <!-- 2. Main App Content -->
-    <div id="app-content" class="app-container">
-        
-        <!-- Role Selection Screen -->
-        <div id="role-screen" class="card">
-            <h2 style="margin-bottom: 20px;">Aap Kaun Hain?</h2>
-            <button class="role-btn btn-cust" onclick="openAuth('customer')">📦 Customer Login</button>
-            <button class="role-btn btn-driver" onclick="openAuth('driver')">🏍️ Driver Login</button>
-        </div>
-
-        <!-- Login / Register Form -->
-        <div id="auth-screen" class="card hidden">
-            <button class="back-btn" onclick="showRoles()">← Wapas</button>
-            <div style="clear:both;"></div>
-            <h3 id="auth-title" style="margin-bottom:15px; color:#f97316;">Login</h3>
-            
-            <input type="tel" id="mobile" placeholder="+91 Phone Number">
-            <input type="password" id="pass" placeholder="Password / OTP">
-            
-            <button class="role-btn btn-cust" style="margin-top:15px;" onclick="alert('Login Successful!')">Continue ➔</button>
-            <p style="font-size: 12px; color: #94a3b8; margin-top: 15px;">Account nahi hai? <a href="#" style="color:#f97316;" onclick="alert('Register Form Open')">Register Karein</a></p>
-        </div>
-
-    </div>
-
-    <script>
-        // Audio Engine (Web Audio API for Zero External Sound File Dependency)
-        function playEngineSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.8);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.8);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.8);
-            } catch(e) {}
-        }
-
-        function startApp() {
-            playEngineSound();
-            const splash = document.getElementById('splash-screen');
-            const content = document.getElementById('app-content');
-            
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                content.style.display = 'block';
-                setTimeout(() => { content.style.opacity = '1'; }, 50);
-            }, 800);
-        }
-
-        // Auto Start Splash after 2.5 seconds
-        setTimeout(() => {
-            if(document.getElementById('splash-screen').style.display !== 'none') {
-                startApp();
-            }
-        }, 2500);
-
-        function openAuth(role) {
-            document.getElementById('role-screen').classList.add('hidden');
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('auth-title').innerText = (role === 'customer' ? '📦 Customer Login' : '🏍️ Driver Login');
-        }
-
-        function showRoles() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('role-screen').classList.remove('hidden');
-        }
-    </script>
 </body>
 </html>
