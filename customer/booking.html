@@ -4,25 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go Bike - Parcel Book Karein</title>
-    <!-- Leaflet Free Maps CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', sans-serif; }
         body { background: #0f172a; color: white; }
-        
         .header { background: #1e293b; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
         .logo { font-weight: 900; font-size: 22px; }
         .orange { color: #f97316; }
-
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
         .card { background: #1e293b; border-radius: 16px; padding: 20px; border: 1px solid #334155; margin-bottom: 15px; }
-
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #475569; border-radius: 8px; background: #0f172a; color: white; }
-        
-        #map { height: 250px; border-radius: 12px; margin-top: 15px; border: 1px solid #475569; }
-
+        #map { height: 200px; border-radius: 12px; margin-top: 15px; border: 1px solid #475569; }
         .btn-book { width: 100%; background: #f97316; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
         .fare-box { background: #0f172a; padding: 12px; border-radius: 8px; border: 1px dashed #f97316; margin-top: 10px; text-align: center; }
+        
+        /* OTP Box Modal Style */
+        .otp-card { background: #064e3b; border: 2px solid #10b981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 15px; display: none; }
+        .otp-number { font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #34d399; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -33,66 +31,51 @@
     </div>
 
     <div class="container">
-        <div class="card">
+        <div id="booking-form" class="card">
             <h3>📦 Parcel Ki Details Daalein</h3>
-            
-            <input type="text" id="pickup" placeholder="🟢 Pickup Location (Kahan se uthana hai)">
-            <input type="text" id="drop" placeholder="🔴 Drop Location (Kahan bhejna hai)">
-            
+            <input type="text" id="pickup" placeholder="🟢 Pickup Location">
+            <input type="text" id="drop" placeholder="🔴 Drop Location">
             <select id="category">
                 <option>📄 Documents / Files</option>
                 <option>📱 Electronics / Gadget</option>
                 <option>👕 Clothes / Personal Belongings</option>
                 <option>📦 Heavy Box / Food (Up to 15 KG)</option>
             </select>
-
             <input type="number" id="distance" placeholder="Distance (KM mein)" oninput="calculateFare()">
 
             <div class="fare-box">
                 <span style="color:#94a3b8; font-size:13px;">Estimated Delivery Charge:</span>
                 <h2 id="total-fare" style="color:#f97316;">₹0</h2>
             </div>
-
-            <!-- Free Live Map -->
             <div id="map"></div>
-
             <button class="btn-book" onclick="placeOrder()">Confirm & Book Go Bike ➔</button>
+        </div>
+
+        <!-- Live Order Status & OTP Box -->
+        <div id="status-card" class="card" style="display: none;">
+            <h3 style="color:#10b981;">🛵 Rider On The Way</h3>
+            <p style="color:#94a3b8; font-size:13px; margin-top:5px;">Rider parcel lene aa raha hai.</p>
+            
+            <div class="otp-card" id="otp-box" style="display: block;">
+                <p style="color:#a7f3d0; font-size:13px;">Delivery Verification OTP</p>
+                <div class="otp-number" id="display-otp">----</div>
+                <p style="color:#a7f3d0; font-size:11px;">Delivery ke time yeh OTP rider ko dein.</p>
+            </div>
         </div>
     </div>
 
-    <!-- Leaflet Free Maps JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // OpenStreetMap Setup (Default Delhi Location)
         var map = L.map('map').setView([28.6139, 77.2090], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-        // 🔗 Aapka Live Vercel Backend URL
-        const BACKEND_URL = "https://go-bike-kappa.vercel.app";
+        const BACKEND_URL = "https://go-bike-backend.vercel.app";
 
-        // Live Backend API Fare Calculation
-        async function calculateFare() {
+        function calculateFare() {
             let km = document.getElementById('distance').value;
-            
             if(km > 0) {
-                try {
-                    // Vercel Server se calculation fetch kar rahe hain
-                    let response = await fetch(`${BACKEND_URL}/api/calculate-fare`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ distanceKm: Number(km) })
-                    });
-                    
-                    let data = await response.json();
-                    document.getElementById('total-fare').innerText = "₹" + data.totalFare;
-                } catch (error) {
-                    // Server issue hone par offline fallback rate (Base ₹30 + ₹10/KM)
-                    let fallbackFare = 30 + (km * 10);
-                    document.getElementById('total-fare').innerText = "₹" + fallbackFare;
-                }
+                let fare = 30 + (km * 10);
+                document.getElementById('total-fare').innerText = "₹" + fare;
             } else {
                 document.getElementById('total-fare').innerText = "₹0";
             }
@@ -100,14 +83,19 @@
 
         function placeOrder() {
             let fare = document.getElementById('total-fare').innerText;
-            let pickup = document.getElementById('pickup').value;
-            let drop = document.getElementById('drop').value;
+            if(fare === "₹0") return alert("Distance sahi daalein!");
 
-            if(fare === "₹0" || !pickup || !drop) {
-                alert("Kripya Pickup, Drop location aur Distance sahi se bharein!");
-            } else {
-                alert(`🎉 Order Book Ho Gaya!\n\nPickup: ${pickup}\nDrop: ${drop}\nFare: ${fare}\n\nPaas ke Go Bike Driver ko notification bhej diya gaya hai.`);
-            }
+            // Generate Random 4-digit OTP
+            let otp = Math.floor(1000 + Math.random() * 9000);
+            
+            // Save active OTP in Local Storage so Driver can match
+            localStorage.setItem('gobike_active_otp', otp);
+
+            document.getElementById('display-otp').innerText = otp;
+            document.getElementById('booking-form').style.display = 'none';
+            document.getElementById('status-card').style.display = 'block';
+
+            alert("🎉 Order Booked! Delivery OTP: " + otp);
         }
     </script>
 </body>
