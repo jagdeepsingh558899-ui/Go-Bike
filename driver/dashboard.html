@@ -4,147 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Go Bike - Driver Partner Portal</title>
-    <!-- Leaflet Free Maps CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', sans-serif; }
-        body { background: #0f172a; color: white; padding-bottom: 20px; }
-        
-        .header { background: #1e293b; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-        .logo { font-weight: 900; font-size: 22px; }
-        .orange { color: #f97316; }
-        .green { color: #10b981; }
-
-        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
+        body { background: #0f172a; color: white; padding: 20px; }
+        .header { background: #1e293b; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .logo { font-weight: 900; font-size: 20px; }
         .card { background: #1e293b; border-radius: 16px; padding: 20px; border: 1px solid #334155; margin-bottom: 15px; }
-
-        /* Duty Toggle Switch */
-        .duty-box { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #10b981; }
-        input:checked + .slider:before { transform: translateX(24px); }
-
-        /* Stats Cards */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-card { background: #0f172a; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #334155; }
-
-        /* New Order Alert Box */
-        .order-card { background: #1e293b; border: 2px solid #f97316; border-radius: 16px; padding: 20px; text-align: center; animation: pulse 1.5s infinite alternate; }
-        @keyframes pulse { from { box-shadow: 0 0 10px rgba(249,115,22,0.2); } to { box-shadow: 0 0 25px rgba(249,115,22,0.6); } }
-
-        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .btn-accept { background: #10b981; color: white; }
-        .btn-reject { background: #ef4444; color: white; margin-top: 8px; }
-
-        #driver-map { height: 200px; border-radius: 12px; margin-top: 15px; border: 1px solid #475569; }
-        .hidden { display: none; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #334155; border-radius: 8px; background: #0f172a; color: white; font-size: 20px; text-align: center; letter-spacing: 5px; }
+        .btn-verify { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .btn-verify:hover { background: #059669; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo">GO <span class="orange">BIKE</span></div>
-        <span style="font-size: 12px; background: #064e3b; color: #34d399; padding: 5px 12px; border-radius: 20px;">🏍️ Rider Partner</span>
+        <div class="logo">GO <span style="color:#f97316;">BIKE</span></div>
+        <span style="font-size:12px; color:#34d399;">🏍️ Driver Panel</span>
     </div>
 
-    <div class="container">
+    <!-- Active Delivery Verification Box -->
+    <div class="card">
+        <h3 style="color:#f97316;">📦 Active Parcel Delivery</h3>
+        <p style="color:#94a3b8; font-size:13px; margin-top:5px;">Customer se 4-digit OTP maangein aur yahan enter karein:</p>
         
-        <!-- Online/Offline Status -->
-        <div class="duty-box">
-            <div>
-                <span id="status-text" style="font-weight: bold;">You are Offline</span>
-                <p style="font-size: 12px; color: #94a3b8;">Orders pane ke liye online jayein</p>
-            </div>
-            <label class="switch">
-                <input type="checkbox" id="duty-toggle" onchange="toggleDuty()">
-                <span class="slider"></span>
-            </label>
-        </div>
-
-        <!-- Driver Wallet & Today Earnings -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <p style="font-size: 12px; color: #94a3b8;">Aaj Ki Kamai</p>
-                <h2 style="color: #10b981;">₹420</h2>
-            </div>
-            <div class="stat-card">
-                <p style="font-size: 12px; color: #94a3b8;">Deliveries Completed</p>
-                <h2>6</h2>
-            </div>
-        </div>
-
-        <!-- Active Order Sound Alert Card -->
-        <div id="order-alert" class="order-card hidden">
-            <span style="background: #f97316; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">Naya Parcel Request! 🔔</span>
-            <h2 style="color: #10b981; margin: 10px 0;">Earn ₹65</h2>
-            <p style="font-size: 14px; text-align: left; margin-top: 5px;">🟢 <b>Pickup:</b> Connaught Place, Block C</p>
-            <p style="font-size: 14px; text-align: left; margin-top: 5px;">🔴 <b>Drop:</b> Karol Bagh Metro Station</p>
-            <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Distance: 4.5 KM | Document Parcel</p>
-
-            <button class="btn-action btn-accept" onclick="acceptOrder()">Accept Delivery ➔</button>
-            <button class="btn-action btn-reject" onclick="rejectOrder()">Reject</button>
-        </div>
-
-        <!-- Navigation Map -->
-        <div class="card" style="margin-top: 15px;">
-            <h3>🗺️ Live Route Navigation</h3>
-            <div id="driver-map"></div>
-        </div>
-
+        <input type="tel" id="input-otp" maxlength="4" placeholder="Enter OTP">
+        <button class="btn-verify" onclick="verifyOTP()">Complete Delivery & Complete Order ✅</button>
     </div>
 
-    <!-- Leaflet Free Maps JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var map = L.map('driver-map').setView([28.6139, 77.2090], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+        function verifyOTP() {
+            let enteredOTP = document.getElementById('input-otp').value;
+            let realOTP = localStorage.getItem('gobike_active_otp');
 
-        function toggleDuty() {
-            let isOnline = document.getElementById('duty-toggle').checked;
-            let statusText = document.getElementById('status-text');
-            let orderAlert = document.getElementById('order-alert');
-
-            if(isOnline) {
-                statusText.innerText = "You are ONLINE 🟢";
-                statusText.classList.add('green');
-                // Simulate order incoming after 2 seconds
-                setTimeout(() => {
-                    orderAlert.classList.remove('hidden');
-                    playAlertSound();
-                }, 2000);
-            } else {
-                statusText.innerText = "You are Offline";
-                statusText.classList.remove('green');
-                orderAlert.classList.add('hidden');
+            if(!enteredOTP) {
+                alert("Kripya OTP enter karein!");
+                return;
             }
-        }
 
-        function playAlertSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, ctx.currentTime);
-                osc.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.3);
-            } catch(e) {}
-        }
-
-        function acceptOrder() {
-            let otp = Math.floor(1000 + Math.random() * 9000);
-            alert("Order Accepted! Customer ka Pickup OTP: " + otp);
-            document.getElementById('order-alert').classList.add('hidden');
-        }
-
-        function rejectOrder() {
-            document.getElementById('order-alert').classList.add('hidden');
+            if(enteredOTP === realOTP || enteredOTP === "1234") { // "1234" testing pin
+                alert("✅ OTP Verified Successfully!\n\nOrder Delivered! Payment Wallet Mein Add Ho Gayi Hai.");
+                document.getElementById('input-otp').value = "";
+                localStorage.removeItem('gobike_active_otp');
+            } else {
+                alert("❌ Wrong OTP! Kripya Customer se sahi OTP puchein.");
+            }
         }
     </script>
 </body>
