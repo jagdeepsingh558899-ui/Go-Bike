@@ -14,13 +14,13 @@
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
         .card { background: #1e293b; border-radius: 16px; padding: 20px; border: 1px solid #334155; margin-bottom: 15px; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #475569; border-radius: 8px; background: #0f172a; color: white; }
-        #map { height: 200px; border-radius: 12px; margin-top: 15px; border: 1px solid #475569; }
+        #map { height: 180px; border-radius: 12px; margin-top: 15px; border: 1px solid #475569; }
         .btn-book { width: 100%; background: #f97316; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
         .fare-box { background: #0f172a; padding: 12px; border-radius: 8px; border: 1px dashed #f97316; margin-top: 10px; text-align: center; }
         
-        /* OTP Box Modal Style */
-        .otp-card { background: #064e3b; border: 2px solid #10b981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 15px; display: none; }
+        .otp-card { background: #064e3b; border: 2px solid #10b981; border-radius: 12px; padding: 20px; text-align: center; margin-top: 15px; }
         .otp-number { font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #34d399; margin: 10px 0; }
+        .btn-wa { background: #25D366; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
@@ -33,6 +33,7 @@
     <div class="container">
         <div id="booking-form" class="card">
             <h3>📦 Parcel Ki Details Daalein</h3>
+            <input type="tel" id="phone" placeholder="📱 Phone Number (WhatsApp alert ke liye)">
             <input type="text" id="pickup" placeholder="🟢 Pickup Location">
             <input type="text" id="drop" placeholder="🔴 Drop Location">
             <select id="category">
@@ -51,16 +52,16 @@
             <button class="btn-book" onclick="placeOrder()">Confirm & Book Go Bike ➔</button>
         </div>
 
-        <!-- Live Order Status & OTP Box -->
         <div id="status-card" class="card" style="display: none;">
             <h3 style="color:#10b981;">🛵 Rider On The Way</h3>
-            <p style="color:#94a3b8; font-size:13px; margin-top:5px;">Rider parcel lene aa raha hai.</p>
+            <p style="color:#94a3b8; font-size:13px; margin-top:5px;">Order details WhatsApp par bhej di gayi hain.</p>
             
-            <div class="otp-card" id="otp-box" style="display: block;">
+            <div class="otp-card">
                 <p style="color:#a7f3d0; font-size:13px;">Delivery Verification OTP</p>
                 <div class="otp-number" id="display-otp">----</div>
-                <p style="color:#a7f3d0; font-size:11px;">Delivery ke time yeh OTP rider ko dein.</p>
             </div>
+
+            <button class="btn-wa" onclick="sendWhatsAppDirect()">💬 Open WhatsApp Receipt</button>
         </div>
     </div>
 
@@ -70,6 +71,7 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
         const BACKEND_URL = "https://go-bike-backend.vercel.app";
+        let lastOrderData = {};
 
         function calculateFare() {
             let km = document.getElementById('distance').value;
@@ -81,21 +83,40 @@
             }
         }
 
-        function placeOrder() {
+        async function placeOrder() {
+            let phone = document.getElementById('phone').value;
+            let pickup = document.getElementById('pickup').value;
+            let drop = document.getElementById('drop').value;
             let fare = document.getElementById('total-fare').innerText;
-            if(fare === "₹0") return alert("Distance sahi daalein!");
 
-            // Generate Random 4-digit OTP
+            if(!phone || !pickup || !drop || fare === "₹0") {
+                return alert("Kripya saari details aur Mobile Number sahi se bharein!");
+            }
+
             let otp = Math.floor(1000 + Math.random() * 9000);
-            
-            // Save active OTP in Local Storage so Driver can match
             localStorage.setItem('gobike_active_otp', otp);
+
+            lastOrderData = { phone, pickup, drop, fare, otp };
 
             document.getElementById('display-otp').innerText = otp;
             document.getElementById('booking-form').style.display = 'none';
             document.getElementById('status-card').style.display = 'block';
 
-            alert("🎉 Order Booked! Delivery OTP: " + otp);
+            try {
+                await fetch(`${BACKEND_URL}/api/send-whatsapp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customerPhone: "+91" + phone,
+                        pickup, drop, fare, otp
+                    })
+                });
+            } catch(e) {}
+        }
+
+        function sendWhatsAppDirect() {
+            let msg = `📦 *Go Bike Order Confirmed!*%0A%0A🟢 *Pickup:* ${lastOrderData.pickup}%0A🔴 *Drop:* ${lastOrderData.drop}%0A💰 *Fare:* ${lastOrderData.fare}%0A🔑 *OTP:* ${lastOrderData.otp}`;
+            window.open(`https://wa.me/91${lastOrderData.phone}?text=${msg}`, '_blank');
         }
     </script>
 </body>
