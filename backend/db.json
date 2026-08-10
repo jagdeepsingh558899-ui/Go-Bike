@@ -1,0 +1,14 @@
+const mongoose = require('mongoose');
+
+// Free MongoDB Atlas Connection
+const connectDB = async () => {
+    try {
+        // Aapka free MongoDB URI yahan connect hoga
+        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/gobike');
+        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error(`❌ Database Error: ${error.message}`);
+    }
+};
+
+module.exports = connectDB;
