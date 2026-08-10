@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Bike - Secret Master Admin</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #090d16; color: white; padding: 20px; }
+
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #334155; margin-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: 900; }
+        .orange { color: #f97316; }
+
+        /* Security Login Modal */
+        #login-modal { background: #1e293b; padding: 30px; border-radius: 16px; border: 1px solid #334155; max-width: 400px; margin: 50px auto; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #475569; border-radius: 8px; background: #0f172a; color: white; font-size: 16px; }
+        .btn-admin { width: 100%; padding: 12px; background: #f97316; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+
+        /* Dashboard Grid */
+        .dashboard { display: none; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+        .card h3 { color: #94a3b8; font-size: 14px; margin-bottom: 8px; }
+        .card p { font-size: 26px; font-weight: bold; color: #10b981; }
+
+        /* Rates Controller Form */
+        .setting-box { background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 20px; }
+        .setting-row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #1e293b; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #334155; font-size: 14px; }
+        th { background: #0f172a; color: #f97316; }
+        .badge-pending { background: #eab308; color: black; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .btn-approve { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Password Protection Modal -->
+    <div id="login-modal">
+        <h2 style="color:#f97316; margin-bottom: 10px;">🔐 Admin Access</h2>
+        <p style="color:#94a3b8; font-size: 13px; margin-bottom: 15px;">Secret Pin/Password Enter Karein</p>
+        <input type="password" id="admin-pass" placeholder="Enter Secret PIN (Default: 1234)">
+        <button class="btn-admin" onclick="unlockAdmin()">Unlock Dashboard</button>
+    </div>
+
+    <!-- 2. Main Private Dashboard -->
+    <div id="admin-dashboard" class="container dashboard">
+        
+        <div class="header">
+            <div class="logo">GO <span class="orange">BIKE</span> <span style="font-size:12px; color:#94a3b8; font-weight:normal;">[Secret Control]</span></div>
+            <button style="background:#ef4444; color:white; border:none; padding:8px 15px; border-radius:6px; cursor:pointer;" onclick="location.reload()">Logout</button>
+        </div>
+
+        <!-- Top Analytics -->
+        <div class="grid">
+            <div class="card">
+                <h3>Aaj Ke Total Orders</h3>
+                <p style="color:white;">28</p>
+            </div>
+            <div class="card">
+                <h3>Total Commission Earned</h3>
+                <p>₹1,450</p>
+            </div>
+            <div class="card">
+                <h3>Active Riders</h3>
+                <p style="color:#f97316;">12 Drivers</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Rates Control -->
+        <div class="setting-box">
+            <h3 style="color:#f97316; margin-bottom:10px;">⚙️ Fare Rates Settings (Delivery Charges Badlein)</h3>
+            <div class="setting-row">
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#94a3b8;">Base Fare (₹)</label>
+                    <input type="number" id="base-rate" value="30">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#94a3b8;">Per KM Rate (₹)</label>
+                    <input type="number" id="km-rate" value="10">
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:12px; color:#94a3b8;">Driver Share (%)</label>
+                    <input type="number" id="driver-share" value="80">
+                </div>
+            </div>
+            <button class="btn-admin" style="width: auto; padding: 10px 25px;" onclick="saveRates()">Save Rates 💾</button>
+        </div>
+
+        <!-- Driver Approvals Table -->
+        <div class="setting-box">
+            <h3 style="color:#f97316; margin-bottom:10px;">👨‍✈️ New Driver KYC Approvals</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Driver Name</th>
+                        <th>Phone</th>
+                        <th>DL / RC No.</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="driver-1">
+                        <td>Rahul Sharma</td>
+                        <td>+91 9876543210</td>
+                        <td>DL-1420230098</td>
+                        <td><span class="badge-pending">Pending</span></td>
+                        <td><button class="btn-approve" onclick="approveDriver('driver-1')">Approve ✅</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function unlockAdmin() {
+            let pass = document.getElementById('admin-pass').value;
+            if(pass === "1234") { // Aapka secret PIN
+                document.getElementById('login-modal').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
+            } else {
+                alert("❌ Wrong Security PIN!");
+            }
+        }
+
+        function saveRates() {
+            let base = document.getElementById('base-rate').value;
+            let km = document.getElementById('km-rate').value;
+            alert(`✅ Rates Updated Successfully!\nBase Fare: ₹${base} | Per KM: ₹${km}`);
+        }
+
+        function approveDriver(id) {
+            document.getElementById(id).style.opacity = "0.5";
+            alert(" Driver KYC Approved! Rider ab online ja sakta hai.");
+        }
+    </script>
+</body>
+</html>
