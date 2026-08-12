@@ -1,1 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta
+        name="theme-color"
+        content="#0A0A0A"
+    >
+
+    <meta
+        name="description"
+        content="Go Bike login — Fast. Simple. Delivered."
+    >
+
+    <title>Go Bike | Login</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="../assets/favicon.png"
+    >
+
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --black-2: #111111;
+            --card: #151515;
+            --yellow: #FFD600;
+            --yellow-2: #FFE44D;
+            --white: #FFFFFF;
+            --muted: #969696;
+            --border: rgba(255,255,255,.09);
+            --danger: #FF5252;
+            --success: #35D07F;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            background: var(--black);
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--white);
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+
+            display: flex;
+            flex-direction: column;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(255,214,0,.08),
+                    transparent 32%
+                ),
+                var(--black);
+
+            padding:
+                max(20px, env(safe-area-inset-top))
+                20px
+                max(22px, env(safe-area-inset-bottom));
+        }
+
+        /* ================================
+           TOP BAR
+        ================================= */
+
+        .topbar {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            background: rgba(255,255,255,.035);
+            color: var(--white);
+
+            cursor: pointer;
+
+            font-size: 20px;
+
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                border-color .2s ease;
+        }
+
+        .back-button:active {
+            transform: scale(.94);
+        }
+
+        .back-button:hover {
+            border-color: rgba(255,214,0,.3);
+            background: rgba(255,214,0,.06);
+        }
+
+        .mini-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .mini-brand img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
+
+        .mini-brand strong {
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -.7px;
+        }
+
+        .mini-brand span {
+            color: var(--yellow);
+        }
+
+        /* ================================
+           MAIN
+        ================================= */
+
+        .main {
+            flex: 1;
+
+            width: 100%;
+            max-width: 520px;
+
+            margin: 0 auto;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .heading {
+            margin-bottom: 26px;
+        }
+
+        .role-badge {
+            width: max-content;
+
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 7px 11px;
+
+            margin-bottom: 15px;
+
+            border: 1px solid rgba(255,214,0,.16);
+            border-radius: 999px;
+
+            background: rgba(255,214,0,.06);
+
+            color: var(--yellow);
+
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
+
+        .heading h1 {
+            font-size: clamp(30px, 8vw, 42px);
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: -1.8px;
+        }
+
+        .heading h1 span {
+            color: var(--yellow);
+        }
+
+        .heading p {
+            margin-top: 11px;
+
+            color: var(--muted);
+
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ================================
+           AUTH CARD
+        ================================= */
+
+        .auth-card {
+            width: 100%;
+
+            padding: 20px;
+
+            border: 1px solid var(--border);
+            border-radius: 24px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.045),
+                    rgba(255,255,255,.018)
+                );
+
+            box-shadow:
+                0 25px 70px rgba(0,0,0,.28);
+        }
+
+        /* ================================
+           TABS
+        ================================= */
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            padding: 4px;
+            margin-bottom: 20px;
+
+            border-radius: 14px;
+
+            background: rgba(255,255,255,.045);
+        }
+
+        .tab {
+            min-height: 42px;
+
+            border: 0;
+            border-radius: 11px;
+
+            background: transparent;
+            color: #858585;
+
+            cursor: pointer;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            transition:
+                color .2s ease,
+                background .2s ease;
+        }
+
+        .tab.active {
+            background: var(--yellow);
+            color: #111;
+        }
+
+        /* ================================
+           FORMS
+        ================================= */
+
+        .form {
+            display: none;
+        }
+
+        .form.active {
+            display: block;
+            animation: formIn .25s ease;
+        }
+
+        @keyframes formIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #D8D8D8;
+
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            color: #777;
+
+            font-size: 15px;
+
+            pointer-events: none;
+        }
+
+        .input {
+            width: 100%;
+            height: 52px;
+
+            padding: 0 14px 0 43px;
+
+            border: 1px solid var(--border);
+            border-radius: 15px;
+
+            outline: none;
+
+            background: rgba(0,0,0,.2);
+            color: var(--white);
+
+            font-size: 14px;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .input::placeholder {
+            color: #626262;
+        }
+
+        .input:focus {
+            border-color: rgba(255,214,0,.6);
+
+            box-shadow:
+                0 0 0 3px rgba(255,214,0,.07);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+
+            width: 36px;
+            height: 36px;
+
+            transform: translateY(-50%);
+
+            border: 0;
+            border-radius: 10px;
+
+            background: transparent;
+            color: #777;
+
+            cursor: pointer;
+        }
+
+        .password-toggle:active {
+            background: rgba(255,255,255,.05);
+        }
+
+        .phone-row {
+            display: grid;
+            grid-template-columns: 88px 1fr;
+            gap: 8px;
+        }
+
+        .country-code {
+            height: 52px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 15px;
+
+            background: rgba(0,0,0,.2);
+
+            color: var(--white);
+
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .phone-row .input {
+            padding-left: 14px;
+        }
+
+        /* ================================
+           OPTIONS
+        ================================= */
+
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 10px;
+
+            margin: 2px 0 18px;
+        }
+
+        .remember {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            color: #858585;
+
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .remember input {
+            accent-color: var(--yellow);
+        }
+
+        .forgot {
+            color: var(--yellow);
+
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        /* ================================
+           PRIMARY BUTTON
+        ================================= */
+
+        .primary-button {
+            position: relative;
+
+            width: 100%;
+            min-height: 52px;
+
+            border: 0;
+            border-radius: 15px;
+
+            background: var(--yellow);
+            color: #111;
+
+            cursor: pointer;
+
+            font-size: 14px;
+            font-weight: 900;
+
+            box-shadow:
+                0 10px 30px rgba(255,214,0,.10);
+
+            transition:
+                transform .2s ease,
+                background .2s ease,
+                opacity .2s ease;
+        }
+
+        .primary-button:hover {
+            background: var(--yellow-2);
+        }
+
+        .primary-button:active {
+            transform: scale(.985);
+        }
+
+        .primary-button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .button-loader {
+            display: none;
+
+            width: 19px;
+            height: 19px;
+
+            margin: 0 auto;
+
+            border: 2px solid rgba(0,0,0,.2);
+            border-top-color: #111;
+
+            border-radius: 50%;
+
+            animation: spin .7s linear infinite;
+        }
+
+        .primary-button.loading .button-text {
+            display: none;
+        }
+
+        .primary-button.loading .button-loader {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ================================
+           DIVIDER
+        ================================= */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin: 20px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+
+            flex: 1;
+
+            height: 1px;
+
+            background: var(--border);
+        }
+
+        .divider span {
+            color: #666;
+
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+        }
+
+        /* ================================
+           GOOGLE
+        ================================= */
+
+        .google-button {
+            width: 100%;
+            min-height: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+
+            border: 1px solid var(--border);
+            border-radius: 15px;
+
+            background: rgba(255,255,255,.035);
+            color: var(--white);
+
+            cursor: pointer;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            transition:
+                background .2s ease,
+                border-color .2s ease;
+        }
+
+        .google-button:hover {
+            border-color: rgba(255,255,255,.18);
+            background: rgba(255,255,255,.065);
+        }
+
+        .google-icon {
+            width: 19px;
+            height: 19px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: white;
+
+            color: #4285F4;
+
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        /* ================================
+           OTP
+        ================================= */
+
+        .otp-note {
+            margin-bottom: 14px;
+
+            color: #888;
+
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .otp-actions {
+            margin-top: 12px;
+
+            display: flex;
+            justify-content: center;
+        }
+
+        .resend-button {
+            border: 0;
+            background: transparent;
+            color: var(--yellow);
+
+            cursor: pointer;
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .resend-button:disabled {
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        /* ================================
+           REGISTER
+        ================================= */
+
+        .register-link {
+            margin-top: 20px;
+
+            color: #777;
+
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .register-link a {
+            color: var(--yellow);
+            font-weight: 800;
+        }
+
+        /* ================================
+           ALERT
+        ================================= */
+
+        .alert {
+            display: none;
+
+            margin-bottom: 14px;
+
+            padding: 11px 12px;
+
+            border: 1px solid rgba(255,82,82,.2);
+            border-radius: 12px;
+
+            background: rgba(255,82,82,.07);
+
+            color: #FF9B9B;
+
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            border-color: rgba(53,208,127,.2);
+            background: rgba(53,208,127,.07);
+            color: #8AE6B4;
+        }
+
+        /* ================================
+           FOOTER
+        ================================= */
+
+        .footer {
+            width: 100%;
+            max-width: 520px;
+
+            margin: 20px auto 0;
+
+            color: #5D5D5D;
+
+            font-size: 10px;
+            font-weight: 600;
+
+            text-align: center;
+        }
+
+        @media (min-width: 700px) {
+            .page {
+                padding-left: 40px;
+                padding-right: 40px;
+            }
+
+            .auth-card {
+                padding: 26px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+        <button
+            id="backButton"
+            class="back-button"
+            type="button"
+            aria-label="Go back"
+        >
+            ←
+        </button>
+
+        <div class="mini-brand">
+
+            <img
+                src="../assets/logo.svg"
+                alt="Go Bike"
+                onerror="this.onerror=null;this.src='../assets/logo.png';"
+            >
+
+            <strong>
+                GO <span>BIKE</span>
+            </strong>
+
+        </div>
+
+        <div style="width:42px;"></div>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <section class="heading">
+
+            <div
+                id="roleBadge"
+                class="role-badge"
+            >
+                👤 Customer
+            </div>
+
+            <h1>
+                Welcome<br>
+                <span>back.</span>
+            </h1>
+
+            <p id="headingText">
+                Login to continue with Go Bike.
+            </p>
+
+        </section>
+
+
+        <section class="auth-card">
+
+            <!-- AUTH TABS -->
+
+            <div class="auth-tabs">
+
+                <button
+                    id="passwordTab"
+                    class="tab active"
+                    type="button"
+                >
+                    Password
+                </button>
+
+                <button
+                    id="otpTab"
+                    class="tab"
+                    type="button"
+                >
+                    Mobile OTP
+                </button>
+
+            </div>
+
+
+            <!-- ALERT -->
+
+            <div
+                id="alert"
+                class="alert"
+                role="alert"
+            ></div>
+
+
+            <!-- PASSWORD LOGIN -->
+
+            <form
+                id="passwordForm"
+                class="form active"
+                novalidate
+            >
+
+                <div class="field">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span class="input-icon">
+                            ✉
+                        </span>
+
+                        <input
+                            id="email"
+                            class="input"
+                            type="email"
+                            inputmode="email"
+                            autocomplete="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span class="input-icon">
+                            🔒
+                        </span>
+
+                        <input
+                            id="password"
+                            class="input"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                        <button
+                            id="passwordToggle"
+                            class="password-toggle"
+                            type="button"
+                            aria-label="Show password"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-options">
+
+                    <label class="remember">
+
+                        <input
+                            id="rememberMe"
+                            type="checkbox"
+                        >
+
+                        Remember me
+
+                    </label>
+
+                    <a
+                        class="forgot"
+                        href="forgot-password.html"
+                    >
+                        Forgot password?
+                    </a>
+
+                </div>
+
+
+                <button
+                    id="loginButton"
+                    class="primary-button"
+                    type="submit"
+                >
+
+                    <span class="button-text">
+                        Login
+                    </span>
+
+                    <span class="button-loader"></span>
+
+                </button>
+
+            </form>
+
+
+            <!-- OTP LOGIN -->
+
+            <form
+                id="otpForm"
+                class="form"
+                novalidate
+            >
+
+                <p class="otp-note">
+                    Enter your Indian mobile number. We'll send a
+                    secure verification code.
+                </p>
+
+                <div class="field">
+
+                    <label for="phone">
+                        Mobile Number
+                    </label>
+
+                    <div class="phone-row">
+
+                        <div class="country-code">
+                            +91 🇮🇳
+                        </div>
+
+                        <input
+                            id="phone"
+                            class="input"
+                            type="tel"
+                            inputmode="numeric"
+                            autocomplete="tel"
+                            maxlength="10"
+                            placeholder="10-digit number"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="sendOtpButton"
+                    class="primary-button"
+                    type="submit"
+                >
+
+                    <span class="button-text">
+                        Send OTP
+                    </span>
+
+                    <span class="button-loader"></span>
+
+                </button>
+
+
+                <div class="otp-actions">
+
+                    <button
+                        id="resendOtpButton"
+                        class="resend-button"
+                        type="button"
+                        disabled
+                    >
+                        Resend OTP
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <!-- GOOGLE -->
+
+            <div class="divider">
+                <span>or continue with</span>
+            </div>
+
+            <button
+                id="googleButton"
+                class="google-button"
+                type="button"
+            >
+
+                <span class="google-icon">
+                    G
+                </span>
+
+                Continue with Google
+
+            </button>
+
+
+            <div class="register-link">
+
+                Don't have an account?
+
+                <a
+                    id="registerLink"
+                    href="register.html"
+                >
+                    Create account
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="footer">
+        © <span id="year"></span> Go Bike
+    </footer>
+
+</div>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+    /* =========================================
+       ELEMENTS
+    ========================================== */
+
+    const passwordTab =
+        document.getElementById("passwordTab");
+
+    const otpTab =
+        document.getElementById("otpTab");
+
+    const passwordForm =
+        document.getElementById("passwordForm");
+
+    const otpForm =
+        document.getElementById("otpForm");
+
+    const passwordToggle =
+        document.getElementById("passwordToggle");
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const sendOtpButton =
+        document.getElementById("sendOtpButton");
+
+    const googleButton =
+        document.getElementById("googleButton");
+
+    const resendOtpButton =
+        document.getElementById("resendOtpButton");
+
+    const phoneInput =
+        document.getElementById("phone");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const alertBox =
+        document.getElementById("alert");
+
+    const roleBadge =
+        document.getElementById("roleBadge");
+
+    const headingText =
+        document.getElementById("headingText");
+
+    const registerLink =
+        document.getElementById("registerLink");
+
+    const backButton =
+        document.getElementById("backButton");
+
+    const year =
+        document.getElementById("year");
+
+
+    /* =========================================
+       YEAR
+    ========================================== */
+
+    if (year) {
+        year.textContent = new Date().getFullYear();
+    }
+
+
+    /* =========================================
+       ROLE
+    ========================================== */
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    let role =
+        params.get("role");
+
+
+    function getSavedRole() {
+
+        try {
+            return localStorage.getItem("goBikeRole");
+        } catch (error) {
+            return null;
+        }
+    }
+
+
+    if (
+        role !== "customer" &&
+        role !== "driver"
+    ) {
+        role = getSavedRole();
+    }
+
+
+    if (
+        role !== "customer" &&
+        role !== "driver"
+    ) {
+        role = "customer";
+    }
+
+
+    function saveRole() {
+
+        try {
+            localStorage.setItem(
+                "goBikeRole",
+                role
+            );
+        } catch (error) {
+            // Continue without local storage.
+        }
+    }
+
+
+    saveRole();
+
+
+    function updateRoleUI() {
+
+        if (role === "driver") {
+
+            roleBadge.textContent =
+                "🏍️ Driver";
+
+            headingText.textContent =
+                "Login to start delivering with Go Bike.";
+
+        } else {
+
+            roleBadge.textContent =
+                "👤 Customer";
+
+            headingText.textContent =
+                "Login to continue with Go Bike.";
+
+        }
+
+        registerLink.href =
+            "register.html?role=" +
+            encodeURIComponent(role);
+
+    }
+
+
+    updateRoleUI();
+
+
+    /* =========================================
+       ALERT
+    ========================================== */
+
+    let alertTimer = null;
+
+
+    function showAlert(
+        message,
+        type = "error"
+    ) {
+
+        if (!alertBox) {
+            return;
+        }
+
+        window.clearTimeout(alertTimer);
+
+        alertBox.textContent = message;
+
+        alertBox.className = "alert show";
+
+        if (type === "success") {
+            alertBox.classList.add("success");
+        }
+
+        alertTimer =
+            window.setTimeout(
+                function () {
+                    alertBox.classList.remove("show");
+                },
+                4500
+            );
+    }
+
+
+    function clearAlert() {
+
+        if (alertBox) {
+            alertBox.classList.remove("show");
+            alertBox.textContent = "";
+        }
+
+    }
+
+
+    /* =========================================
+       TABS
+    ========================================== */
+
+    function activateTab(tab) {
+
+        clearAlert();
+
+        if (tab === "password") {
+
+            passwordTab.classList.add("active");
+            otpTab.classList.remove("active");
+
+            passwordForm.classList.add("active");
+            otpForm.classList.remove("active");
+
+        } else {
+
+            otpTab.classList.add("active");
+            passwordTab.classList.remove("active");
+
+            otpForm.classList.add("active");
+            passwordForm.classList.remove("active");
+
+        }
+
+    }
+
+
+    passwordTab.addEventListener(
+        "click",
+        function () {
+            activateTab("password");
+        }
+    );
+
+
+    otpTab.addEventListener(
+        "click",
+        function () {
+            activateTab("otp");
+        }
+    );
+
+
+    /* =========================================
+       PASSWORD VISIBILITY
+    ========================================== */
+
+    passwordToggle.addEventListener(
+        "click",
+        function () {
+
+            const isPassword =
+                passwordInput.type === "password";
+
+            passwordInput.type =
+                isPassword
+                    ? "text"
+                    : "password";
+
+            passwordToggle.textContent =
+                isPassword
+                    ? "🙈"
+                    : "👁";
+
+            passwordToggle.setAttribute(
+                "aria-label",
+                isPassword
+                    ? "Hide password"
+                    : "Show password"
+            );
+
+        }
+    );
+
+
+    /* =========================================
+       VALIDATION
+    ========================================== */
+
+    function isValidEmail(value) {
+
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            .test(value);
+
+    }
+
+
+    function isValidIndianPhone(value) {
+
+        return /^[6-9]\d{9}$/
+            .test(value);
+
+    }
+
+
+    /* =========================================
+       BUTTON STATE
+    ========================================== */
+
+    function setLoading(
+        button,
+        loading
+    ) {
+
+        if (!button) {
+            return;
+        }
+
+        button.disabled = loading;
+
+        button.classList.toggle(
+            "loading",
+            loading
+        );
+
+    }
+
+
+    /* =========================================
+       PASSWORD LOGIN
+    ========================================== */
+
+    passwordForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            clearAlert();
+
+            const email =
+                emailInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+
+            if (!email) {
+
+                showAlert(
+                    "Please enter your email."
+                );
+
+                emailInput.focus();
+                return;
+
+            }
+
+
+            if (!isValidEmail(email)) {
+
+                showAlert(
+                    "Please enter a valid email address."
+                );
+
+                emailInput.focus();
+                return;
+
+            }
+
+
+            if (!password) {
+
+                showAlert(
+                    "Please enter your password."
+                );
+
+                passwordInput.focus();
+                return;
+
+            }
+
+
+            if (password.length < 6) {
+
+                showAlert(
+                    "Password must contain at least 6 characters."
+                );
+
+                passwordInput.focus();
+                return;
+
+            }
+
+
+            /*
+             * Firebase login will be connected through
+             * the single Go Bike authentication module.
+             *
+             * This page does not initialize Firebase.
+             */
+
+            if (
+                !window.GoBikeAuth ||
+                typeof window.GoBikeAuth.loginWithEmail
+                    !== "function"
+            ) {
+
+                showAlert(
+                    "Authentication service is not connected yet. Please try again after Firebase setup."
+                );
+
+                return;
+
+            }
+
+
+            setLoading(
+                loginButton,
+                true
+            );
+
+
+            try {
+
+                const result =
+                    await window.GoBikeAuth
+                        .loginWithEmail({
+                            email: email,
+                            password: password,
+                            role: role,
+                            remember:
+                                document
+                                    .getElementById(
+                                        "rememberMe"
+                                    )
+                                    .checked
+                        });
+
+
+                if (
+                    !result ||
+                    result.success !== true
+                ) {
+
+                    throw new Error(
+                        result &&
+                        result.message
+                            ? result.message
+                            : "Login failed."
+                    );
+
+                }
+
+
+                window.location.href =
+                    result.redirect ||
+                    (
+                        role === "driver"
+                            ? "../driver/home.html"
+                            : "../customer/home.html"
+                    );
+
+            } catch (error) {
+
+                showAlert(
+                    error &&
+                    error.message
+                        ? error.message
+                        : "Unable to login. Please try again."
+                );
+
+                setLoading(
+                    loginButton,
+                    false
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       PHONE OTP
+    ========================================== */
+
+    let lastOtpPhone = "";
+    let resendSeconds = 0;
+    let resendTimer = null;
+
+
+    function startResendTimer() {
+
+        window.clearInterval(
+            resendTimer
+        );
+
+        resendSeconds = 30;
+
+        resendOtpButton.disabled = true;
+
+        function update() {
+
+            if (resendSeconds <= 0) {
+
+                window.clearInterval(
+                    resendTimer
+                );
+
+                resendOtpButton.disabled = false;
+
+                resendOtpButton.textContent =
+                    "Resend OTP";
+
+                return;
+
+            }
+
+            resendOtpButton.textContent =
+                "Resend OTP (" +
+                resendSeconds +
+                "s)";
+
+            resendSeconds--;
+
+        }
+
+        update();
+
+        resendTimer =
+            window.setInterval(
+                update,
+                1000
+            );
+
+    }
+
+
+    async function sendOtp() {
+
+        clearAlert();
+
+        const phone =
+            phoneInput.value
+                .replace(/\D/g, "");
+
+
+        if (!isValidIndianPhone(phone)) {
+
+            showAlert(
+                "Enter a valid 10-digit Indian mobile number."
+            );
+
+            phoneInput.focus();
+
+            return;
+
+        }
+
+
+        if (
+            !window.GoBikeAuth ||
+            typeof window.GoBikeAuth
+                .sendPhoneOtp
+                !== "function"
+        ) {
+
+            showAlert(
+                "Phone authentication service is not connected yet."
+            );
+
+            return;
+
+        }
+
+
+        setLoading(
+            sendOtpButton,
+            true
+        );
+
+
+        try {
+
+            const result =
+                await window.GoBikeAuth
+                    .sendPhoneOtp({
+                        phone:
+                            "+91" + phone,
+                        role: role
+                    });
+
+
+            if (
+                !result ||
+                result.success !== true
+            ) {
+
+                throw new Error(
+                    result &&
+                    result.message
+                        ? result.message
+                        : "Unable to send OTP."
+                );
+
+            }
+
+
+            lastOtpPhone = phone;
+
+
+            try {
+
+                sessionStorage.setItem(
+                    "goBikeOtpPhone",
+                    phone
+                );
+
+                sessionStorage.setItem(
+                    "goBikeOtpRole",
+                    role
+                );
+
+            } catch (error) {
+                // Continue without session storage.
+            }
+
+
+            showAlert(
+                "OTP sent successfully. Continue to verification.",
+                "success"
+            );
+
+
+            startResendTimer();
+
+
+            /*
+             * Verification page will be created separately.
+             */
+
+            window.location.href =
+                "verify-otp.html?role=" +
+                encodeURIComponent(role);
+
+
+        } catch (error) {
+
+            showAlert(
+                error &&
+                error.message
+                    ? error.message
+                    : "Unable to send OTP."
+            );
+
+        } finally {
+
+            setLoading(
+                sendOtpButton,
+                false
+            );
+
+        }
+
+    }
+
+
+    otpForm.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+            sendOtp();
+
+        }
+    );
+
+
+    resendOtpButton.addEventListener(
+        "click",
+        function () {
+
+            if (
+                resendOtpButton.disabled ||
+                !lastOtpPhone
+            ) {
+                return;
+            }
+
+            sendOtp();
+
+        }
+    );
+
+
+    /* =========================================
+       GOOGLE
+    ========================================== */
+
+    googleButton.addEventListener(
+        "click",
+        async function () {
+
+            clearAlert();
+
+
+            if (
+                !window.GoBikeAuth ||
+                typeof window.GoBikeAuth
+                    .loginWithGoogle
+                    !== "function"
+            ) {
+
+                showAlert(
+                    "Google authentication service is not connected yet."
+                );
+
+                return;
+
+            }
+
+
+            setLoading(
+                googleButton,
+                true
+            );
+
+
+            /*
+             * Google button has its own visual style,
+             * so loading is handled by disabling it.
+             */
+
+            try {
+
+                const result =
+                    await window.GoBikeAuth
+                        .loginWithGoogle({
+                            role: role
+                        });
+
+
+                if (
+                    !result ||
+                    result.success !== true
+                ) {
+
+                    throw new Error(
+                        result &&
+                        result.message
+                            ? result.message
+                            : "Google login failed."
+                    );
+
+                }
+
+
+                window.location.href =
+                    result.redirect ||
+                    (
+                        role === "driver"
+                            ? "../driver/home.html"
+                            : "../customer/home.html"
+                    );
+
+            } catch (error) {
+
+                showAlert(
+                    error &&
+                    error.message
+                        ? error.message
+                        : "Unable to continue with Google."
+                );
+
+            } finally {
+
+                googleButton.disabled = false;
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       BACK
+    ========================================== */
+
+    backButton.addEventListener(
+        "click",
+        function () {
+
+            if (
+                window.history.length > 1
+            ) {
+
+                window.history.back();
+
+            } else {
+
+                window.location.href =
+                    "../index.html";
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       PHONE INPUT SANITIZATION
+    ========================================== */
+
+    phoneInput.addEventListener(
+        "input",
+        function () {
+
+            let value =
+                phoneInput.value
+                    .replace(/\D/g, "")
+                    .slice(0, 10);
+
+            phoneInput.value = value;
+
+        }
+    );
+
+
+    /* =========================================
+       AUTO-FOCUS
+    ========================================== */
+
+    window.setTimeout(
+        function () {
+
+            if (
+                window.matchMedia(
+                    "(min-width: 700px)"
+                ).matches
+            ) {
+
+                emailInput.focus();
+
+            }
+
+        },
+        250
+    );
+
+})();
+</script>
+
+</body>
+  </html>
