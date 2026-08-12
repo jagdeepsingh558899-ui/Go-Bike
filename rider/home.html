@@ -1,0 +1,3722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<meta name="theme-color" content="#080808">
+
+<title>Go Bike | Driver Home</title>
+
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+:root{
+    --black:#080808;
+    --panel:#111111;
+    --panel2:#171717;
+    --yellow:#ffd600;
+    --green:#27d477;
+    --red:#ff5757;
+    --white:#fff;
+    --muted:#777;
+    --border:rgba(255,255,255,.09);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:var(--black);
+    color:var(--white);
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+}
+
+button{
+    font:inherit;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+}
+
+#map{
+    position:fixed;
+    inset:0;
+    z-index:1;
+}
+
+/* ================= TOP ================= */
+
+.top{
+    position:fixed;
+    z-index:20;
+    top:0;
+    left:0;
+    right:0;
+
+    height:78px;
+
+    display:flex;
+    align-items:center;
+
+    padding:
+        11px 13px;
+
+    pointer-events:none;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0,0,0,.96),
+            rgba(0,0,0,.58),
+            transparent
+        );
+}
+
+.menu-btn{
+    width:43px;
+    height:43px;
+
+    border:1px solid var(--border);
+    border-radius:14px;
+
+    background:rgba(10,10,10,.94);
+    color:#fff;
+
+    font-size:20px;
+
+    pointer-events:auto;
+}
+
+.logo{
+    margin-left:10px;
+
+    font-size:14px;
+    font-weight:950;
+}
+
+.logo span{
+    color:var(--yellow);
+}
+
+.top-right{
+    margin-left:auto;
+
+    display:flex;
+    align-items:center;
+    gap:7px;
+
+    pointer-events:auto;
+}
+
+.notification{
+    position:relative;
+
+    width:41px;
+    height:41px;
+
+    border:1px solid var(--border);
+    border-radius:13px;
+
+    background:rgba(10,10,10,.94);
+    color:#fff;
+
+    font-size:17px;
+}
+
+.badge{
+    position:absolute;
+
+    top:5px;
+    right:5px;
+
+    min-width:14px;
+    height:14px;
+
+    padding:0 3px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:20px;
+
+    background:var(--yellow);
+    color:#111;
+
+    font-size:7px;
+    font-weight:950;
+}
+
+.avatar{
+    width:41px;
+    height:41px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:2px solid var(--yellow);
+    border-radius:50%;
+
+    background:#181818;
+
+    font-size:16px;
+}
+
+/* ================= ONLINE ================= */
+
+.online-card{
+    position:fixed;
+    z-index:18;
+
+    top:83px;
+    left:13px;
+    right:13px;
+
+    padding:11px;
+
+    display:flex;
+    align-items:center;
+
+    border:1px solid var(--border);
+    border-radius:17px;
+
+    background:rgba(10,10,10,.94);
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.28);
+}
+
+.online-info{
+    min-width:0;
+    flex:1;
+}
+
+.online-title{
+    font-size:10px;
+    font-weight:950;
+}
+
+.online-sub{
+    margin-top:3px;
+
+    color:#707070;
+
+    font-size:7px;
+}
+
+.online-switch{
+    width:62px;
+    height:32px;
+
+    padding:3px;
+
+    border:0;
+    border-radius:30px;
+
+    background:#292929;
+}
+
+.switch-knob{
+    width:26px;
+    height:26px;
+
+    border-radius:50%;
+
+    background:#777;
+
+    transition:.25s;
+}
+
+.online-switch.on{
+    background:var(--yellow);
+}
+
+.online-switch.on .switch-knob{
+    margin-left:30px;
+    background:#111;
+}
+
+/* ================= MAP CONTROLS ================= */
+
+.map-controls{
+    position:fixed;
+    z-index:15;
+
+    right:13px;
+    bottom:340px;
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.map-btn{
+    width:43px;
+    height:43px;
+
+    border:1px solid var(--border);
+    border-radius:14px;
+
+    background:rgba(8,8,8,.93);
+    color:#fff;
+
+    font-size:18px;
+}
+
+/* ================= BOTTOM SHEET ================= */
+
+.bottom{
+    position:fixed;
+    z-index:30;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    padding:
+        9px 13px
+        calc(13px + env(safe-area-inset-bottom));
+
+    border-top:1px solid var(--border);
+    border-radius:25px 25px 0 0;
+
+    background:rgba(8,8,8,.97);
+
+    box-shadow:
+        0 -18px 55px rgba(0,0,0,.48);
+
+    backdrop-filter:blur(22px);
+}
+
+.handle{
+    width:38px;
+    height:4px;
+
+    margin:0 auto 10px;
+
+    border-radius:10px;
+
+    background:#3c3c3c;
+}
+
+/* ================= STATS ================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+}
+
+.stat{
+    padding:9px 4px;
+
+    border:1px solid var(--border);
+    border-radius:12px;
+
+    background:rgba(255,255,255,.025);
+
+    text-align:center;
+}
+
+.stat-label{
+    color:#666;
+
+    font-size:7px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+.stat-value{
+    margin-top:4px;
+
+    font-size:12px;
+    font-weight:950;
+}
+
+/* ================= REQUEST ================= */
+
+.request{
+    margin-top:8px;
+
+    padding:11px;
+
+    border:1px solid var(--border);
+    border-radius:15px;
+
+    background:#151515;
+
+    display:none;
+}
+
+.request.show{
+    display:block;
+}
+
+.request-top{
+    display:flex;
+    align-items:center;
+}
+
+.request-type{
+    padding:5px 8px;
+
+    border-radius:8px;
+
+    background:rgba(255,214,0,.11);
+    color:var(--yellow);
+
+    font-size:7px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+.request-time{
+    margin-left:auto;
+
+    color:#777;
+
+    font-size:7px;
+}
+
+.request-fare{
+    margin-top:7px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.request-fare strong{
+    font-size:21px;
+}
+
+.request-fare span{
+    color:#777;
+    font-size:8px;
+}
+
+.route{
+    margin-top:9px;
+}
+
+.route-row{
+    display:flex;
+    align-items:flex-start;
+}
+
+.route-dot{
+    width:10px;
+    height:10px;
+
+    flex:0 0 10px;
+
+    margin-top:2px;
+
+    border:3px solid var(--yellow);
+    border-radius:50%;
+
+    background:#111;
+}
+
+.route-dot.drop{
+    border-color:var(--red);
+}
+
+.route-copy{
+    min-width:0;
+    flex:1;
+
+    margin-left:8px;
+}
+
+.route-label{
+    color:#666;
+
+    font-size:6px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+.route-address{
+    overflow:hidden;
+
+    margin-top:2px;
+
+    font-size:8px;
+    font-weight:800;
+
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.route-line{
+    width:2px;
+    height:12px;
+
+    margin-left:4px;
+
+    background:#333;
+}
+
+.request-meta{
+    display:flex;
+    gap:6px;
+
+    margin-top:9px;
+}
+
+.meta{
+    flex:1;
+
+    padding:7px;
+
+    border-radius:9px;
+
+    background:#1d1d1d;
+
+    text-align:center;
+}
+
+.meta span{
+    display:block;
+
+    color:#666;
+
+    font-size:6px;
+}
+
+.meta strong{
+    display:block;
+
+    margin-top:2px;
+
+    font-size:8px;
+}
+
+.request-actions{
+    display:grid;
+    grid-template-columns:1fr 1.5fr;
+    gap:7px;
+
+    margin-top:9px;
+}
+
+.action{
+    min-height:43px;
+
+    border:1px solid var(--border);
+    border-radius:12px;
+
+    background:#1d1d1d;
+    color:#fff;
+
+    font-size:8px;
+    font-weight:950;
+}
+
+.action.accept{
+    border:0;
+    background:var(--yellow);
+    color:#111;
+}
+
+.action.reject{
+    color:#ff8585;
+}
+
+/* ================= IDLE ================= */
+
+.idle{
+    padding:13px 4px 2px;
+
+    text-align:center;
+}
+
+.idle-icon{
+    font-size:24px;
+}
+
+.idle h3{
+    margin-top:6px;
+
+    font-size:11px;
+}
+
+.idle p{
+    margin-top:4px;
+
+    color:#666;
+
+    font-size:8px;
+    line-height:1.4;
+}
+
+/* ================= ACTIVE ================= */
+
+.active-ride{
+    display:none;
+
+    margin-top:8px;
+
+    padding:11px;
+
+    border:1px solid rgba(255,214,0,.18);
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,214,0,.08),
+            rgba(255,255,255,.025)
+        );
+}
+
+.active-ride.show{
+    display:block;
+}
+
+.active-head{
+    display:flex;
+    align-items:center;
+}
+
+.active-head strong{
+    font-size:10px;
+}
+
+.active-status{
+    margin-left:auto;
+
+    padding:5px 8px;
+
+    border-radius:8px;
+
+    background:rgba(39,212,119,.10);
+    color:var(--green);
+
+    font-size:7px;
+    font-weight:950;
+}
+
+.active-route{
+    margin-top:8px;
+
+    color:#aaa;
+
+    font-size:8px;
+}
+
+.navigate{
+    width:100%;
+
+    min-height:43px;
+
+    margin-top:9px;
+
+    border:0;
+    border-radius:12px;
+
+    background:var(--yellow);
+    color:#111;
+
+    font-size:8px;
+    font-weight:950;
+}
+
+/* ================= LOADING ================= */
+
+.loading{
+    position:fixed;
+    z-index:100;
+
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#080808;
+}
+
+.loading.hide{
+    display:none;
+}
+
+.loader-box{
+    width:220px;
+
+    padding:24px;
+
+    border:1px solid var(--border);
+    border-radius:20px;
+
+    background:#141414;
+
+    text-align:center;
+}
+
+.spinner{
+    width:35px;
+    height:35px;
+
+    margin:auto;
+
+    border:3px solid rgba(255,255,255,.12);
+    border-top-color:var(--yellow);
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.loader-box strong{
+    display:block;
+
+    margin-top:10px;
+
+    font-size:10px;
+}
+
+.loader-box p{
+    margin-top:5px;
+
+    color:#666;
+
+    font-size:8px;
+}
+
+/* ================= TOAST ================= */
+
+.toast{
+    position:fixed;
+    z-index:200;
+
+    left:50%;
+    bottom:25px;
+
+    max-width:calc(100% - 30px);
+
+    padding:10px 14px;
+
+    border:1px solid var(--border);
+    border-radius:12px;
+
+    background:#191919;
+
+    color:#ddd;
+
+    font-size:8px;
+    font-weight:800;
+
+    opacity:0;
+
+    transform:translate(-50%,10px);
+
+    pointer-events:none;
+
+    transition:.2s;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translate(-50%,0);
+}
+
+/* ================= DRIVER ICON ================= */
+
+.driver-icon{
+    width:46px;
+    height:46px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:3px solid #fff;
+    border-radius:50%;
+
+    background:var(--yellow);
+    color:#111;
+
+    font-size:20px;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.5);
+}
+
+/* ================= DESKTOP ================= */
+
+@media(min-width:700px){
+
+    .online-card{
+        width:430px;
+        right:auto;
+    }
+
+    .bottom{
+        left:20px;
+        right:auto;
+        bottom:20px;
+
+        width:430px;
+
+        border-radius:24px;
+    }
+
+    .map-controls{
+        right:25px;
+        bottom:35px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<!-- TOP -->
+
+<header class="top">
+
+    <button
+        id="menuButton"
+        class="menu-btn"
+        type="button">
+        ☰
+    </button>
+
+    <div class="logo">
+        GO <span>BIKE</span>
+    </div>
+
+    <div class="top-right">
+
+        <button
+            id="notificationButton"
+            class="notification"
+            type="button">
+
+            🔔
+
+            <span
+                id="notificationBadge"
+                class="badge">
+                0
+            </span>
+
+        </button>
+
+        <button
+            id="profileButton"
+            class="avatar"
+            type="button">
+            👤
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- ONLINE CARD -->
+
+<section class="online-card">
+
+    <div class="online-info">
+
+        <div class="online-title">
+            Driver status
+        </div>
+
+        <div
+            id="onlineText"
+            class="online-sub">
+            You are offline. Go online to receive rides.
+        </div>
+
+    </div>
+
+    <button
+        id="onlineSwitch"
+        class="online-switch"
+        type="button"
+        aria-label="Online status">
+
+        <div class="switch-knob"></div>
+
+    </button>
+
+</section>
+
+
+<!-- MAP CONTROLS -->
+
+<div class="map-controls">
+
+    <button
+        id="myLocation"
+        class="map-btn"
+        type="button">
+        ◎
+    </button>
+
+    <button
+        id="fitRoute"
+        class="map-btn"
+        type="button">
+        ⛶
+    </button>
+
+</div>
+
+
+<!-- BOTTOM -->
+
+<section class="bottom">
+
+    <div class="handle"></div>
+
+
+    <!-- DAILY STATS -->
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Today
+            </div>
+
+            <div
+                id="todayEarnings"
+                class="stat-value">
+                ₹0
+            </div>
+
+        </div>
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Rides
+            </div>
+
+            <div
+                id="todayRides"
+                class="stat-value">
+                0
+            </div>
+
+        </div>
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Rating
+            </div>
+
+            <div
+                id="driverRating"
+                class="stat-value">
+                5.0 ★
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- IDLE -->
+
+    <div
+        id="idlePanel"
+        class="idle">
+
+        <div class="idle-icon">
+            🛵
+        </div>
+
+        <h3>
+            Ready to earn?
+        </h3>
+
+        <p>
+            Go online and new Go Bike ride requests will appear here.
+        </p>
+
+    </div>
+
+
+    <!-- REQUEST -->
+
+    <div
+        id="requestPanel"
+        class="request">
+
+        <div class="request-top">
+
+            <span class="request-type">
+                Bike Parcel
+            </span>
+
+            <span
+                id="requestTimer"
+                class="request-time">
+                New request
+            </span>
+
+        </div>
+
+
+        <div class="request-fare">
+
+            <strong id="requestFare">
+                ₹0
+            </strong>
+
+            <span>
+                Estimated earnings
+            </span>
+
+        </div>
+
+
+        <div class="route">
+
+            <div class="route-row">
+
+                <div class="route-dot"></div>
+
+                <div class="route-copy">
+
+                    <div class="route-label">
+                        Pickup
+                    </div>
+
+                    <div
+                        id="requestPickup"
+                        class="route-address">
+                        Loading pickup...
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="route-line"></div>
+
+
+            <div class="route-row">
+
+                <div class="route-dot drop"></div>
+
+                <div class="route-copy">
+
+                    <div class="route-label">
+                        Drop
+                    </div>
+
+                    <div
+                        id="requestDrop"
+                        class="route-address">
+                        Loading destination...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="request-meta">
+
+            <div class="meta">
+
+                <span>
+                    Distance
+                </span>
+
+                <strong
+                    id="requestDistance">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="meta">
+
+                <span>
+                    Time
+                </span>
+
+                <strong
+                    id="requestEta">
+                    —
+                </strong>
+
+            </div>
+
+            <div class="meta">
+
+                <span>
+                    Payment
+                </span>
+
+                <strong
+                    id="requestPayment">
+                    Cash
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="request-actions">
+
+            <button
+                id="rejectButton"
+                class="action reject"
+                type="button">
+                REJECT
+            </button>
+
+            <button
+                id="acceptButton"
+                class="action accept"
+                type="button">
+                ACCEPT RIDE
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ACTIVE RIDE -->
+
+    <div
+        id="activeRide"
+        class="active-ride">
+
+        <div class="active-head">
+
+            <strong>
+                Active Ride
+            </strong>
+
+            <span
+                id="activeStatus"
+                class="active-status">
+                LIVE
+            </span>
+
+        </div>
+
+        <div
+            id="activeRoute"
+            class="active-route">
+            Navigation is ready.
+        </div>
+
+        <button
+            id="navigateButton"
+            class="navigate"
+            type="button">
+            🧭 CONTINUE NAVIGATION
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- LOADING -->
+
+<div
+    id="loading"
+    class="loading">
+
+    <div class="loader-box">
+
+        <div class="spinner"></div>
+
+        <strong>
+            Loading Go Bike
+        </strong>
+
+        <p>
+            Preparing your driver dashboard...
+        </p>
+
+    </div>
+
+</div>
+
+
+<div
+    id="toast"
+    class="toast">
+</div>
+
+
+<script
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script>
+(function(){
+
+"use strict";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+    map:null,
+
+    driverId:null,
+
+    driverLocation:null,
+
+    driverMarker:null,
+
+    accuracyCircle:null,
+
+    online:false,
+
+    activeRide:null,
+
+    currentRequest:null,
+
+    requestUnsubscribe:null,
+
+    rideUnsubscribe:null,
+
+    locationWatch:null,
+
+    lastLocationSent:0,
+
+    locationSending:false,
+
+    notifications:0,
+
+    initialized:false
+
+};
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const $ =
+    id => document.getElementById(id);
+
+
+/* =========================================================
+   ENGINE
+========================================================= */
+
+function engine(){
+
+    return (
+        window.GoBikeBooking ||
+        window.GoBikeRideEngine ||
+        window.GoBikeDriver ||
+        null
+    );
+
+}
+
+
+/* =========================================================
+   DRIVER ID
+========================================================= */
+
+function getDriverId(){
+
+    let id = null;
+
+
+    try{
+
+        id =
+            localStorage.getItem(
+                "goBikeDriverId"
+            ) ||
+            localStorage.getItem(
+                "driverId"
+            ) ||
+            localStorage.getItem(
+                "userId"
+            );
+
+    }catch(error){}
+
+
+    try{
+
+        if(
+            !id &&
+            window.firebase &&
+            firebase.auth &&
+            firebase.auth().currentUser
+        ){
+
+            id =
+                firebase.auth()
+                    .currentUser
+                    .uid;
+
+        }
+
+    }catch(error){}
+
+
+    return id;
+
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+function initMap(){
+
+    if(!window.L){
+
+        showToast(
+            "Map could not be loaded."
+        );
+
+        return;
+
+    }
+
+
+    state.map =
+        L.map(
+            "map",
+            {
+                zoomControl:false
+            }
+        );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom:19,
+
+            attribution:
+                "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(
+        state.map
+    );
+
+
+    state.map.setView(
+        [
+            20.5937,
+            78.9629
+        ],
+        5
+    );
+
+}
+
+
+/* =========================================================
+   NORMALIZE LOCATION
+========================================================= */
+
+function normalizeLocation(
+    value
+){
+
+    if(!value){
+
+        return null;
+
+    }
+
+
+    if(
+        Array.isArray(value) &&
+        value.length >= 2
+    ){
+
+        const lat =
+            Number(value[0]);
+
+        const lng =
+            Number(value[1]);
+
+
+        if(
+            Number.isFinite(lat) &&
+            Number.isFinite(lng)
+        ){
+
+            return {
+                lat,
+                lng
+            };
+
+        }
+
+    }
+
+
+    const lat =
+        Number(
+            value.lat ??
+            value.latitude
+        );
+
+
+    const lng =
+        Number(
+            value.lng ??
+            value.longitude
+        );
+
+
+    if(
+        Number.isFinite(lat) &&
+        Number.isFinite(lng)
+    ){
+
+        return {
+            lat,
+            lng
+        };
+
+    }
+
+
+    return null;
+
+}
+
+
+function validLocation(
+    location
+){
+
+    return !!(
+        location &&
+        Number.isFinite(
+            Number(location.lat)
+        ) &&
+        Number.isFinite(
+            Number(location.lng)
+        )
+    );
+
+}
+
+
+/* =========================================================
+   ONLINE STATE
+========================================================= */
+
+function setOnlineUI(){
+
+    const button =
+        $("onlineSwitch");
+
+
+    if(state.online){
+
+        button.classList.add(
+            "on"
+        );
+
+        $("onlineText")
+            .textContent =
+            "You are online and ready to receive rides.";
+
+        $("idlePanel")
+            .style.display =
+            "none";
+
+    }else{
+
+        button.classList.remove(
+            "on"
+        );
+
+        $("onlineText")
+            .textContent =
+            "You are offline. Go online to receive rides.";
+
+        if(
+            !state.currentRequest &&
+            !state.activeRide
+        ){
+
+            $("idlePanel")
+                .style.display =
+                "block";
+
+        }
+
+    }
+
+}
+
+
+async function toggleOnline(){
+
+    if(
+        state.activeRide
+    ){
+
+        showToast(
+            "Complete your active ride before going offline."
+        );
+
+        return;
+
+    }
+
+
+    const next =
+        !state.online;
+
+
+    const api =
+        engine();
+
+
+    /*
+     * If central driver engine exists,
+     * let it own Firebase online state.
+     */
+
+    if(
+        api &&
+        typeof api.setDriverOnline ===
+        "function"
+    ){
+
+        try{
+
+            await api.setDriverOnline(
+                state.driverId,
+                next
+            );
+
+        }catch(error){
+
+            console.error(
+                error
+            );
+
+            showToast(
+                error.message ||
+                "Unable to change driver status."
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    state.online =
+        next;
+
+
+    try{
+
+        localStorage.setItem(
+            "goBikeDriverOnline",
+            String(next)
+        );
+
+    }catch(error){}
+
+
+    setOnlineUI();
+
+
+    if(next){
+
+        startGps();
+
+        subscribeRequests();
+
+        showToast(
+            "You are now online."
+        );
+
+    }else{
+
+        stopGps();
+
+        unsubscribeRequests();
+
+        showToast(
+            "You are now offline."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GPS
+========================================================= */
+
+function startGps(){
+
+    if(
+        !navigator.geolocation
+    ){
+
+        showToast(
+            "GPS is not available on this device."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        state.locationWatch !== null
+    ){
+
+        return;
+
+    }
+
+
+    state.locationWatch =
+        navigator.geolocation.watchPosition(
+            onPosition,
+            onPositionError,
+            {
+                enableHighAccuracy:true,
+                maximumAge:2500,
+                timeout:15000
+            }
+        );
+
+}
+
+
+function stopGps(){
+
+    if(
+        state.locationWatch !== null &&
+        navigator.geolocation
+    ){
+
+        navigator.geolocation.clearWatch(
+            state.locationWatch
+        );
+
+    }
+
+
+    state.locationWatch =
+        null;
+
+}
+
+
+function onPosition(
+    position
+){
+
+    const coords =
+        position.coords;
+
+
+    const location = {
+
+        lat:
+            Number(
+                coords.latitude
+            ),
+
+        lng:
+            Number(
+                coords.longitude
+            )
+
+    };
+
+
+    if(
+        !validLocation(location)
+    ){
+
+        return;
+
+    }
+
+
+    state.driverLocation =
+        location;
+
+
+    updateDriverMarker(
+        location
+    );
+
+
+    /*
+     * Send location only while online
+     * or during an active ride.
+     */
+
+    if(
+        state.online ||
+        state.activeRide
+    ){
+
+        sendDriverLocation(
+            location
+        );
+
+    }
+
+}
+
+
+function onPositionError(
+error
+){
+
+    console.warn(
+        "GPS error:",
+        error
+    );
+
+}
+
+
+/* =========================================================
+   DRIVER MARKER
+========================================================= */
+
+function updateDriverMarker(
+location
+){
+
+    if(
+        !state.map ||
+        !validLocation(location)
+    ){
+
+        return;
+
+    }
+
+
+    const position = [
+        location.lat,
+        location.lng
+    ];
+
+
+    const icon =
+        L.divIcon({
+
+            className:"",
+
+            html:
+                '<div class="driver-icon">🛵</div>',
+
+            iconSize:[46,46],
+
+            iconAnchor:[23,23]
+
+        });
+
+
+    if(
+        state.driverMarker
+    ){
+
+        state.driverMarker
+            .setLatLng(
+                position
+            );
+
+    }else{
+
+        state.driverMarker =
+            L.marker(
+                position,
+                {
+                    icon,
+                    zIndexOffset:1000
+                }
+            )
+            .addTo(
+                state.map
+            );
+
+    }
+
+
+    if(
+        !state.accuracyCircle
+    ){
+
+        state.accuracyCircle =
+            L.circle(
+                position,
+                {
+                    radius:30,
+                    stroke:false,
+                    fillOpacity:.08
+                }
+            )
+            .addTo(
+                state.map
+            );
+
+    }else{
+
+        state.accuracyCircle
+            .setLatLng(
+                position
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   SEND LOCATION
+========================================================= */
+
+async function sendDriverLocation(
+location
+){
+
+    const now =
+        Date.now();
+
+
+    if(
+        now -
+        state.lastLocationSent <
+        4000
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        state.locationSending
+    ){
+
+        return;
+
+    }
+
+
+    const api =
+        engine();
+
+
+    if(
+        !api ||
+        typeof api.updateDriverLocation !==
+        "function"
+    ){
+
+        return;
+
+    }
+
+
+    state.lastLocationSent =
+        now;
+
+    state.locationSending =
+        true;
+
+
+    try{
+
+        await api.updateDriverLocation(
+            state.activeRide?.rideId ||
+            state.activeRide?.id ||
+            null,
+            state.driverId,
+            location
+        );
+
+    }catch(error){
+
+        console.warn(
+            "Location update failed:",
+            error
+        );
+
+    }finally{
+
+        state.locationSending =
+            false;
+
+    }
+
+}
+
+
+/* =========================================================
+   REQUEST SUBSCRIPTION
+========================================================= */
+
+function subscribeRequests(){
+
+    unsubscribeRequests();
+
+
+    const api =
+        engine();
+
+
+    if(
+        !api
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Preferred central API.
+     */
+
+    if(
+        typeof api.subscribeDriverRequests ===
+        "function"
+    ){
+
+        try{
+
+            state.requestUnsubscribe =
+                api.subscribeDriverRequests(
+                    state.driverId,
+
+                    function(request){
+
+                        if(request){
+
+                            showRequest(
+                                request
+                            );
+
+                        }
+
+                    },
+
+                    function(error){
+
+                        console.warn(
+                            "Request listener:",
+                            error
+                        );
+
+                    }
+                );
+
+            return;
+
+        }catch(error){
+
+            console.warn(
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Firebase fallback.
+     */
+
+    try{
+
+        if(
+            window.firebase &&
+            firebase.database
+        ){
+
+            const ref =
+                firebase.database()
+                    .ref(
+                        "rideRequests"
+                    );
+
+
+            const handler =
+                snapshot => {
+
+                    const data =
+                        snapshot.val();
+
+
+                    if(!data){
+
+                        return;
+
+                    }
+
+
+                    let newest = null;
+
+
+                    Object.keys(data)
+                        .forEach(
+                            key => {
+
+                                const request =
+                                    data[key];
+
+
+                                if(
+                                    !request
+                                ){
+
+                                    return;
+
+                                }
+
+
+                                const status =
+                                    String(
+                                        request.status ||
+                                        ""
+                                    )
+                                    .toUpperCase();
+
+
+                                if(
+                                    status !==
+                                    "REQUESTED"
+                                ){
+
+                                    return;
+
+                                }
+
+
+                                if(
+                                    request.driverId &&
+                                    request.driverId !==
+                                    state.driverId
+                                ){
+
+                                    return;
+
+                                }
+
+
+                                newest =
+                                    {
+                                        ...request,
+                                        rideId:
+                                            request.rideId ||
+                                            key
+                                    };
+
+                            }
+                        );
+
+
+                    if(newest){
+
+                        showRequest(
+                            newest
+                        );
+
+                    }
+
+                };
+
+
+            ref.on(
+                "value",
+                handler
+            );
+
+
+            state.requestUnsubscribe =
+                () =>
+                ref.off(
+                    "value",
+                    handler
+                );
+
+        }
+
+    }catch(error){
+
+        console.warn(
+            "Firebase request fallback failed:",
+            error
+        );
+
+    }
+
+}
+
+
+function unsubscribeRequests(){
+
+    if(
+        state.requestUnsubscribe
+    ){
+
+        try{
+
+            state.requestUnsubscribe();
+
+        }catch(error){}
+
+    }
+
+
+    state.requestUnsubscribe =
+        null;
+
+}
+
+
+/* =========================================================
+   SHOW REQUEST
+========================================================= */
+
+function showRequest(
+request
+){
+
+    if(
+        state.activeRide
+    ){
+
+        return;
+
+    }
+
+
+    state.currentRequest =
+        request;
+
+
+    $("idlePanel")
+        .style.display =
+        "none";
+
+
+    $("requestPanel")
+        .classList.add(
+            "show"
+        );
+
+
+    $("requestFare")
+        .textContent =
+        formatMoney(
+            request.fare ??
+            request.estimatedFare ??
+            request.amount ??
+            0
+        );
+
+
+    $("requestPickup")
+        .textContent =
+        addressOf(
+            request.pickup ||
+            request.pickupLocation,
+            "Pickup location"
+        );
+
+
+    $("requestDrop")
+        .textContent =
+        addressOf(
+            request.drop ||
+            request.dropLocation ||
+            request.destination,
+            "Drop location"
+        );
+
+
+    const distance =
+        Number(
+            request.distanceKm ??
+            request.distance ??
+            0
+        );
+
+
+    $("requestDistance")
+        .textContent =
+        distance > 0
+            ? formatNumber(distance) + " km"
+            : "—";
+
+
+    const eta =
+        Number(
+            request.etaMinutes ??
+            request.estimatedMinutes ??
+            0
+        );
+
+
+    $("requestEta")
+        .textContent =
+        eta > 0
+            ? Math.ceil(eta) + " min"
+            : "—";
+
+
+    $("requestPayment")
+        .textContent =
+        request.paymentMethod ||
+        request.payment ||
+        "Cash";
+
+
+    $("requestTimer")
+        .textContent =
+        "New request";
+
+
+    /*
+     * Show request route on map.
+     */
+
+    showRequestMarkers(
+        request
+    );
+
+
+    state.notifications++;
+
+
+    updateNotificationBadge();
+
+
+    /*
+     * Short vibration.
+     */
+
+    if(
+        navigator.vibrate
+    ){
+
+        navigator.vibrate(
+            [200,100,200]
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   REQUEST MARKERS
+========================================================= */
+
+let pickupMarker =
+    null;
+
+let dropMarker =
+    null;
+
+let requestLine =
+    null;
+
+
+function showRequestMarkers(
+    request
+){
+
+    if(
+        !state.map
+    ){
+
+        return;
+
+    }
+
+
+    const pickup =
+        normalizeLocation(
+            request.pickup ||
+            request.pickupLocation
+        );
+
+
+    const drop =
+        normalizeLocation(
+            request.drop ||
+            request.dropLocation ||
+            request.destination
+        );
+
+
+    const points = [];
+
+
+    if(pickup){
+
+        const icon =
+            L.divIcon({
+
+                className:"",
+
+                html:
+                    '<div style="width:18px;height:18px;border:4px solid #ffd600;border-radius:50%;background:#111;"></div>',
+
+                iconSize:[18,18],
+                iconAnchor:[9,9]
+
+            });
+
+
+        if(pickupMarker){
+
+            pickupMarker
+                .setLatLng([
+                    pickup.lat,
+                    pickup.lng
+                ]);
+
+        }else{
+
+            pickupMarker =
+                L.marker(
+                    [
+                        pickup.lat,
+                        pickup.lng
+                    ],
+                    {
+                        icon
+                    }
+                )
+                .addTo(
+                    state.map
+                );
+
+        }
+
+
+        points.push([
+            pickup.lat,
+            pickup.lng
+        ]);
+
+    }
+
+
+    if(drop){
+
+        const icon =
+            L.divIcon({
+
+                className:"",
+
+                html:
+                    '<div style="width:18px;height:18px;border:4px solid #ff5757;border-radius:50%;background:#111;"></div>',
+
+                iconSize:[18,18],
+                iconAnchor:[9,9]
+
+            });
+
+
+        if(dropMarker){
+
+            dropMarker
+                .setLatLng([
+                    drop.lat,
+                    drop.lng
+                ]);
+
+        }else{
+
+            dropMarker =
+                L.marker(
+                    [
+                        drop.lat,
+                        drop.lng
+                    ],
+                    {
+                        icon
+                    }
+                )
+                .addTo(
+                    state.map
+                );
+
+        }
+
+
+        points.push([
+            drop.lat,
+            drop.lng
+        ]);
+
+    }
+
+
+    if(
+        validLocation(
+            state.driverLocation
+        )
+    ){
+
+        points.push([
+            state.driverLocation.lat,
+            state.driverLocation.lng
+        ]);
+
+    }
+
+
+    if(
+        points.length >= 2
+    ){
+
+        if(requestLine){
+
+            requestLine
+                .setLatLngs(
+                    points
+                );
+
+        }else{
+
+            requestLine =
+                L.polyline(
+                    points,
+                    {
+                        weight:4,
+                        opacity:.55,
+                        dashArray:"8 8"
+                    }
+                )
+                .addTo(
+                    state.map
+                );
+
+        }
+
+
+        state.map.fitBounds(
+            points,
+            {
+                padding:[90,90]
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   ACCEPT
+========================================================= */
+
+async function acceptRequest(){
+
+    const request =
+        state.currentRequest;
+
+
+    if(!request){
+
+        return;
+
+    }
+
+
+    if(
+        state.activeRide
+    ){
+
+        showToast(
+            "You already have an active ride."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        $("acceptButton");
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "ACCEPTING...";
+
+
+    const api =
+        engine();
+
+
+    try{
+
+        if(
+            api &&
+            typeof api.acceptRide ===
+            "function"
+        ){
+
+            const result =
+                await api.acceptRide(
+                    request.rideId ||
+                    request.id,
+                    state.driverId
+                );
+
+
+            const ride =
+                result?.ride ||
+                result ||
+                request;
+
+
+            activateRide(
+                ride
+            );
+
+        }else{
+
+            /*
+             * Compatibility fallback.
+             */
+
+            const ride = {
+                ...request,
+
+                rideId:
+                    request.rideId ||
+                    request.id,
+
+                driverId:
+                    state.driverId,
+
+                status:
+                    "ACCEPTED"
+
+            };
+
+
+            try{
+
+                sessionStorage.setItem(
+                    "goBikeActiveRide",
+                    JSON.stringify(
+                        ride
+                    )
+                );
+
+
+                localStorage.setItem(
+                    "goBikeActiveRideId",
+                    ride.rideId
+                );
+
+            }catch(error){}
+
+
+            activateRide(
+                ride
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "Accept failed:",
+            error
+        );
+
+
+        showToast(
+            error.message ||
+            "Unable to accept ride."
+        );
+
+    }finally{
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "ACCEPT RIDE";
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTIVATE RIDE
+========================================================= */
+
+function activateRide(
+ride
+){
+
+    if(!ride){
+
+        return;
+
+    }
+
+
+    state.activeRide =
+        ride;
+
+
+    state.currentRequest =
+        null;
+
+
+    $("requestPanel")
+        .classList.remove(
+            "show"
+        );
+
+
+    $("idlePanel")
+        .style.display =
+        "none";
+
+
+    $("activeRide")
+        .classList.add(
+            "show"
+        );
+
+
+    $("activeStatus")
+        .textContent =
+        "ACCEPTED";
+
+
+    $("activeRoute")
+        .textContent =
+        "Navigate to pickup. Pickup OTP will be required before the ride starts.";
+
+
+    state.notifications =
+        Math.max(
+            0,
+            state.notifications - 1
+        );
+
+
+    updateNotificationBadge();
+
+
+    /*
+     * Keep driver online during active ride.
+     */
+
+    state.online =
+        true;
+
+
+    setOnlineUI();
+
+
+    /*
+     * Persist active ride.
+     */
+
+    try{
+
+        sessionStorage.setItem(
+            "goBikeActiveRide",
+            JSON.stringify(
+                ride
+            )
+        );
+
+
+        localStorage.setItem(
+            "goBikeActiveRideId",
+            ride.rideId ||
+            ride.id ||
+            ""
+        );
+
+    }catch(error){}
+
+
+    /*
+     * Navigate directly to the
+     * dedicated live navigation screen.
+     */
+
+    setTimeout(
+        function(){
+
+            window.location.href =
+                "live-map.html";
+
+        },
+        350
+    );
+
+}
+
+
+/* =========================================================
+   REJECT
+========================================================= */
+
+async function rejectRequest(){
+
+    const request =
+        state.currentRequest;
+
+
+    if(!request){
+
+        return;
+
+    }
+
+
+    const api =
+        engine();
+
+
+    try{
+
+        if(
+            api &&
+            typeof api.rejectRide ===
+            "function"
+        ){
+
+            await api.rejectRide(
+                request.rideId ||
+                request.id,
+                state.driverId
+            );
+
+        }else{
+
+            /*
+             * Firebase compatibility fallback.
+             */
+
+            if(
+                window.firebase &&
+                firebase.database
+            ){
+
+                const id =
+                    request.rideId ||
+                    request.id;
+
+
+                if(id){
+
+                    await firebase.database()
+                        .ref(
+                            "rideRequests/" +
+                            id
+                        )
+                        .update({
+                            rejectedBy:
+                                state.driverId,
+
+                            rejectedAt:
+                                Date.now()
+                        });
+
+                }
+
+            }
+
+        }
+
+    }catch(error){
+
+        console.warn(
+            "Reject error:",
+            error
+        );
+
+    }
+
+
+    clearRequest();
+
+
+    showToast(
+        "Ride request rejected."
+    );
+
+}
+
+
+/* =========================================================
+   CLEAR REQUEST
+========================================================= */
+
+function clearRequest(){
+
+    state.currentRequest =
+        null;
+
+
+    $("requestPanel")
+        .classList.remove(
+            "show"
+        );
+
+
+    if(
+        !state.activeRide &&
+        state.online
+    ){
+
+        $("idlePanel")
+            .style.display =
+            "block";
+
+    }
+
+
+    clearMapRequest();
+
+}
+
+
+function clearMapRequest(){
+
+    if(pickupMarker){
+
+        state.map.removeLayer(
+            pickupMarker
+        );
+
+        pickupMarker =
+            null;
+
+    }
+
+
+    if(dropMarker){
+
+        state.map.removeLayer(
+            dropMarker
+        );
+
+        dropMarker =
+            null;
+
+    }
+
+
+    if(requestLine){
+
+        state.map.removeLayer(
+            requestLine
+        );
+
+        requestLine =
+            null;
+
+    }
+
+}
+
+
+/* =========================================================
+   ACTIVE RIDE
+========================================================= */
+
+function loadActiveRide(){
+
+    let ride = null;
+
+
+    try{
+
+        const raw =
+            sessionStorage.getItem(
+                "goBikeActiveRide"
+            );
+
+
+        if(raw){
+
+            ride =
+                JSON.parse(raw);
+
+        }
+
+    }catch(error){}
+
+
+    if(!ride){
+
+        return;
+
+    }
+
+
+    activateRideUIOnly(
+        ride
+    );
+
+}
+
+
+function activateRideUIOnly(
+ride
+){
+
+    state.activeRide =
+        ride;
+
+
+    state.online =
+        true;
+
+
+    $("idlePanel")
+        .style.display =
+        "none";
+
+
+    $("requestPanel")
+        .classList.remove(
+            "show"
+        );
+
+
+    $("activeRide")
+        .classList.add(
+            "show"
+        );
+
+
+    $("activeStatus")
+        .textContent =
+        normalizeRideStatus(
+            ride.status
+        );
+
+
+    $("activeRoute")
+        .textContent =
+        normalizeRideStatus(
+            ride.status
+        ) ===
+        "STARTED"
+            ? "Ride started. Continue to customer drop."
+            : "Navigate to customer pickup.";
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+$("navigateButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            if(
+                state.activeRide
+            ){
+
+                window.location.href =
+                    "live-map.html";
+
+                return;
+
+            }
+
+
+            showToast(
+                "No active ride."
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   LOCATION BUTTON
+========================================================= */
+
+$("myLocation")
+    .addEventListener(
+        "click",
+        function(){
+
+            if(
+                validLocation(
+                    state.driverLocation
+                )
+            ){
+
+                state.map.setView(
+                    [
+                        state.driverLocation.lat,
+                        state.driverLocation.lng
+                    ],
+                    17
+                );
+
+                return;
+
+            }
+
+
+            showToast(
+                "Waiting for GPS..."
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   FIT ROUTE
+========================================================= */
+
+$("fitRoute")
+    .addEventListener(
+        "click",
+        function(){
+
+            const points = [];
+
+
+            if(
+                validLocation(
+                    state.driverLocation
+                )
+            ){
+
+                points.push([
+                    state.driverLocation.lat,
+                    state.driverLocation.lng
+                ]);
+
+            }
+
+
+            const request =
+                state.currentRequest;
+
+
+            if(request){
+
+                const pickup =
+                    normalizeLocation(
+                        request.pickup ||
+                        request.pickupLocation
+                    );
+
+
+                const drop =
+                    normalizeLocation(
+                        request.drop ||
+                        request.dropLocation ||
+                        request.destination
+                    );
+
+
+                if(pickup){
+
+                    points.push([
+                        pickup.lat,
+                        pickup.lng
+                    ]);
+
+                }
+
+
+                if(drop){
+
+                    points.push([
+                        drop.lat,
+                        drop.lng
+                    ]);
+
+                }
+
+            }
+
+
+            if(
+                points.length > 1
+            ){
+
+                state.map.fitBounds(
+                    points,
+                    {
+                        padding:[80,80]
+                    }
+                );
+
+            }else{
+
+                showToast(
+                    "No route available."
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+$("onlineSwitch")
+    .addEventListener(
+        "click",
+        toggleOnline
+    );
+
+
+$("acceptButton")
+    .addEventListener(
+        "click",
+        acceptRequest
+    );
+
+
+$("rejectButton")
+    .addEventListener(
+        "click",
+        rejectRequest
+    );
+
+
+$("notificationButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            if(
+                state.notifications > 0
+            ){
+
+                $("requestPanel")
+                    .classList.add(
+                        "show"
+                    );
+
+                state.notifications =
+                    0;
+
+                updateNotificationBadge();
+
+            }else{
+
+                showToast(
+                    "No new notifications."
+                );
+
+            }
+
+        }
+    );
+
+
+$("profileButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            window.location.href =
+                "profile.html";
+
+        }
+    );
+
+
+$("menuButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            window.location.href =
+                "menu.html";
+
+        }
+    );
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+function updateNotificationBadge(){
+
+    const badge =
+        $("notificationBadge");
+
+
+    if(
+        state.notifications > 0
+    ){
+
+        badge.textContent =
+            state.notifications > 9
+                ? "9+"
+                : String(
+                    state.notifications
+                  );
+
+        badge.style.display =
+            "flex";
+
+    }else{
+
+        badge.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD STATS
+========================================================= */
+
+async function loadDriverStats(){
+
+    const api =
+        engine();
+
+
+    if(
+        !api ||
+        typeof api.getDriverStats !==
+        "function"
+    ){
+
+        /*
+         * Compatibility local cache.
+         */
+
+        try{
+
+            const earnings =
+                Number(
+                    localStorage.getItem(
+                        "goBikeTodayEarnings"
+                    ) ||
+                    0
+                );
+
+
+            const rides =
+                Number(
+                    localStorage.getItem(
+                        "goBikeTodayRides"
+                    ) ||
+                    0
+                );
+
+
+            const rating =
+                Number(
+                    localStorage.getItem(
+                        "goBikeRating"
+                    ) ||
+                    5
+                );
+
+
+            $("todayEarnings")
+                .textContent =
+                formatMoney(
+                    earnings
+                );
+
+
+            $("todayRides")
+                .textContent =
+                String(
+                    rides
+                );
+
+
+            $("driverRating")
+                .textContent =
+                rating.toFixed(1) +
+                " ★";
+
+        }catch(error){}
+
+
+        return;
+
+    }
+
+
+    try{
+
+        const stats =
+            await api.getDriverStats(
+                state.driverId
+            );
+
+
+        if(!stats){
+
+            return;
+
+        }
+
+
+        $("todayEarnings")
+            .textContent =
+            formatMoney(
+                stats.todayEarnings ??
+                stats.earnings ??
+                0
+            );
+
+
+        $("todayRides")
+            .textContent =
+            String(
+                stats.todayRides ??
+                stats.rides ??
+                0
+            );
+
+
+        const rating =
+            Number(
+                stats.rating ??
+                5
+            );
+
+
+        $("driverRating")
+            .textContent =
+            rating.toFixed(1) +
+            " ★";
+
+    }catch(error){
+
+        console.warn(
+            "Stats load failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RESTORE ONLINE STATE
+========================================================= */
+
+function restoreOnlineState(){
+
+    let online =
+        false;
+
+
+    try{
+
+        online =
+            localStorage.getItem(
+                "goBikeDriverOnline"
+            ) ===
+            "true";
+
+    }catch(error){}
+
+
+    state.online =
+        online;
+
+
+    setOnlineUI();
+
+
+    if(online){
+
+        startGps();
+
+        subscribeRequests();
+
+    }
+
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function addressOf(
+value,
+fallback
+){
+
+    if(!value){
+
+        return fallback;
+
+    }
+
+
+    return (
+        value.address ||
+        value.formattedAddress ||
+        value.name ||
+        fallback
+    );
+
+}
+
+
+function formatMoney(
+value
+){
+
+    const number =
+        Number(value);
+
+
+    if(
+        !Number.isFinite(number)
+    ){
+
+        return "₹0";
+
+    }
+
+
+    return "₹" +
+        Math.round(number)
+            .toLocaleString(
+                "en-IN"
+            );
+
+}
+
+
+function formatNumber(
+value
+){
+
+    const number =
+        Number(value);
+
+
+    if(
+        !Number.isFinite(number)
+    ){
+
+        return "0";
+
+    }
+
+
+    return Number.isInteger(number)
+        ? String(number)
+        : number.toFixed(1);
+
+}
+
+
+function normalizeRideStatus(
+value
+){
+
+    const status =
+        String(
+            value ||
+            "ACCEPTED"
+        )
+        .toUpperCase();
+
+
+    if(
+        status === "STARTED" ||
+        status === "IN_PROGRESS"
+    ){
+
+        return "STARTED";
+
+    }
+
+
+    if(
+        status === "ARRIVED"
+    ){
+
+        return "ARRIVED";
+
+    }
+
+
+    return "ACCEPTED";
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer =
+    null;
+
+
+function showToast(
+message
+){
+
+    const toast =
+        $("toast");
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            function(){
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2800
+        );
+
+}
+
+
+/* =========================================================
+   VISIBILITY
+========================================================= */
+
+document.addEventListener(
+    "visibilitychange",
+    function(){
+
+        if(
+            document.visibilityState ===
+            "visible"
+        ){
+
+            if(
+                state.online ||
+                state.activeRide
+            ){
+
+                startGps();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CLEANUP
+========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    function(){
+
+        if(
+            state.requestUnsubscribe
+        ){
+
+            try{
+
+                state.requestUnsubscribe();
+
+            }catch(error){}
+
+        }
+
+
+        if(
+            state.rideUnsubscribe
+        ){
+
+            try{
+
+                state.rideUnsubscribe();
+
+            }catch(error){}
+
+        }
+
+
+        stopGps();
+
+    }
+);
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+async function init(){
+
+    if(
+        state.initialized
+    ){
+
+        return;
+
+    }
+
+
+    state.initialized =
+        true;
+
+
+    state.driverId =
+        getDriverId();
+
+
+    if(
+        !state.driverId
+    ){
+
+        $("loading")
+            .classList.add(
+                "hide"
+            );
+
+        showToast(
+            "Driver account not found."
+        );
+
+        return;
+
+    }
+
+
+    initMap();
+
+
+    loadActiveRide();
+
+
+    restoreOnlineState();
+
+
+    await loadDriverStats();
+
+
+    $("loading")
+        .classList.add(
+            "hide"
+        );
+
+}
+
+
+init();
+
+})();
+</script>
+
+</body>
+</html>
