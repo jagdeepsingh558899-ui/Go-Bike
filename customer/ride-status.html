@@ -1,0 +1,4004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#080808">
+
+    <title>Go Bike | Ride</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="../assets/favicon.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        :root {
+            --black: #080808;
+            --black2: #111111;
+            --card: #161616;
+            --card2: #1c1c1c;
+
+            --yellow: #ffd600;
+            --yellow2: #ffe44d;
+
+            --white: #ffffff;
+            --text: #eeeeee;
+            --muted: #888888;
+            --muted2: #5e5e5e;
+
+            --green: #31d078;
+            --red: #ff4d4d;
+            --blue: #4da3ff;
+
+            --border: rgba(255,255,255,.09);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--black);
+        }
+
+        body {
+            color: var(--white);
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* =====================================================
+           MAP
+        ====================================================== */
+
+        #map {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            background: #171717;
+        }
+
+        .leaflet-control-zoom {
+            margin-top: 78px !important;
+            margin-right: 12px !important;
+        }
+
+        .leaflet-control-zoom a {
+            width: 35px !important;
+            height: 35px !important;
+            line-height: 35px !important;
+
+            background: #111 !important;
+            color: #fff !important;
+            border-color: #333 !important;
+        }
+
+        .leaflet-control-attribution {
+            font-size: 8px !important;
+        }
+
+        /* =====================================================
+           TOP
+        ====================================================== */
+
+        .topbar {
+            position: fixed;
+            z-index: 20;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 68px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 14px;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,.88),
+                    rgba(0,0,0,.28),
+                    transparent
+                );
+
+            pointer-events: none;
+        }
+
+        .top-button {
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 13px;
+
+            background: rgba(12,12,12,.92);
+            color: #fff;
+
+            font-size: 20px;
+
+            pointer-events: auto;
+        }
+
+        .top-button:active {
+            transform: scale(.94);
+        }
+
+        .top-title {
+            margin-left: 10px;
+
+            font-size: 14px;
+            font-weight: 950;
+        }
+
+        .top-title span {
+            color: var(--yellow);
+        }
+
+        /* =====================================================
+           CENTER MAP STATUS
+        ====================================================== */
+
+        .map-status {
+            position: fixed;
+            z-index: 15;
+
+            top: 77px;
+            left: 14px;
+            right: 14px;
+
+            max-width: 600px;
+            margin: auto;
+
+            display: flex;
+            align-items: center;
+
+            padding: 11px 13px;
+
+            border: 1px solid var(--border);
+            border-radius: 16px;
+
+            background: rgba(12,12,12,.91);
+
+            backdrop-filter: blur(15px);
+
+            box-shadow:
+                0 10px 30px rgba(0,0,0,.25);
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+
+            flex: 0 0 9px;
+
+            border-radius: 50%;
+
+            background: var(--green);
+
+            box-shadow:
+                0 0 0 5px
+                rgba(49,208,120,.12);
+        }
+
+        .map-status-text {
+            min-width: 0;
+            margin-left: 10px;
+        }
+
+        .map-status-text strong {
+            display: block;
+
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .map-status-text span {
+            display: block;
+
+            margin-top: 2px;
+
+            overflow: hidden;
+
+            color: var(--muted);
+
+            font-size: 8px;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .live-label {
+            margin-left: auto;
+
+            color: var(--green);
+
+            font-size: 8px;
+            font-weight: 950;
+            text-transform: uppercase;
+        }
+
+        /* =====================================================
+           BOTTOM SHEET
+        ====================================================== */
+
+        .sheet {
+            position: fixed;
+            z-index: 30;
+
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            max-height:
+                calc(
+                    63vh +
+                    env(safe-area-inset-bottom)
+                );
+
+            padding:
+                10px 14px
+                calc(
+                    14px +
+                    env(safe-area-inset-bottom)
+                );
+
+            overflow-y: auto;
+
+            border-top:
+                1px solid var(--border);
+
+            border-radius:
+                25px 25px 0 0;
+
+            background:
+                rgba(9,9,9,.97);
+
+            box-shadow:
+                0 -15px 45px rgba(0,0,0,.42);
+
+            backdrop-filter: blur(20px);
+        }
+
+        .handle {
+            width: 38px;
+            height: 4px;
+
+            margin:
+                0 auto 13px;
+
+            border-radius: 10px;
+
+            background: #3b3b3b;
+        }
+
+        /* =====================================================
+           RIDE STATE HEADER
+        ====================================================== */
+
+        .state-header {
+            display: flex;
+            align-items: center;
+
+            margin-bottom: 12px;
+        }
+
+        .state-icon {
+            width: 43px;
+            height: 43px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,214,0,.09);
+
+            font-size: 21px;
+        }
+
+        .state-copy {
+            flex: 1;
+            margin-left: 10px;
+        }
+
+        .state-copy strong {
+            display: block;
+
+            font-size: 14px;
+            font-weight: 950;
+        }
+
+        .state-copy span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 9px;
+            line-height: 1.3;
+        }
+
+        .state-eta {
+            text-align: right;
+        }
+
+        .state-eta strong {
+            display: block;
+
+            color: var(--yellow);
+
+            font-size: 13px;
+            font-weight: 950;
+        }
+
+        .state-eta span {
+            display: block;
+
+            margin-top: 2px;
+
+            color: #666;
+
+            font-size: 8px;
+        }
+
+        /* =====================================================
+           DRIVER
+        ====================================================== */
+
+        .driver-card {
+            display: flex;
+            align-items: center;
+
+            padding: 12px;
+
+            margin-bottom: 10px;
+
+            border:
+                1px solid
+                rgba(255,214,0,.18);
+
+            border-radius: 17px;
+
+            background:
+                rgba(255,214,0,.045);
+        }
+
+        .driver-avatar {
+            width: 50px;
+            height: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 15px;
+
+            background: #242424;
+
+            font-size: 23px;
+        }
+
+        .driver-info {
+            flex: 1;
+            min-width: 0;
+
+            margin-left: 10px;
+        }
+
+        .driver-name {
+            overflow: hidden;
+
+            font-size: 13px;
+            font-weight: 950;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .driver-rating {
+            margin-top: 3px;
+
+            color: var(--yellow);
+
+            font-size: 9px;
+            font-weight: 850;
+        }
+
+        .driver-vehicle {
+            margin-top: 3px;
+
+            overflow: hidden;
+
+            color: #777;
+
+            font-size: 8px;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .driver-call {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: #202020;
+            color: var(--yellow);
+
+            text-decoration: none;
+
+            font-size: 17px;
+        }
+
+        /* =====================================================
+           ROUTE
+        ====================================================== */
+
+        .route-card {
+            padding: 12px;
+
+            border: 1px solid var(--border);
+            border-radius: 17px;
+
+            background: #141414;
+        }
+
+        .route {
+            display: flex;
+        }
+
+        .route-rail {
+            width: 18px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .route-point {
+            width: 10px;
+            height: 10px;
+
+            flex: 0 0 10px;
+
+            border-radius: 50%;
+        }
+
+        .route-point.pickup {
+            border: 3px solid var(--yellow);
+            background: #111;
+        }
+
+        .route-point.drop {
+            background: var(--red);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(255,77,77,.1);
+        }
+
+        .route-line {
+            flex: 1;
+
+            width: 1px;
+
+            margin: 4px 0;
+
+            border-left: 1px dashed #555;
+        }
+
+        .route-content {
+            flex: 1;
+            min-width: 0;
+
+            margin-left: 8px;
+        }
+
+        .route-item {
+            min-height: 36px;
+        }
+
+        .route-label {
+            color: #666;
+
+            font-size: 7px;
+            font-weight: 950;
+            text-transform: uppercase;
+        }
+
+        .route-address {
+            margin-top: 3px;
+
+            overflow: hidden;
+
+            color: #eee;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .route-spacer {
+            height: 14px;
+        }
+
+        /* =====================================================
+           STATS
+        ====================================================== */
+
+        .stats {
+            display: grid;
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap: 7px;
+
+            margin-top: 10px;
+        }
+
+        .stat {
+            padding: 9px 5px;
+
+            text-align: center;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,.025);
+        }
+
+        .stat-label {
+            color: #666;
+
+            font-size: 7px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            margin-top: 3px;
+
+            font-size: 12px;
+            font-weight: 950;
+        }
+
+        .yellow {
+            color: var(--yellow);
+        }
+
+        /* =====================================================
+           OTP PANEL
+        ====================================================== */
+
+        .otp-panel {
+            display: none;
+
+            margin-top: 10px;
+
+            padding: 14px;
+
+            border:
+                1px solid
+                rgba(255,214,0,.25);
+
+            border-radius: 18px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,214,0,.08),
+                    rgba(255,255,255,.025)
+                );
+
+            text-align: center;
+        }
+
+        .otp-panel.show {
+            display: block;
+        }
+
+        .otp-badge {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            min-height: 25px;
+
+            padding: 0 9px;
+
+            border-radius: 20px;
+
+            background:
+                rgba(255,214,0,.12);
+
+            color: var(--yellow);
+
+            font-size: 8px;
+            font-weight: 950;
+            text-transform: uppercase;
+        }
+
+        .otp-panel h3 {
+            margin-top: 8px;
+
+            font-size: 14px;
+            font-weight: 950;
+        }
+
+        .otp-panel p {
+            margin-top: 4px;
+
+            color: #777;
+
+            font-size: 9px;
+            line-height: 1.4;
+        }
+
+        .otp-display {
+            display: flex;
+            justify-content: center;
+
+            gap: 7px;
+
+            margin-top: 12px;
+        }
+
+        .otp-box {
+            width: 45px;
+            height: 50px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #383838;
+            border-radius: 12px;
+
+            background: #0e0e0e;
+
+            color: var(--yellow);
+
+            font-size: 20px;
+            font-weight: 950;
+        }
+
+        .otp-box.empty {
+            color: #333;
+        }
+
+        .otp-input-area {
+            margin-top: 11px;
+        }
+
+        .otp-input {
+            width: 100%;
+            height: 46px;
+
+            padding: 0 14px;
+
+            border:
+                1px solid #333;
+
+            outline: none;
+
+            border-radius: 13px;
+
+            background: #0c0c0c;
+            color: #fff;
+
+            font-size: 18px;
+            font-weight: 900;
+
+            text-align: center;
+            letter-spacing: 8px;
+        }
+
+        .otp-input:focus {
+            border-color: var(--yellow);
+        }
+
+        .verify-button {
+            width: 100%;
+            min-height: 45px;
+
+            margin-top: 9px;
+
+            border: 0;
+            border-radius: 13px;
+
+            background: var(--yellow);
+            color: #101010;
+
+            font-size: 10px;
+            font-weight: 950;
+        }
+
+        .verify-button:disabled {
+            opacity: .5;
+        }
+
+        .otp-error {
+            display: none;
+
+            margin-top: 7px;
+
+            color: #ff6d6d;
+
+            font-size: 8px;
+            font-weight: 800;
+        }
+
+        .otp-error.show {
+            display: block;
+        }
+
+        /* =====================================================
+           COMPLETION
+        ====================================================== */
+
+        .completed-panel {
+            display: none;
+
+            margin-top: 10px;
+
+            padding: 16px;
+
+            border: 1px solid
+                rgba(49,208,120,.2);
+
+            border-radius: 17px;
+
+            background:
+                rgba(49,208,120,.05);
+
+            text-align: center;
+        }
+
+        .completed-panel.show {
+            display: block;
+        }
+
+        .completed-icon {
+            font-size: 30px;
+        }
+
+        .completed-panel h3 {
+            margin-top: 6px;
+
+            font-size: 15px;
+            font-weight: 950;
+        }
+
+        .completed-panel p {
+            margin-top: 4px;
+
+            color: #777;
+
+            font-size: 9px;
+        }
+
+        .receipt-button {
+            width: 100%;
+            min-height: 43px;
+
+            margin-top: 12px;
+
+            border: 0;
+            border-radius: 12px;
+
+            background: var(--yellow);
+            color: #111;
+
+            font-size: 10px;
+            font-weight: 950;
+        }
+
+        /* =====================================================
+           ACTIONS
+        ====================================================== */
+
+        .actions {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 10px;
+        }
+
+        .action {
+            min-height: 44px;
+
+            border-radius: 13px;
+
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .support-button {
+            border: 1px solid var(--border);
+
+            background: #1b1b1b;
+            color: #fff;
+        }
+
+        .cancel-button {
+            border:
+                1px solid
+                rgba(255,77,77,.22);
+
+            background:
+                rgba(255,77,77,.06);
+
+            color: #ff7070;
+        }
+
+        /* =====================================================
+           ERROR
+        ====================================================== */
+
+        .error-panel {
+            display: none;
+
+            padding: 15px;
+
+            border:
+                1px solid
+                rgba(255,77,77,.2);
+
+            border-radius: 16px;
+
+            background:
+                rgba(255,77,77,.05);
+
+            text-align: center;
+        }
+
+        .error-panel.show {
+            display: block;
+        }
+
+        .error-panel .icon {
+            font-size: 26px;
+        }
+
+        .error-panel strong {
+            display: block;
+
+            margin-top: 6px;
+
+            font-size: 13px;
+        }
+
+        .error-panel p {
+            margin-top: 5px;
+
+            color: #777;
+
+            font-size: 9px;
+            line-height: 1.4;
+        }
+
+        .retry {
+            min-height: 42px;
+
+            margin-top: 10px;
+            padding: 0 20px;
+
+            border: 0;
+            border-radius: 12px;
+
+            background: var(--yellow);
+            color: #111;
+
+            font-size: 10px;
+            font-weight: 950;
+        }
+
+        /* =====================================================
+           CANCEL MODAL
+        ====================================================== */
+
+        .modal {
+            position: fixed;
+            z-index: 100;
+
+            inset: 0;
+
+            display: none;
+            align-items: flex-end;
+
+            padding: 14px;
+
+            background:
+                rgba(0,0,0,.7);
+
+            backdrop-filter: blur(6px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 600px;
+
+            margin: auto auto 0;
+
+            padding: 20px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 22px;
+
+            background: #151515;
+        }
+
+        .modal-card h2 {
+            font-size: 18px;
+            font-weight: 950;
+        }
+
+        .modal-card p {
+            margin-top: 6px;
+
+            color: #777;
+
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 16px;
+        }
+
+        .modal-actions button {
+            min-height: 45px;
+
+            border-radius: 13px;
+
+            font-size: 10px;
+            font-weight: 950;
+        }
+
+        .keep {
+            border: 1px solid var(--border);
+
+            background: #202020;
+            color: #fff;
+        }
+
+        .confirm {
+            border: 0;
+
+            background:
+                rgba(255,77,77,.12);
+
+            color: #ff6b6b;
+        }
+
+        /* =====================================================
+           TOAST
+        ====================================================== */
+
+        .toast {
+            position: fixed;
+            z-index: 200;
+
+            left: 50%;
+            bottom: 24px;
+
+            width: max-content;
+            max-width: calc(100% - 30px);
+
+            padding: 10px 14px;
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            background: #191919;
+            color: #ddd;
+
+            font-size: 9px;
+            font-weight: 800;
+
+            opacity: 0;
+
+            transform:
+                translate(-50%,12px);
+
+            pointer-events: none;
+
+            transition:
+                opacity .2s,
+                transform .2s;
+        }
+
+        .toast.show {
+            opacity: 1;
+
+            transform:
+                translate(-50%,0);
+        }
+
+        /* =====================================================
+           MAP MARKERS
+        ====================================================== */
+
+        .driver-marker {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border:
+                3px solid #fff;
+
+            border-radius: 50%;
+
+            background: var(--yellow);
+
+            box-shadow:
+                0 4px 14px rgba(0,0,0,.5);
+
+            font-size: 19px;
+        }
+
+        .pickup-marker {
+            width: 18px;
+            height: 18px;
+
+            border:
+                4px solid var(--yellow);
+
+            border-radius: 50%;
+
+            background: #111;
+
+            box-shadow:
+                0 0 0 5px
+                rgba(255,214,0,.16);
+        }
+
+        .drop-marker {
+            width: 18px;
+            height: 18px;
+
+            border:
+                4px solid var(--red);
+
+            border-radius: 50%;
+
+            background: #111;
+
+            box-shadow:
+                0 0 0 5px
+                rgba(255,77,77,.14);
+        }
+
+        @media (min-width: 700px) {
+
+            .sheet {
+                left: 20px;
+                right: auto;
+                bottom: 20px;
+
+                width: 440px;
+
+                max-height: 75vh;
+
+                border-radius: 24px;
+            }
+
+            .map-status {
+                left: 480px;
+                right: 20px;
+
+                max-width: 430px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+
+
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
+
+    <header class="topbar">
+
+        <button
+            id="backButton"
+            class="top-button"
+            type="button"
+            aria-label="Back"
+        >
+            ←
+        </button>
+
+        <div class="top-title">
+            GO <span>BIKE</span>
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAP STATUS
+    ====================================================== -->
+
+    <div class="map-status">
+
+        <div
+            id="statusDot"
+            class="status-dot"
+        ></div>
+
+        <div class="map-status-text">
+
+            <strong
+                id="mapStatusTitle"
+            >
+                Connecting to ride
+            </strong>
+
+            <span
+                id="mapStatusSubtitle"
+            >
+                Waiting for live ride information...
+            </span>
+
+        </div>
+
+        <div
+            id="liveLabel"
+            class="live-label"
+        >
+            LIVE
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BOTTOM SHEET
+    ====================================================== -->
+
+    <section class="sheet">
+
+        <div class="handle"></div>
+
+
+        <!-- STATE -->
+
+        <div class="state-header">
+
+            <div
+                id="stateIcon"
+                class="state-icon"
+            >
+                🛵
+            </div>
+
+            <div class="state-copy">
+
+                <strong
+                    id="stateTitle"
+                >
+                    Loading ride
+                </strong>
+
+                <span
+                    id="stateSubtitle"
+                >
+                    Connecting to Go Bike...
+                </span>
+
+            </div>
+
+            <div class="state-eta">
+
+                <strong
+                    id="stateEta"
+                >
+                    —
+                </strong>
+
+                <span>
+                    ETA
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- DRIVER -->
+
+        <div
+            id="driverCard"
+            class="driver-card"
+        >
+
+            <div class="driver-avatar">
+                🧑‍✈️
+            </div>
+
+            <div class="driver-info">
+
+                <div
+                    id="driverName"
+                    class="driver-name"
+                >
+                    Driver
+                </div>
+
+                <div
+                    id="driverRating"
+                    class="driver-rating"
+                >
+                    ★ 5.0
+                </div>
+
+                <div
+                    id="driverVehicle"
+                    class="driver-vehicle"
+                >
+                    Driver details loading...
+                </div>
+
+            </div>
+
+            <a
+                id="driverCall"
+                class="driver-call"
+                href="#"
+                aria-label="Call driver"
+            >
+                ☎
+            </a>
+
+        </div>
+
+
+        <!-- ROUTE -->
+
+        <div class="route-card">
+
+            <div class="route">
+
+                <div class="route-rail">
+
+                    <div
+                        class="route-point pickup"
+                    ></div>
+
+                    <div class="route-line"></div>
+
+                    <div
+                        class="route-point drop"
+                    ></div>
+
+                </div>
+
+
+                <div class="route-content">
+
+                    <div class="route-item">
+
+                        <div class="route-label">
+                            Pickup
+                        </div>
+
+                        <div
+                            id="pickupAddress"
+                            class="route-address"
+                        >
+                            Loading...
+                        </div>
+
+                    </div>
+
+                    <div class="route-spacer"></div>
+
+                    <div class="route-item">
+
+                        <div class="route-label">
+                            Drop
+                        </div>
+
+                        <div
+                            id="dropAddress"
+                            class="route-address"
+                        >
+                            Loading...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Distance
+                    </div>
+
+                    <div
+                        id="distanceValue"
+                        class="stat-value"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Time
+                    </div>
+
+                    <div
+                        id="timeValue"
+                        class="stat-value"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Fare
+                    </div>
+
+                    <div
+                        id="fareValue"
+                        class="stat-value yellow"
+                    >
+                        ₹ —
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             OTP
+        ================================================== -->
+
+        <div
+            id="otpPanel"
+            class="otp-panel"
+        >
+
+            <div
+                id="otpBadge"
+                class="otp-badge"
+            >
+                Pickup OTP
+            </div>
+
+            <h3
+                id="otpTitle"
+            >
+                Give this OTP to your driver
+            </h3>
+
+            <p
+                id="otpDescription"
+            >
+                Do not share your OTP before you
+                meet the driver and confirm the bike.
+            </p>
+
+
+            <!-- CUSTOMER OTP DISPLAY -->
+
+            <div
+                id="customerOtpDisplay"
+                class="otp-display"
+            >
+
+                <div class="otp-box empty">
+                    •
+                </div>
+
+                <div class="otp-box empty">
+                    •
+                </div>
+
+                <div class="otp-box empty">
+                    •
+                </div>
+
+                <div class="otp-box empty">
+                    •
+                </div>
+
+            </div>
+
+
+            <!-- DROP OTP INPUT -->
+
+            <div
+                id="dropOtpInputArea"
+                class="otp-input-area"
+                style="display:none;"
+            >
+
+                <input
+                    id="dropOtpInput"
+                    class="otp-input"
+                    type="tel"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="4"
+                    placeholder="••••"
+                    aria-label="Enter drop OTP"
+                >
+
+                <button
+                    id="verifyDropOtp"
+                    class="verify-button"
+                    type="button"
+                >
+                    Verify Drop OTP
+                </button>
+
+                <div
+                    id="otpError"
+                    class="otp-error"
+                >
+                    Incorrect OTP.
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             COMPLETED
+        ================================================== -->
+
+        <div
+            id="completedPanel"
+            class="completed-panel"
+        >
+
+            <div class="completed-icon">
+                ✅
+            </div>
+
+            <h3>
+                Ride completed
+            </h3>
+
+            <p>
+                Your Go Bike trip has been completed successfully.
+            </p>
+
+            <button
+                id="receiptButton"
+                class="receipt-button"
+                type="button"
+            >
+                View Receipt
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             ERROR
+        ================================================== -->
+
+        <div
+            id="errorPanel"
+            class="error-panel"
+        >
+
+            <div class="icon">
+                ⚠️
+            </div>
+
+            <strong>
+                Ride connection problem
+            </strong>
+
+            <p
+                id="errorText"
+            >
+                Unable to load the ride.
+            </p>
+
+            <button
+                id="retryButton"
+                class="retry"
+                type="button"
+            >
+                Reconnect
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             ACTIONS
+        ================================================== -->
+
+        <div
+            id="actions"
+            class="actions"
+        >
+
+            <button
+                id="supportButton"
+                class="action support-button"
+                type="button"
+            >
+                Help & Support
+            </button>
+
+            <button
+                id="cancelButton"
+                class="action cancel-button"
+                type="button"
+            >
+                Cancel Ride
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CANCEL MODAL
+    ====================================================== -->
+
+    <div
+        id="cancelModal"
+        class="modal"
+    >
+
+        <div class="modal-card">
+
+            <h2>
+                Cancel this ride?
+            </h2>
+
+            <p>
+                Cancellation may be unavailable after
+                the trip has started.
+            </p>
+
+            <div class="modal-actions">
+
+                <button
+                    id="keepRide"
+                    class="keep"
+                    type="button"
+                >
+                    Keep Ride
+                </button>
+
+                <button
+                    id="confirmCancel"
+                    class="confirm"
+                    type="button"
+                >
+                    Cancel Ride
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="toast"
+        class="toast"
+    ></div>
+
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
+    <!-- =====================================================
+         RIDE STATUS ENGINE
+    ====================================================== -->
+
+    <script>
+    (function () {
+
+        "use strict";
+
+
+        /* =================================================
+           STATE
+        ================================================== */
+
+        const state = {
+
+            rideId: null,
+
+            ride: null,
+
+            status: "loading",
+
+            pickup: null,
+
+            drop: null,
+
+            driver: null,
+
+            driverId: null,
+
+            driverLocation: null,
+
+            distanceKm: 0,
+
+            etaMinutes: 0,
+
+            fare: 0,
+
+            pickupOtp: null,
+
+            unsubscribe: null,
+
+            initialized: false
+
+        };
+
+
+        /* =================================================
+           DOM
+        ================================================== */
+
+        const $ = function (id) {
+
+            return document.getElementById(id);
+
+        };
+
+
+        /* =================================================
+           MAP
+        ================================================== */
+
+        let map = null;
+
+        let pickupMarker = null;
+
+        let dropMarker = null;
+
+        let driverMarker = null;
+
+
+        function createMap() {
+
+            if (
+                !window.L
+            ) {
+
+                showError(
+                    "Map library could not be loaded."
+                );
+
+                return;
+
+            }
+
+
+            map =
+                L.map(
+                    "map",
+                    {
+                        zoomControl: true
+                    }
+                );
+
+
+            L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+                    maxZoom: 19,
+
+                    attribution:
+                        "&copy; OpenStreetMap contributors"
+                }
+            ).addTo(
+                map
+            );
+
+
+            map.setView(
+                [20.5937,78.9629],
+                5
+            );
+
+        }
+
+
+        function validCoordinate(
+            location
+        ) {
+
+            if (
+                !location
+            ) {
+
+                return false;
+
+            }
+
+
+            const lat =
+                Number(
+                    location.lat
+                );
+
+            const lng =
+                Number(
+                    location.lng
+                );
+
+
+            return (
+                Number.isFinite(lat) &&
+                Number.isFinite(lng) &&
+                lat >= -90 &&
+                lat <= 90 &&
+                lng >= -180 &&
+                lng <= 180
+            );
+
+        }
+
+
+        function renderMap() {
+
+            if (
+                !map
+            ) {
+
+                return;
+
+            }
+
+
+            const bounds = [];
+
+
+            if (
+                validCoordinate(
+                    state.pickup
+                )
+            ) {
+
+                const position = [
+                    Number(
+                        state.pickup.lat
+                    ),
+                    Number(
+                        state.pickup.lng
+                    )
+                ];
+
+
+                const icon =
+                    L.divIcon(
+                        {
+                            className: "",
+
+                            html:
+                                '<div class="pickup-marker"></div>',
+
+                            iconSize:
+                                [18,18],
+
+                            iconAnchor:
+                                [9,9]
+                        }
+                    );
+
+
+                if (
+                    pickupMarker
+                ) {
+
+                    pickupMarker.setLatLng(
+                        position
+                    );
+
+                } else {
+
+                    pickupMarker =
+                        L.marker(
+                            position,
+                            {
+                                icon: icon
+                            }
+                        ).addTo(
+                            map
+                        );
+
+                }
+
+
+                bounds.push(
+                    position
+                );
+
+            }
+
+
+            if (
+                validCoordinate(
+                    state.drop
+                )
+            ) {
+
+                const position = [
+                    Number(
+                        state.drop.lat
+                    ),
+                    Number(
+                        state.drop.lng
+                    )
+                ];
+
+
+                const icon =
+                    L.divIcon(
+                        {
+                            className: "",
+
+                            html:
+                                '<div class="drop-marker"></div>',
+
+                            iconSize:
+                                [18,18],
+
+                            iconAnchor:
+                                [9,9]
+                        }
+                    );
+
+
+                if (
+                    dropMarker
+                ) {
+
+                    dropMarker.setLatLng(
+                        position
+                    );
+
+                } else {
+
+                    dropMarker =
+                        L.marker(
+                            position,
+                            {
+                                icon: icon
+                            }
+                        ).addTo(
+                            map
+                        );
+
+                }
+
+
+                bounds.push(
+                    position
+                );
+
+            }
+
+
+            if (
+                validCoordinate(
+                    state.driverLocation
+                )
+            ) {
+
+                const position = [
+                    Number(
+                        state.driverLocation.lat
+                    ),
+                    Number(
+                        state.driverLocation.lng
+                    )
+                ];
+
+
+                const icon =
+                    L.divIcon(
+                        {
+                            className: "",
+
+                            html:
+                                '<div class="driver-marker">🛵</div>',
+
+                            iconSize:
+                                [42,42],
+
+                            iconAnchor:
+                                [21,21]
+                        }
+                    );
+
+
+                if (
+                    driverMarker
+                ) {
+
+                    driverMarker.setLatLng(
+                        position
+                    );
+
+                } else {
+
+                    driverMarker =
+                        L.marker(
+                            position,
+                            {
+                                icon: icon,
+                                zIndexOffset: 1000
+                            }
+                        ).addTo(
+                            map
+                        );
+
+                }
+
+            }
+
+
+            if (
+                bounds.length === 1
+            ) {
+
+                map.setView(
+                    bounds[0],
+                    15
+                );
+
+            } else if (
+                bounds.length > 1 &&
+                !state.driverLocation
+            ) {
+
+                map.fitBounds(
+                    bounds,
+                    {
+                        padding:
+                            [60,60]
+                    }
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           LOAD RIDE
+        ================================================== */
+
+        function loadRideFromStorage() {
+
+            let ride = null;
+
+
+            try {
+
+                const raw =
+                    sessionStorage.getItem(
+                        "goBikeActiveRide"
+                    );
+
+
+                if (
+                    raw
+                ) {
+
+                    ride =
+                        JSON.parse(
+                            raw
+                        );
+
+                }
+
+            } catch (error) {
+
+                ride = null;
+
+            }
+
+
+            try {
+
+                state.rideId =
+                    sessionStorage.getItem(
+                        "goBikeActiveRideId"
+                    );
+
+            } catch (error) {
+
+                state.rideId = null;
+
+            }
+
+
+            if (
+                !ride &&
+                !state.rideId
+            ) {
+
+                showError(
+                    "No active ride was found. Please return to booking."
+                );
+
+                return false;
+
+            }
+
+
+            if (
+                ride
+            ) {
+
+                applyRide(
+                    ride
+                );
+
+            }
+
+
+            return true;
+
+        }
+
+
+        /* =================================================
+           BOOKING ENGINE
+        ================================================== */
+
+        function getEngine() {
+
+            return (
+                window.GoBikeBooking ||
+                null
+            );
+
+        }
+
+
+        /* =================================================
+           SUBSCRIBE
+        ================================================== */
+
+        function subscribe() {
+
+            const engine =
+                getEngine();
+
+
+            if (
+                !engine
+            ) {
+
+                showError(
+                    "Go Bike booking engine is not connected to this page."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !state.rideId
+            ) {
+
+                /*
+                 * If the engine can recover the current
+                 * ride itself, allow it to do so.
+                 */
+
+                if (
+                    typeof engine.getActiveRideId ===
+                    "function"
+                ) {
+
+                    try {
+
+                        state.rideId =
+                            engine.getActiveRideId();
+
+                    } catch (error) {}
+
+                }
+
+            }
+
+
+            if (
+                !state.rideId
+            ) {
+
+                showError(
+                    "Active ride ID is missing."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                typeof engine.subscribeToRide !==
+                "function"
+            ) {
+
+                showError(
+                    "Realtime ride listener is unavailable."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                if (
+                    state.unsubscribe
+                ) {
+
+                    state.unsubscribe();
+
+                }
+
+
+                state.unsubscribe =
+                    engine.subscribeToRide(
+                        state.rideId,
+                        function (ride) {
+
+                            if (
+                                ride
+                            ) {
+
+                                applyRide(
+                                    ride
+                                );
+
+                            }
+
+                        },
+                        function (error) {
+
+                            console.error(
+                                "Ride subscription error:",
+                                error
+                            );
+
+
+                            showError(
+                                error &&
+                                error.message
+                                    ? error.message
+                                    : "Realtime ride connection failed."
+                            );
+
+                        }
+                    );
+
+            } catch (error) {
+
+                console.error(
+                    error
+                );
+
+
+                showError(
+                    error.message ||
+                    "Unable to connect to the ride."
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           APPLY RIDE
+        ================================================== */
+
+        function applyRide(
+            ride
+        ) {
+
+            state.ride =
+                ride;
+
+
+            state.status =
+                normalizeStatus(
+                    ride.status
+                );
+
+
+            state.pickup =
+                normalizeLocation(
+                    ride.pickup ||
+                    ride.pickupLocation
+                );
+
+
+            state.drop =
+                normalizeLocation(
+                    ride.drop ||
+                    ride.dropLocation ||
+                    ride.destination
+                );
+
+
+            state.driver =
+                ride.driver ||
+                null;
+
+
+            state.driverId =
+                ride.driverId ||
+                (
+                    state.driver &&
+                    (
+                        state.driver.id ||
+                        state.driver.uid
+                    )
+                ) ||
+                null;
+
+
+            state.driverLocation =
+                normalizeLocation(
+                    ride.driverLocation ||
+                    (
+                        state.driver &&
+                        state.driver.location
+                    )
+                );
+
+
+            state.distanceKm =
+                Number(
+                    ride.distanceKm ||
+                    (
+                        ride.trip &&
+                        ride.trip.distanceKm
+                    ) ||
+                    0
+                );
+
+
+            state.etaMinutes =
+                Number(
+                    ride.etaMinutes ||
+                    ride.driverEtaMinutes ||
+                    (
+                        ride.trip &&
+                        ride.trip.etaMinutes
+                    ) ||
+                    0
+                );
+
+
+            state.fare =
+                Number(
+                    ride.finalFare ||
+                    ride.fare ||
+                    ride.estimatedFare ||
+                    (
+                        ride.payment &&
+                        ride.payment.amount
+                    ) ||
+                    (
+                        ride.payment &&
+                        ride.payment.estimatedAmount
+                    ) ||
+                    0
+                );
+
+
+            state.pickupOtp =
+                normalizeOtp(
+                    ride.pickupOtp ||
+                    ride.pickupOTP ||
+                    (
+                        ride.otp &&
+                        ride.otp.pickup
+                    )
+                );
+
+
+            /*
+             * Keep the current ride available after
+             * page reload/navigation.
+             */
+
+            try {
+
+                sessionStorage.setItem(
+                    "goBikeActiveRide",
+                    JSON.stringify(
+                        ride
+                    )
+                );
+
+            } catch (error) {}
+
+
+            renderAll();
+
+        }
+
+
+        /* =================================================
+           NORMALIZERS
+        ================================================== */
+
+        function normalizeStatus(
+            status
+        ) {
+
+            return String(
+                status ||
+                "loading"
+            )
+                .toLowerCase()
+                .replace(
+                    /-/g,
+                    "_"
+                );
+
+        }
+
+
+        function normalizeOtp(
+            value
+        ) {
+
+            if (
+                value === null ||
+                value === undefined
+            ) {
+
+                return null;
+
+            }
+
+
+            const otp =
+                String(
+                    value
+                )
+                    .replace(
+                        /\D/g,
+                        ""
+                    )
+                    .slice(
+                        0,
+                        4
+                    );
+
+
+            return (
+                /^\d{4}$/.test(
+                    otp
+                )
+                    ? otp
+                    : null
+            );
+
+        }
+
+
+        function normalizeLocation(
+            location
+        ) {
+
+            if (
+                !location
+            ) {
+
+                return null;
+
+            }
+
+
+            if (
+                Array.isArray(
+                    location
+                ) &&
+                location.length >= 2
+            ) {
+
+                const lat =
+                    Number(
+                        location[0]
+                    );
+
+                const lng =
+                    Number(
+                        location[1]
+                    );
+
+
+                if (
+                    Number.isFinite(lat) &&
+                    Number.isFinite(lng)
+                ) {
+
+                    return {
+                        lat: lat,
+                        lng: lng
+                    };
+
+                }
+
+            }
+
+
+            const lat =
+                Number(
+                    location.lat ??
+                    location.latitude
+                );
+
+            const lng =
+                Number(
+                    location.lng ??
+                    location.longitude
+                );
+
+
+            if (
+                Number.isFinite(lat) &&
+                Number.isFinite(lng)
+            ) {
+
+                return {
+                    lat: lat,
+                    lng: lng
+                };
+
+            }
+
+
+            return null;
+
+        }
+
+
+        /* =================================================
+           RENDER ALL
+        ================================================== */
+
+        function renderAll() {
+
+            renderTripInfo();
+
+            renderDriver();
+
+            renderMap();
+
+            renderStatus();
+
+            renderOtp();
+
+            renderActions();
+
+        }
+
+
+        /* =================================================
+           TRIP INFO
+        ================================================== */
+
+        function renderTripInfo() {
+
+            $(
+                "pickupAddress"
+            ).textContent =
+                getAddress(
+                    state.pickup,
+                    "Pickup location"
+                );
+
+
+            $(
+                "dropAddress"
+            ).textContent =
+                getAddress(
+                    state.drop,
+                    "Drop location"
+                );
+
+
+            $(
+                "distanceValue"
+            ).textContent =
+                state.distanceKm > 0
+                    ? formatNumber(
+                        state.distanceKm
+                    ) + " km"
+                    : "—";
+
+
+            $(
+                "timeValue"
+            ).textContent =
+                state.etaMinutes > 0
+                    ? Math.ceil(
+                        state.etaMinutes
+                    ) + " min"
+                    : "—";
+
+
+            $(
+                "fareValue"
+            ).textContent =
+                state.fare > 0
+                    ? "₹ " +
+                      formatNumber(
+                          state.fare
+                      )
+                    : "₹ —";
+
+        }
+
+
+        function getAddress(
+            location,
+            fallback
+        ) {
+
+            if (
+                !location
+            ) {
+
+                return fallback;
+
+            }
+
+
+            return (
+                location.address ||
+                location.name ||
+                location.formattedAddress ||
+                fallback
+            );
+
+        }
+
+
+        function formatNumber(
+            value
+        ) {
+
+            const number =
+                Number(
+                    value
+                );
+
+
+            if (
+                !Number.isFinite(
+                    number
+                )
+            ) {
+
+                return "0";
+
+            }
+
+
+            return Number.isInteger(
+                number
+            )
+                ? String(number)
+                : number.toFixed(1);
+
+        }
+
+
+        /* =================================================
+           DRIVER
+        ================================================== */
+
+        function renderDriver() {
+
+            const driver =
+                state.driver ||
+                {};
+
+
+            const name =
+                driver.name ||
+                driver.displayName ||
+                state.ride &&
+                state.ride.driverName ||
+                "Go Bike Driver";
+
+
+            const rating =
+                driver.rating ||
+                state.ride &&
+                state.ride.driverRating ||
+                "5.0";
+
+
+            const vehicle =
+                driver.vehicleNumber ||
+                driver.vehicle ||
+                driver.bikeNumber ||
+                state.ride &&
+                (
+                    state.ride.vehicleNumber ||
+                    state.ride.vehicle
+                ) ||
+                "Bike details unavailable";
+
+
+            $(
+                "driverName"
+            ).textContent =
+                name;
+
+
+            $(
+                "driverRating"
+            ).textContent =
+                "★ " + rating;
+
+
+            $(
+                "driverVehicle"
+            ).textContent =
+                vehicle;
+
+
+            const phone =
+                driver.phone ||
+                driver.phoneNumber ||
+                state.ride &&
+                state.ride.driverPhone ||
+                "";
+
+
+            const call =
+                $("driverCall");
+
+
+            if (
+                phone
+            ) {
+
+                call.href =
+                    "tel:" +
+                    String(
+                        phone
+                    )
+                    .replace(
+                        /[^\d+]/g,
+                        ""
+                    );
+
+                call.style.visibility =
+                    "visible";
+
+            } else {
+
+                call.removeAttribute(
+                    "href"
+                );
+
+                call.style.visibility =
+                    "hidden";
+
+            }
+
+        }
+
+
+        /* =================================================
+           STATUS RENDER
+        ================================================== */
+
+        function renderStatus() {
+
+            let title =
+                "Connecting";
+
+            let subtitle =
+                "Waiting for live ride information...";
+
+            let eta =
+                state.etaMinutes > 0
+                    ? Math.ceil(
+                        state.etaMinutes
+                    ) + " min"
+                    : "—";
+
+            let icon =
+                "🛵";
+
+
+            switch (
+                state.status
+            ) {
+
+                case "accepted":
+
+                case "driver_assigned":
+
+                case "driver_assigned_to_ride":
+
+                    title =
+                        "Driver assigned";
+
+                    subtitle =
+                        "Your driver has accepted the ride.";
+
+                    icon =
+                        "🛵";
+
+                    break;
+
+
+                case "arriving":
+
+                case "driver_arriving":
+
+                    title =
+                        "Driver is coming";
+
+                    subtitle =
+                        "Your driver is travelling to pickup.";
+
+                    icon =
+                        "📍";
+
+                    break;
+
+
+                case "arrived":
+
+                case "driver_arrived":
+
+                    title =
+                        "Driver has arrived";
+
+                    subtitle =
+                        "Please meet your driver at pickup.";
+
+                    icon =
+                        "👋";
+
+                    eta =
+                        "NOW";
+
+                    break;
+
+
+                case "otp_pending":
+
+                case "pickup_otp_pending":
+
+                case "waiting_for_pickup_otp":
+
+                    title =
+                        "Pickup OTP required";
+
+                    subtitle =
+                        "Show the 4-digit OTP to your driver.";
+
+                    icon =
+                        "🔐";
+
+                    eta =
+                        "OTP";
+
+                    break;
+
+
+                case "picked_up":
+
+                case "in_progress":
+
+                case "on_trip":
+
+                case "trip_started":
+
+                    title =
+                        "Ride in progress";
+
+                    subtitle =
+                        "Your driver is taking you to the drop location.";
+
+                    icon =
+                        "🏍️";
+
+                    break;
+
+
+                case "drop_otp_pending":
+
+                case "delivery_otp_pending":
+
+                case "waiting_for_drop_otp":
+
+                    title =
+                        "Drop OTP required";
+
+                    subtitle =
+                        "Enter the 4-digit OTP provided for drop.";
+
+                    icon =
+                        "🔐";
+
+                    eta =
+                        "OTP";
+
+                    break;
+
+
+                case "completed":
+
+                case "delivered":
+
+                    title =
+                        "Ride completed";
+
+                    subtitle =
+                        "Your Go Bike trip is complete.";
+
+                    icon =
+                        "✅";
+
+                    eta =
+                        "DONE";
+
+                    break;
+
+
+                case "cancelled":
+
+                case "canceled":
+
+                    title =
+                        "Ride cancelled";
+
+                    subtitle =
+                        "This ride is no longer active.";
+
+                    icon =
+                        "❌";
+
+                    eta =
+                        "—";
+
+                    break;
+
+
+                case "searching":
+
+                case "requested":
+
+                case "pending":
+
+                    title =
+                        "Finding driver";
+
+                    subtitle =
+                        "Searching for a nearby Go Bike driver.";
+
+                    icon =
+                        "🔎";
+
+                    break;
+
+
+                default:
+
+                    title =
+                        "Connecting";
+
+                    subtitle =
+                        "Waiting for live ride information.";
+
+                    break;
+
+            }
+
+
+            $(
+                "stateIcon"
+            ).textContent =
+                icon;
+
+
+            $(
+                "stateTitle"
+            ).textContent =
+                title;
+
+
+            $(
+                "stateSubtitle"
+            ).textContent =
+                subtitle;
+
+
+            $(
+                "stateEta"
+            ).textContent =
+                eta;
+
+
+            $(
+                "mapStatusTitle"
+            ).textContent =
+                title;
+
+
+            $(
+                "mapStatusSubtitle"
+            ).textContent =
+                subtitle;
+
+
+            const dot =
+                $("statusDot");
+
+
+            if (
+                state.status ===
+                    "completed"
+            ) {
+
+                dot.style.background =
+                    "var(--green)";
+
+            } else if (
+                state.status ===
+                    "cancelled" ||
+                state.status ===
+                    "canceled"
+            ) {
+
+                dot.style.background =
+                    "var(--red)";
+
+            } else {
+
+                dot.style.background =
+                    "var(--green)";
+
+            }
+
+        }
+
+
+        /* =================================================
+           OTP RENDER
+        ================================================== */
+
+        function renderOtp() {
+
+            const panel =
+                $("otpPanel");
+
+            const display =
+                $("customerOtpDisplay");
+
+            const dropInputArea =
+                $("dropOtpInputArea");
+
+
+            panel.classList.remove(
+                "show"
+            );
+
+
+            dropInputArea.style.display =
+                "none";
+
+
+            /*
+             * Pickup OTP
+             *
+             * Important:
+             * The customer-facing pickup OTP must come
+             * from the backend/ride document.
+             */
+
+            if (
+                state.status ===
+                    "otp_pending" ||
+                state.status ===
+                    "pickup_otp_pending" ||
+                state.status ===
+                    "waiting_for_pickup_otp" ||
+                state.status ===
+                    "arrived" ||
+                state.status ===
+                    "driver_arrived"
+            ) {
+
+                panel.classList.add(
+                    "show"
+                );
+
+
+                $(
+                    "otpBadge"
+                ).textContent =
+                    "Pickup OTP";
+
+
+                $(
+                    "otpTitle"
+                ).textContent =
+                    "Give this OTP to your driver";
+
+
+                $(
+                    "otpDescription"
+                ).textContent =
+                    "Only share it after you meet the correct driver and verify the bike.";
+
+
+                display.style.display =
+                    "flex";
+
+
+                renderOtpBoxes(
+                    state.pickupOtp
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Drop OTP
+             */
+
+            if (
+                state.status ===
+                    "drop_otp_pending" ||
+                state.status ===
+                    "delivery_otp_pending" ||
+                state.status ===
+                    "waiting_for_drop_otp"
+            ) {
+
+                panel.classList.add(
+                    "show"
+                );
+
+
+                $(
+                    "otpBadge"
+                ).textContent =
+                    "Drop OTP";
+
+
+                $(
+                    "otpTitle"
+                ).textContent =
+                    "Enter the drop OTP";
+
+
+                $(
+                    "otpDescription"
+                ).textContent =
+                    "Enter the 4-digit OTP to confirm the final drop.";
+
+
+                display.style.display =
+                    "none";
+
+
+                dropInputArea.style.display =
+                    "block";
+
+
+                return;
+
+            }
+
+        }
+
+
+        function renderOtpBoxes(
+            otp
+        ) {
+
+            const boxes =
+                document.querySelectorAll(
+                    "#customerOtpDisplay .otp-box"
+                );
+
+
+            const value =
+                normalizeOtp(
+                    otp
+                );
+
+
+            boxes.forEach(
+                function (
+                    box,
+                    index
+                ) {
+
+                    if (
+                        value &&
+                        value[index]
+                    ) {
+
+                        box.textContent =
+                            value[index];
+
+                        box.classList.remove(
+                            "empty"
+                        );
+
+                    } else {
+
+                        box.textContent =
+                            "•";
+
+                        box.classList.add(
+                            "empty"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           ACTIONS
+        ================================================== */
+
+        function renderActions() {
+
+            const cancel =
+                $("cancelButton");
+
+
+            const actions =
+                $("actions");
+
+
+            const completed =
+                state.status ===
+                    "completed" ||
+                state.status ===
+                    "delivered";
+
+
+            const cancelled =
+                state.status ===
+                    "cancelled" ||
+                state.status ===
+                    "canceled";
+
+
+            if (
+                completed ||
+                cancelled
+            ) {
+
+                actions.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            actions.style.display =
+                "grid";
+
+
+            /*
+             * Do not offer cancellation after
+             * the ride has entered active trip state.
+             */
+
+            const activeTrip =
+                state.status ===
+                    "picked_up" ||
+                state.status ===
+                    "in_progress" ||
+                state.status ===
+                    "on_trip" ||
+                state.status ===
+                    "trip_started";
+
+
+            cancel.disabled =
+                activeTrip;
+
+
+            cancel.style.opacity =
+                activeTrip
+                    ? ".45"
+                    : "1";
+
+        }
+
+
+        /* =================================================
+           COMPLETION
+        ================================================== */
+
+        function renderCompletion() {
+
+            const panel =
+                $("completedPanel");
+
+
+            if (
+                state.status ===
+                    "completed" ||
+                state.status ===
+                    "delivered"
+            ) {
+
+                panel.classList.add(
+                    "show"
+                );
+
+                $("actions").style.display =
+                    "none";
+
+                $("otpPanel").classList.remove(
+                    "show"
+                );
+
+            } else {
+
+                panel.classList.remove(
+                    "show"
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           DROP OTP
+        ================================================== */
+
+        $("verifyDropOtp")
+            .addEventListener(
+                "click",
+                verifyDropOtp
+            );
+
+
+        $("dropOtpInput")
+            .addEventListener(
+                "input",
+                function () {
+
+                    this.value =
+                        this.value
+                            .replace(
+                                /\D/g,
+                                ""
+                            )
+                            .slice(
+                                0,
+                                4
+                            );
+
+
+                    $("otpError")
+                        .classList.remove(
+                            "show"
+                        );
+
+                }
+            );
+
+
+        async function verifyDropOtp() {
+
+            const input =
+                normalizeOtp(
+                    $("dropOtpInput").value
+                );
+
+
+            const error =
+                $("otpError");
+
+
+            error.classList.remove(
+                "show"
+            );
+
+
+            if (
+                !input
+            ) {
+
+                error.textContent =
+                    "Enter the 4-digit OTP.";
+
+                error.classList.add(
+                    "show"
+                );
+
+                return;
+
+            }
+
+
+            const engine =
+                getEngine();
+
+
+            if (
+                !engine
+            ) {
+
+                error.textContent =
+                    "Booking engine is not connected.";
+
+                error.classList.add(
+                    "show"
+                );
+
+                return;
+
+            }
+
+
+            const button =
+                $("verifyDropOtp");
+
+
+            button.disabled =
+                true;
+
+
+            try {
+
+                /*
+                 * The actual verification must happen
+                 * in the central booking engine/backend.
+                 */
+
+                let result;
+
+
+                if (
+                    typeof engine.verifyDropOtp ===
+                    "function"
+                ) {
+
+                    result =
+                        await engine.verifyDropOtp(
+                            state.rideId,
+                            input
+                        );
+
+                } else if (
+                    typeof engine.verifyOtp ===
+                    "function"
+                ) {
+
+                    result =
+                        await engine.verifyOtp(
+                            state.rideId,
+                            input,
+                            "drop"
+                        );
+
+                } else {
+
+                    throw new Error(
+                        "Drop OTP verification is unavailable."
+                    );
+
+                }
+
+
+                if (
+                    result &&
+                    result.success === false
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Incorrect OTP."
+                    );
+
+                }
+
+
+                $("dropOtpInput").value =
+                    "";
+
+
+                showToast(
+                    "Drop OTP verified."
+                );
+
+
+            } catch (error) {
+
+                error.textContent =
+                    error.message ||
+                    "Incorrect OTP.";
+
+                error.classList.add(
+                    "show"
+                );
+
+            } finally {
+
+                button.disabled =
+                    false;
+
+            }
+
+        }
+
+
+        /* =================================================
+           CANCEL
+        ================================================== */
+
+        $("cancelButton")
+            .addEventListener(
+                "click",
+                function () {
+
+                    if (
+                        $("cancelButton").disabled
+                    ) {
+
+                        showToast(
+                            "Ride cannot be cancelled after trip start."
+                        );
+
+                        return;
+
+                    }
+
+
+                    $("cancelModal")
+                        .classList.add(
+                            "show"
+                        );
+
+                }
+            );
+
+
+        $("keepRide")
+            .addEventListener(
+                "click",
+                function () {
+
+                    $("cancelModal")
+                        .classList.remove(
+                            "show"
+                        );
+
+                }
+            );
+
+
+        $("confirmCancel")
+            .addEventListener(
+                "click",
+                cancelRide
+            );
+
+
+        async function cancelRide() {
+
+            $("cancelModal")
+                .classList.remove(
+                    "show"
+                );
+
+
+            const engine =
+                getEngine();
+
+
+            if (
+                !engine
+            ) {
+
+                showToast(
+                    "Booking engine is not connected."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !state.rideId
+            ) {
+
+                showToast(
+                    "Ride ID is missing."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                let result;
+
+
+                if (
+                    typeof engine.cancelRide ===
+                    "function"
+                ) {
+
+                    result =
+                        await engine.cancelRide(
+                            state.rideId,
+                            "customer_cancelled"
+                        );
+
+                } else {
+
+                    throw new Error(
+                        "Ride cancellation is unavailable."
+                    );
+
+                }
+
+
+                if (
+                    result &&
+                    result.success === false
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Unable to cancel ride."
+                    );
+
+                }
+
+
+                showToast(
+                    "Ride cancelled."
+                );
+
+
+                setTimeout(
+                    function () {
+
+                        window.location.href =
+                            "home.html";
+
+                    },
+                    700
+                );
+
+            } catch (error) {
+
+                showToast(
+                    error.message ||
+                    "Unable to cancel ride."
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           SUPPORT
+        ================================================== */
+
+        $("supportButton")
+            .addEventListener(
+                "click",
+                function () {
+
+                    /*
+                     * Keep the navigation compatible with
+                     * projects that have either support.html
+                     * or chat.html.
+                     */
+
+                    window.location.href =
+                        "chat.html";
+
+                }
+            );
+
+
+        /* =================================================
+           RECEIPT
+        ================================================== */
+
+        $("receiptButton")
+            .addEventListener(
+                "click",
+                function () {
+
+                    try {
+
+                        sessionStorage.setItem(
+                            "goBikeReceiptRideId",
+                            state.rideId || ""
+                        );
+
+                    } catch (error) {}
+
+
+                    window.location.href =
+                        "receipt.html";
+
+                }
+            );
+
+
+        /* =================================================
+           BACK
+        ================================================== */
+
+        $("backButton")
+            .addEventListener(
+                "click",
+                function () {
+
+                    const active =
+                        ![
+                            "completed",
+                            "delivered",
+                            "cancelled",
+                            "canceled"
+                        ].includes(
+                            state.status
+                        );
+
+
+                    if (
+                        active
+                    ) {
+
+                        showToast(
+                            "Active ride is open. Use Cancel Ride if you want to cancel."
+                        );
+
+                        return;
+
+                    }
+
+
+                    window.location.href =
+                        "home.html";
+
+                }
+            );
+
+
+        /* =================================================
+           RETRY
+        ================================================== */
+
+        $("retryButton")
+            .addEventListener(
+                "click",
+                function () {
+
+                    $("errorPanel")
+                        .classList.remove(
+                            "show"
+                        );
+
+
+                    subscribe();
+
+                }
+            );
+
+
+        /* =================================================
+           ERROR
+        ================================================== */
+
+        function showError(
+            message
+        ) {
+
+            $("errorPanel")
+                .classList.add(
+                    "show"
+                );
+
+
+            $("errorText")
+                .textContent =
+                message ||
+                "Unable to load the ride.";
+
+
+            $("mapStatusTitle")
+                .textContent =
+                "Connection problem";
+
+
+            $("mapStatusSubtitle")
+                .textContent =
+                message ||
+                "Unable to connect to ride.";
+
+        }
+
+
+        /* =================================================
+           TOAST
+        ================================================== */
+
+        let toastTimeout = null;
+
+
+        function showToast(
+            message
+        ) {
+
+            const toast =
+                $("toast");
+
+
+            toast.textContent =
+                message;
+
+
+            toast.classList.add(
+                "show"
+            );
+
+
+            clearTimeout(
+                toastTimeout
+            );
+
+
+            toastTimeout =
+                setTimeout(
+                    function () {
+
+                        toast.classList.remove(
+                            "show"
+                        );
+
+                    },
+                    3000
+                );
+
+        }
+
+
+        /* =================================================
+           VISIBILITY / RESUME
+        ================================================== */
+
+        document.addEventListener(
+            "visibilitychange",
+            function () {
+
+                if (
+                    document.visibilityState ===
+                    "visible"
+                ) {
+
+                    /*
+                     * Re-render immediately after the
+                     * user returns to the app.
+                     */
+
+                    renderAll();
+
+                    subscribe();
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           CLEANUP
+        ================================================== */
+
+        window.addEventListener(
+            "beforeunload",
+            function () {
+
+                if (
+                    state.unsubscribe
+                ) {
+
+                    try {
+
+                        state.unsubscribe();
+
+                    } catch (error) {}
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           INITIALIZE
+        ================================================== */
+
+        function init() {
+
+            if (
+                state.initialized
+            ) {
+
+                return;
+
+            }
+
+
+            state.initialized =
+                true;
+
+
+            createMap();
+
+
+            if (
+                !loadRideFromStorage()
+            ) {
+
+                return;
+
+            }
+
+
+            renderAll();
+
+
+            subscribe();
+
+        }
+
+
+        init();
+
+    })();
+    </script>
+
+</body>
+  </html>
