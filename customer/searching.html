@@ -1,0 +1,3025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#080808">
+
+    <title>Go Bike | Finding Driver</title>
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="../assets/favicon.png"
+    >
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        :root {
+            --black: #080808;
+            --black-2: #101010;
+            --card: #151515;
+
+            --yellow: #ffd600;
+            --yellow-2: #ffe44d;
+
+            --white: #ffffff;
+            --muted: #888;
+            --muted-2: #5c5c5c;
+
+            --green: #31d078;
+            --red: #ff4d4d;
+
+            --border: rgba(255,255,255,.09);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--black);
+        }
+
+        body {
+            color: var(--white);
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button {
+            font: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* =====================================================
+           MAP
+        ====================================================== */
+
+        #map {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+
+            background: #171717;
+        }
+
+        .leaflet-control-attribution {
+            font-size: 8px !important;
+            opacity: .7;
+        }
+
+        .leaflet-control-zoom {
+            margin-top: 78px !important;
+            margin-right: 12px !important;
+        }
+
+        .leaflet-control-zoom a {
+            width: 35px !important;
+            height: 35px !important;
+
+            line-height: 35px !important;
+
+            background: #111 !important;
+            color: #fff !important;
+
+            border-color: #333 !important;
+        }
+
+        /* =====================================================
+           TOP BAR
+        ====================================================== */
+
+        .top-bar {
+            position: fixed;
+            z-index: 20;
+
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 68px;
+
+            display: flex;
+            align-items: center;
+
+            padding:
+                0 14px;
+
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(0,0,0,.88),
+                    rgba(0,0,0,.28),
+                    transparent
+                );
+
+            pointer-events: none;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border:
+                1px solid rgba(255,255,255,.12);
+
+            border-radius: 13px;
+
+            background:
+                rgba(15,15,15,.92);
+
+            color: #fff;
+
+            font-size: 20px;
+
+            pointer-events: auto;
+        }
+
+        .back-button:active {
+            transform: scale(.94);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            margin-left: 10px;
+        }
+
+        .brand img {
+            width: 34px;
+            height: 34px;
+
+            object-fit: contain;
+
+            margin-right: 7px;
+        }
+
+        .brand-name {
+            font-size: 15px;
+            font-weight: 950;
+        }
+
+        .brand-name span {
+            color: var(--yellow);
+        }
+
+        /* =====================================================
+           SEARCH STATUS
+        ====================================================== */
+
+        .status-card {
+            position: fixed;
+            z-index: 15;
+
+            top: 77px;
+            left: 14px;
+            right: 14px;
+
+            max-width: 600px;
+
+            margin: 0 auto;
+
+            padding: 13px 14px;
+
+            display: flex;
+            align-items: center;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 17px;
+
+            background:
+                rgba(15,15,15,.92);
+
+            backdrop-filter: blur(15px);
+
+            box-shadow:
+                0 10px 35px rgba(0,0,0,.25);
+        }
+
+        .search-animation {
+            position: relative;
+
+            width: 40px;
+            height: 40px;
+
+            flex: 0 0 40px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-ring,
+        .search-ring::before,
+        .search-ring::after {
+            position: absolute;
+
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            border:
+                2px solid
+                rgba(255,214,0,.22);
+
+            content: "";
+        }
+
+        .search-ring {
+            animation:
+                pulse 1.8s infinite;
+        }
+
+        .search-ring::before {
+            animation:
+                pulse 1.8s .6s infinite;
+        }
+
+        .search-ring::after {
+            animation:
+                pulse 1.8s 1.2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0% {
+                transform: scale(.55);
+                opacity: .9;
+            }
+
+            100% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+
+        }
+
+        .bike-mini {
+            position: relative;
+            z-index: 2;
+
+            font-size: 18px;
+        }
+
+        .status-content {
+            min-width: 0;
+
+            margin-left: 10px;
+        }
+
+        .status-title {
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .status-subtitle {
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .status-dots {
+            margin-left: auto;
+
+            color: var(--yellow);
+
+            font-size: 15px;
+            letter-spacing: 2px;
+        }
+
+        /* =====================================================
+           BOTTOM SHEET
+        ====================================================== */
+
+        .bottom-sheet {
+            position: fixed;
+            z-index: 30;
+
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            max-height:
+                calc(
+                    58vh +
+                    env(safe-area-inset-bottom)
+                );
+
+            padding:
+                10px 14px
+                calc(
+                    13px +
+                    env(safe-area-inset-bottom)
+                );
+
+            overflow-y: auto;
+
+            border-radius:
+                24px 24px 0 0;
+
+            border-top:
+                1px solid var(--border);
+
+            background:
+                rgba(10,10,10,.97);
+
+            box-shadow:
+                0 -15px 45px
+                rgba(0,0,0,.42);
+
+            backdrop-filter: blur(20px);
+        }
+
+        .sheet-handle {
+            width: 38px;
+            height: 4px;
+
+            margin:
+                0 auto 13px;
+
+            border-radius: 10px;
+
+            background: #3c3c3c;
+        }
+
+        /* =====================================================
+           SEARCH INFO
+        ====================================================== */
+
+        .finding-row {
+            display: flex;
+            align-items: center;
+
+            margin-bottom: 14px;
+        }
+
+        .finding-icon {
+            width: 43px;
+            height: 43px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,214,0,.09);
+
+            font-size: 21px;
+        }
+
+        .finding-text {
+            flex: 1;
+
+            margin-left: 10px;
+        }
+
+        .finding-text strong {
+            display: block;
+
+            font-size: 14px;
+            font-weight: 950;
+        }
+
+        .finding-text span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 9px;
+        }
+
+        .timer {
+            min-width: 45px;
+
+            text-align: right;
+
+            color: var(--yellow);
+
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        /* =====================================================
+           TRIP CARD
+        ====================================================== */
+
+        .trip-card {
+            padding: 13px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 17px;
+
+            background: #141414;
+        }
+
+        .trip-route {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .route-line {
+            width: 20px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .route-dot {
+            width: 10px;
+            height: 10px;
+
+            margin-top: 3px;
+
+            border-radius: 50%;
+        }
+
+        .route-dot.pickup {
+            border:
+                3px solid var(--yellow);
+
+            background: #111;
+        }
+
+        .route-dot.drop {
+            background: var(--red);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(255,77,77,.1);
+        }
+
+        .route-dash {
+            flex: 1;
+
+            width: 1px;
+
+            margin: 4px 0;
+
+            border-left:
+                1px dashed #555;
+        }
+
+        .route-text {
+            flex: 1;
+
+            min-width: 0;
+
+            padding-left: 9px;
+        }
+
+        .route-point {
+            min-height: 37px;
+        }
+
+        .route-label {
+            color: #666;
+
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .route-address {
+            margin-top: 3px;
+
+            overflow: hidden;
+
+            color: #eee;
+
+            font-size: 10px;
+            font-weight: 700;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .route-gap {
+            height: 14px;
+        }
+
+        /* =====================================================
+           STATS
+        ====================================================== */
+
+        .stats {
+            display: grid;
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 7px;
+
+            margin-top: 11px;
+        }
+
+        .stat {
+            padding: 9px 5px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            background:
+                rgba(255,255,255,.025);
+
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+
+            font-size: 7px;
+            font-weight: 850;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            margin-top: 3px;
+
+            color: #fff;
+
+            font-size: 12px;
+            font-weight: 950;
+        }
+
+        .stat-value.yellow {
+            color: var(--yellow);
+        }
+
+        /* =====================================================
+           DRIVER FOUND
+        ====================================================== */
+
+        .driver-found {
+            display: none;
+        }
+
+        .driver-found.show {
+            display: block;
+        }
+
+        .driver-card {
+            display: flex;
+            align-items: center;
+
+            padding: 12px;
+
+            border:
+                1px solid
+                rgba(255,214,0,.25);
+
+            border-radius: 17px;
+
+            background:
+                rgba(255,214,0,.045);
+        }
+
+        .driver-avatar {
+            width: 48px;
+            height: 48px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 15px;
+
+            background:
+                #242424;
+
+            font-size: 22px;
+        }
+
+        .driver-info {
+            flex: 1;
+
+            margin-left: 10px;
+        }
+
+        .driver-info strong {
+            display: block;
+
+            font-size: 13px;
+            font-weight: 900;
+        }
+
+        .driver-rating {
+            margin-top: 3px;
+
+            color: var(--yellow);
+
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .driver-vehicle {
+            margin-top: 3px;
+
+            color: #777;
+
+            font-size: 8px;
+        }
+
+        .driver-eta {
+            text-align: right;
+        }
+
+        .driver-eta strong {
+            display: block;
+
+            color: var(--green);
+
+            font-size: 12px;
+        }
+
+        .driver-eta span {
+            display: block;
+
+            margin-top: 3px;
+
+            color: #666;
+
+            font-size: 8px;
+        }
+
+        /* =====================================================
+           CANCEL
+        ====================================================== */
+
+        .cancel-button {
+            width: 100%;
+
+            min-height: 47px;
+
+            margin-top: 11px;
+
+            border:
+                1px solid
+                rgba(255,77,77,.25);
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,77,77,.06);
+
+            color: #ff7474;
+
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .cancel-button:active {
+            transform: scale(.985);
+        }
+
+        /* =====================================================
+           ERROR
+        ====================================================== */
+
+        .error-state {
+            display: none;
+
+            padding: 16px;
+
+            border:
+                1px solid
+                rgba(255,77,77,.18);
+
+            border-radius: 16px;
+
+            background:
+                rgba(255,77,77,.05);
+
+            text-align: center;
+        }
+
+        .error-state.show {
+            display: block;
+        }
+
+        .error-icon {
+            font-size: 26px;
+        }
+
+        .error-state strong {
+            display: block;
+
+            margin-top: 7px;
+
+            font-size: 13px;
+        }
+
+        .error-state p {
+            margin-top: 5px;
+
+            color: #777;
+
+            font-size: 9px;
+            line-height: 1.45;
+        }
+
+        .retry-button {
+            min-height: 42px;
+
+            margin-top: 11px;
+            padding: 0 20px;
+
+            border: 0;
+            border-radius: 12px;
+
+            background: var(--yellow);
+            color: #111;
+
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        /* =====================================================
+           CANCEL MODAL
+        ====================================================== */
+
+        .modal {
+            position: fixed;
+            z-index: 100;
+
+            inset: 0;
+
+            display: none;
+            align-items: flex-end;
+
+            padding: 14px;
+
+            background:
+                rgba(0,0,0,.68);
+
+            backdrop-filter: blur(6px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+
+            max-width: 600px;
+
+            margin: 0 auto;
+
+            padding: 20px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 22px;
+
+            background: #151515;
+        }
+
+        .modal-card h2 {
+            font-size: 18px;
+            font-weight: 950;
+        }
+
+        .modal-card p {
+            margin-top: 6px;
+
+            color: #777;
+
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 16px;
+        }
+
+        .modal-actions button {
+            min-height: 45px;
+
+            border-radius: 13px;
+
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .keep-button {
+            border:
+                1px solid var(--border);
+
+            background: #202020;
+            color: #fff;
+        }
+
+        .confirm-cancel {
+            border: 0;
+
+            background:
+                rgba(255,77,77,.12);
+
+            color: #ff6b6b;
+        }
+
+        /* =====================================================
+           TOAST
+        ====================================================== */
+
+        .toast {
+            position: fixed;
+            z-index: 200;
+
+            left: 50%;
+            bottom: 25px;
+
+            width: max-content;
+            max-width:
+                calc(100% - 30px);
+
+            padding:
+                10px 14px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            background: #191919;
+            color: #ddd;
+
+            font-size: 9px;
+            font-weight: 750;
+
+            opacity: 0;
+
+            transform:
+                translate(-50%, 12px);
+
+            pointer-events: none;
+
+            transition:
+                opacity .2s ease,
+                transform .2s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+
+            transform:
+                translate(-50%, 0);
+        }
+
+        /* =====================================================
+           DRIVER MAP MARKER
+        ====================================================== */
+
+        .driver-marker {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border:
+                3px solid #fff;
+
+            border-radius: 50%;
+
+            background: var(--yellow);
+
+            box-shadow:
+                0 3px 12px
+                rgba(0,0,0,.4);
+
+            font-size: 18px;
+        }
+
+        .pickup-marker-map {
+            width: 18px;
+            height: 18px;
+
+            border:
+                4px solid var(--yellow);
+
+            border-radius: 50%;
+
+            background: #111;
+
+            box-shadow:
+                0 0 0 5px
+                rgba(255,214,0,.18);
+        }
+
+        /* =====================================================
+           DESKTOP
+        ====================================================== */
+
+        @media (min-width: 700px) {
+
+            .bottom-sheet {
+                left: 20px;
+                right: auto;
+                bottom: 20px;
+
+                width: 430px;
+
+                max-height: 72vh;
+
+                border-radius: 24px;
+            }
+
+            .status-card {
+                left: 470px;
+                right: 20px;
+
+                max-width: 430px;
+            }
+
+            .top-bar {
+                padding-left: 20px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         MAP
+    ====================================================== -->
+
+    <div id="map"></div>
+
+
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
+
+    <header class="top-bar">
+
+        <button
+            id="backButton"
+            class="back-button"
+            type="button"
+            aria-label="Back"
+        >
+            ←
+        </button>
+
+        <div class="brand">
+
+            <img
+                src="../assets/logo.svg"
+                alt="Go Bike"
+                onerror="
+                    this.onerror=null;
+                    this.src='../assets/logo.png';
+                "
+            >
+
+            <div class="brand-name">
+                GO <span>BIKE</span>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         SEARCH STATUS
+    ====================================================== -->
+
+    <div class="status-card">
+
+        <div class="search-animation">
+
+            <div class="search-ring"></div>
+
+            <div class="bike-mini">
+                🛵
+            </div>
+
+        </div>
+
+
+        <div class="status-content">
+
+            <div
+                id="statusTitle"
+                class="status-title"
+            >
+                Finding a driver
+            </div>
+
+            <div
+                id="statusSubtitle"
+                class="status-subtitle"
+            >
+                Looking for nearby Go Bike drivers...
+            </div>
+
+        </div>
+
+
+        <div
+            id="searchTimer"
+            class="status-dots"
+        >
+            •••
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BOTTOM SHEET
+    ====================================================== -->
+
+    <section class="bottom-sheet">
+
+        <div class="sheet-handle"></div>
+
+
+        <!-- SEARCHING -->
+
+        <div
+            id="searchingState"
+        >
+
+            <div class="finding-row">
+
+                <div class="finding-icon">
+                    🛵
+                </div>
+
+                <div class="finding-text">
+
+                    <strong>
+                        Finding your driver
+                    </strong>
+
+                    <span>
+                        We'll notify you as soon as
+                        a driver accepts.
+                    </span>
+
+                </div>
+
+                <div
+                    id="timerText"
+                    class="timer"
+                >
+                    00:00
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DRIVER FOUND -->
+
+        <div
+            id="driverFound"
+            class="driver-found"
+        >
+
+            <div class="driver-card">
+
+                <div class="driver-avatar">
+                    🧑‍✈️
+                </div>
+
+                <div class="driver-info">
+
+                    <strong
+                        id="driverName"
+                    >
+                        Driver
+                    </strong>
+
+                    <div
+                        id="driverRating"
+                        class="driver-rating"
+                    >
+                        ★ 5.0
+                    </div>
+
+                    <div
+                        id="driverVehicle"
+                        class="driver-vehicle"
+                    >
+                        Go Bike Driver
+                    </div>
+
+                </div>
+
+                <div class="driver-eta">
+
+                    <strong
+                        id="driverEta"
+                    >
+                        Arriving
+                    </strong>
+
+                    <span>
+                        to pickup
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ROUTE -->
+
+        <div class="trip-card">
+
+            <div class="trip-route">
+
+                <div class="route-line">
+
+                    <div
+                        class="route-dot pickup"
+                    ></div>
+
+                    <div
+                        class="route-dash"
+                    ></div>
+
+                    <div
+                        class="route-dot drop"
+                    ></div>
+
+                </div>
+
+
+                <div class="route-text">
+
+                    <div class="route-point">
+
+                        <div class="route-label">
+                            Pickup
+                        </div>
+
+                        <div
+                            id="pickupAddress"
+                            class="route-address"
+                        >
+                            Loading pickup...
+                        </div>
+
+                    </div>
+
+
+                    <div class="route-gap"></div>
+
+
+                    <div class="route-point">
+
+                        <div class="route-label">
+                            Drop
+                        </div>
+
+                        <div
+                            id="dropAddress"
+                            class="route-address"
+                        >
+                            Loading drop...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Distance
+                    </div>
+
+                    <div
+                        id="distanceValue"
+                        class="stat-value"
+                    >
+                        — km
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        ETA
+                    </div>
+
+                    <div
+                        id="etaValue"
+                        class="stat-value"
+                    >
+                        — min
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Fare
+                    </div>
+
+                    <div
+                        id="fareValue"
+                        class="stat-value yellow"
+                    >
+                        ₹ —
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ERROR -->
+
+        <div
+            id="errorState"
+            class="error-state"
+        >
+
+            <div class="error-icon">
+                ⚠️
+            </div>
+
+            <strong>
+                Unable to continue
+            </strong>
+
+            <p id="errorMessage">
+                Something went wrong while finding
+                a driver.
+            </p>
+
+            <button
+                id="retryButton"
+                class="retry-button"
+                type="button"
+            >
+                Try Again
+            </button>
+
+        </div>
+
+
+        <!-- CANCEL -->
+
+        <button
+            id="cancelButton"
+            class="cancel-button"
+            type="button"
+        >
+            Cancel Request
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         CANCEL MODAL
+    ====================================================== -->
+
+    <div
+        id="cancelModal"
+        class="modal"
+    >
+
+        <div class="modal-card">
+
+            <h2>
+                Cancel this request?
+            </h2>
+
+            <p>
+                Your driver search will stop and
+                the current ride request will be
+                cancelled.
+            </p>
+
+            <div class="modal-actions">
+
+                <button
+                    id="keepButton"
+                    class="keep-button"
+                    type="button"
+                >
+                    Keep Searching
+                </button>
+
+                <button
+                    id="confirmCancel"
+                    class="confirm-cancel"
+                    type="button"
+                >
+                    Cancel Request
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+    ></div>
+
+
+    <!-- =====================================================
+         LEAFLET
+    ====================================================== -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
+    <!-- =====================================================
+         PAGE ENGINE
+    ====================================================== -->
+
+    <script>
+    (function () {
+
+        "use strict";
+
+
+        /* =================================================
+           STATE
+        ================================================== */
+
+        const state = {
+
+            rideId: null,
+
+            pickup: null,
+
+            drop: null,
+
+            distanceKm: 0,
+
+            etaMinutes: 0,
+
+            fare: 0,
+
+            status: "searching",
+
+            driver: null,
+
+            timerSeconds: 0,
+
+            timerInterval: null,
+
+            statusUnsubscribe: null,
+
+            initialized: false
+
+        };
+
+
+        /* =================================================
+           DOM
+        ================================================== */
+
+        const mapElement =
+            document.getElementById(
+                "map"
+            );
+
+        const statusTitle =
+            document.getElementById(
+                "statusTitle"
+            );
+
+        const statusSubtitle =
+            document.getElementById(
+                "statusSubtitle"
+            );
+
+        const timerText =
+            document.getElementById(
+                "timerText"
+            );
+
+        const searchingState =
+            document.getElementById(
+                "searchingState"
+            );
+
+        const driverFound =
+            document.getElementById(
+                "driverFound"
+            );
+
+        const errorState =
+            document.getElementById(
+                "errorState"
+            );
+
+        const errorMessage =
+            document.getElementById(
+                "errorMessage"
+            );
+
+        const cancelButton =
+            document.getElementById(
+                "cancelButton"
+            );
+
+        const cancelModal =
+            document.getElementById(
+                "cancelModal"
+            );
+
+
+        /* =================================================
+           MAP
+        ================================================== */
+
+        let map = null;
+
+        let pickupMarker = null;
+
+        let dropMarker = null;
+
+        const driverMarkers =
+            new Map();
+
+
+        function createMap() {
+
+            if (
+                !window.L
+            ) {
+
+                showError(
+                    "Map library could not be loaded."
+                );
+
+                return;
+
+            }
+
+
+            map =
+                L.map(
+                    mapElement,
+                    {
+                        zoomControl: true,
+                        attributionControl: true
+                    }
+                );
+
+
+            L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+                    maxZoom: 19,
+                    attribution:
+                        "&copy; OpenStreetMap contributors"
+                }
+            ).addTo(
+                map
+            );
+
+
+            map.setView(
+                [20.5937, 78.9629],
+                5
+            );
+
+        }
+
+
+        function validCoordinate(
+            value
+        ) {
+
+            return (
+                value &&
+                Number.isFinite(
+                    Number(value.lat)
+                ) &&
+                Number.isFinite(
+                    Number(value.lng)
+                )
+            );
+
+        }
+
+
+        function renderMap() {
+
+            if (
+                !map
+            ) {
+                return;
+            }
+
+
+            if (
+                validCoordinate(
+                    state.pickup
+                )
+            ) {
+
+                const lat =
+                    Number(
+                        state.pickup.lat
+                    );
+
+                const lng =
+                    Number(
+                        state.pickup.lng
+                    );
+
+
+                const icon =
+                    L.divIcon(
+                        {
+                            className: "",
+                            html:
+                                '<div class="pickup-marker-map"></div>',
+                            iconSize:
+                                [18,18],
+                            iconAnchor:
+                                [9,9]
+                        }
+                    );
+
+
+                if (
+                    pickupMarker
+                ) {
+
+                    pickupMarker.setLatLng(
+                        [lat,lng]
+                    );
+
+                } else {
+
+                    pickupMarker =
+                        L.marker(
+                            [lat,lng],
+                            {
+                                icon: icon
+                            }
+                        ).addTo(
+                            map
+                        );
+
+                }
+
+            }
+
+
+            if (
+                validCoordinate(
+                    state.drop
+                )
+            ) {
+
+                const lat =
+                    Number(
+                        state.drop.lat
+                    );
+
+                const lng =
+                    Number(
+                        state.drop.lng
+                    );
+
+
+                const icon =
+                    L.divIcon(
+                        {
+                            className: "",
+                            html:
+                                '<div class="pickup-marker-map" style="border-color:#ff4d4d;box-shadow:0 0 0 5px rgba(255,77,77,.14);"></div>',
+                            iconSize:
+                                [18,18],
+                            iconAnchor:
+                                [9,9]
+                        }
+                    );
+
+
+                if (
+                    dropMarker
+                ) {
+
+                    dropMarker.setLatLng(
+                        [lat,lng]
+                    );
+
+                } else {
+
+                    dropMarker =
+                        L.marker(
+                            [lat,lng],
+                            {
+                                icon: icon
+                            }
+                        ).addTo(
+                            map
+                        );
+
+                }
+
+            }
+
+
+            fitRoute();
+
+        }
+
+
+        function fitRoute() {
+
+            if (
+                !map
+            ) {
+                return;
+            }
+
+
+            const points = [];
+
+
+            if (
+                validCoordinate(
+                    state.pickup
+                )
+            ) {
+
+                points.push(
+                    [
+                        Number(
+                            state.pickup.lat
+                        ),
+                        Number(
+                            state.pickup.lng
+                        )
+                    ]
+                );
+
+            }
+
+
+            if (
+                validCoordinate(
+                    state.drop
+                )
+            ) {
+
+                points.push(
+                    [
+                        Number(
+                            state.drop.lat
+                        ),
+                        Number(
+                            state.drop.lng
+                        )
+                    ]
+                );
+
+            }
+
+
+            driverMarkers.forEach(
+                function (marker) {
+
+                    const latLng =
+                        marker.getLatLng();
+
+                    if (
+                        latLng
+                    ) {
+
+                        points.push(
+                            [
+                                latLng.lat,
+                                latLng.lng
+                            ]
+                        );
+
+                    }
+
+                }
+            );
+
+
+            if (
+                points.length === 1
+            ) {
+
+                map.setView(
+                    points[0],
+                    15
+                );
+
+            } else if (
+                points.length > 1
+            ) {
+
+                map.fitBounds(
+                    points,
+                    {
+                        padding:
+                            [55,55]
+                    }
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           LOAD PAYLOAD
+        ================================================== */
+
+        function loadPayload() {
+
+            let payload = null;
+
+
+            try {
+
+                const raw =
+                    sessionStorage.getItem(
+                        "goBikeBookingPayload"
+                    );
+
+
+                if (
+                    raw
+                ) {
+
+                    payload =
+                        JSON.parse(
+                            raw
+                        );
+
+                }
+
+            } catch (error) {
+
+                payload = null;
+
+            }
+
+
+            if (
+                !payload
+            ) {
+
+                showError(
+                    "Booking information was not found. Please start the booking again."
+                );
+
+                return false;
+
+            }
+
+
+            state.pickup =
+                payload.pickup || null;
+
+            state.drop =
+                payload.drop || null;
+
+
+            state.distanceKm =
+                Number(
+                    payload.trip &&
+                    payload.trip.distanceKm ||
+                    0
+                );
+
+
+            state.etaMinutes =
+                Number(
+                    payload.trip &&
+                    payload.trip.etaMinutes ||
+                    0
+                );
+
+
+            state.fare =
+                Number(
+                    payload.payment &&
+                    payload.payment.estimatedAmount ||
+                    0
+                );
+
+
+            /*
+             * Ride ID can be stored after the booking
+             * engine creates the Firestore document.
+             */
+
+            try {
+
+                state.rideId =
+                    sessionStorage.getItem(
+                        "goBikeActiveRideId"
+                    );
+
+            } catch (error) {
+
+                state.rideId = null;
+
+            }
+
+
+            renderTrip();
+
+
+            return true;
+
+        }
+
+
+        /* =================================================
+           RENDER TRIP
+        ================================================== */
+
+        function renderTrip() {
+
+            document.getElementById(
+                "pickupAddress"
+            ).textContent =
+                state.pickup &&
+                state.pickup.address
+                    ? state.pickup.address
+                    : "Pickup location";
+
+
+            document.getElementById(
+                "dropAddress"
+            ).textContent =
+                state.drop &&
+                state.drop.address
+                    ? state.drop.address
+                    : "Drop location";
+
+
+            document.getElementById(
+                "distanceValue"
+            ).textContent =
+                state.distanceKm > 0
+                    ? state.distanceKm + " km"
+                    : "— km";
+
+
+            document.getElementById(
+                "etaValue"
+            ).textContent =
+                state.etaMinutes > 0
+                    ? state.etaMinutes + " min"
+                    : "— min";
+
+
+            document.getElementById(
+                "fareValue"
+            ).textContent =
+                state.fare > 0
+                    ? "₹ " + state.fare
+                    : "₹ —";
+
+
+            renderMap();
+
+        }
+
+
+        /* =================================================
+           TIMER
+        ================================================== */
+
+        function startTimer() {
+
+            stopTimer();
+
+
+            state.timerSeconds = 0;
+
+
+            state.timerInterval =
+                window.setInterval(
+                    function () {
+
+                        state.timerSeconds++;
+
+
+                        const minutes =
+                            Math.floor(
+                                state.timerSeconds /
+                                60
+                            );
+
+
+                        const seconds =
+                            state.timerSeconds %
+                            60;
+
+
+                        timerText.textContent =
+                            String(minutes)
+                                .padStart(
+                                    2,
+                                    "0"
+                                ) +
+                            ":" +
+                            String(seconds)
+                                .padStart(
+                                    2,
+                                    "0"
+                                );
+
+                    },
+                    1000
+                );
+
+        }
+
+
+        function stopTimer() {
+
+            if (
+                state.timerInterval
+            ) {
+
+                window.clearInterval(
+                    state.timerInterval
+                );
+
+                state.timerInterval =
+                    null;
+
+            }
+
+        }
+
+
+        /* =================================================
+           FIREBASE ENGINE CONNECTOR
+        ================================================== */
+
+        function getBookingEngine() {
+
+            if (
+                window.GoBikeBooking
+            ) {
+
+                return window.GoBikeBooking;
+
+            }
+
+
+            return null;
+
+        }
+
+
+        /* =================================================
+           REALTIME STATUS
+        ================================================== */
+
+        function subscribeToRide() {
+
+            const engine =
+                getBookingEngine();
+
+
+            if (
+                !engine
+            ) {
+
+                /*
+                 * The central booking engine has not yet
+                 * been loaded on this page.
+                 *
+                 * Do not invent a fake driver.
+                 */
+
+                showError(
+                    "Booking engine is not connected yet."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !state.rideId
+            ) {
+
+                showError(
+                    "Ride request ID is missing."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                typeof engine.subscribeToRide !==
+                "function"
+            ) {
+
+                showError(
+                    "Ride status listener is not available."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                state.statusUnsubscribe =
+                    engine.subscribeToRide(
+                        state.rideId,
+                        handleRideUpdate,
+                        handleRideError
+                    );
+
+            } catch (error) {
+
+                handleRideError(
+                    error
+                );
+
+            }
+
+        }
+
+
+        function handleRideError(
+            error
+        ) {
+
+            console.error(
+                "Go Bike ride listener error:",
+                error
+            );
+
+
+            showError(
+                error &&
+                error.message
+                    ? error.message
+                    : "Unable to monitor ride status."
+            );
+
+        }
+
+
+        /* =================================================
+           RIDE UPDATE
+        ================================================== */
+
+        function handleRideUpdate(
+            ride
+        ) {
+
+            if (
+                !ride
+            ) {
+
+                return;
+
+            }
+
+
+            state.status =
+                String(
+                    ride.status ||
+                    "searching"
+                ).toLowerCase();
+
+
+            /*
+             * Driver location may arrive as:
+             *
+             * ride.driverLocation
+             * ride.driver.location
+             *
+             */
+
+            if (
+                ride.driverLocation
+            ) {
+
+                updateDriverLocation(
+                    ride.driverId,
+                    ride.driverLocation
+                );
+
+            }
+
+
+            if (
+                ride.driver
+            ) {
+
+                state.driver =
+                    ride.driver;
+
+            }
+
+
+            switch (
+                state.status
+            ) {
+
+                case "searching":
+
+                case "requested":
+
+                case "pending":
+
+                    showSearching();
+
+                    break;
+
+
+                case "accepted":
+
+                case "driver_assigned":
+
+                case "driver_assigned_to_ride":
+
+                    showDriverAccepted(
+                        ride
+                    );
+
+                    break;
+
+
+                case "arriving":
+
+                case "driver_arriving":
+
+                    showDriverAccepted(
+                        ride
+                    );
+
+                    updateStatusText(
+                        "Driver is on the way",
+                        "Your Go Bike driver is heading to the pickup location."
+                    );
+
+                    break;
+
+
+                case "arrived":
+
+                case "driver_arrived":
+
+                    showDriverAccepted(
+                        ride
+                    );
+
+                    updateStatusText(
+                        "Driver has arrived",
+                        "Your driver is waiting at the pickup location."
+                    );
+
+                    break;
+
+
+                case "otp_pending":
+
+                case "pickup_otp_pending":
+
+                    goToRideStatus(
+                        ride
+                    );
+
+                    break;
+
+
+                case "picked_up":
+
+                case "in_progress":
+
+                case "on_trip":
+
+                    goToRideStatus(
+                        ride
+                    );
+
+                    break;
+
+
+                case "completed":
+
+                case "delivered":
+
+                    goToRideStatus(
+                        ride
+                    );
+
+                    break;
+
+
+                case "cancelled":
+
+                case "canceled":
+
+                    showError(
+                        "This ride request was cancelled."
+                    );
+
+                    cancelButton.style.display =
+                        "none";
+
+                    break;
+
+
+                default:
+
+                    showSearching();
+
+                    break;
+
+            }
+
+        }
+
+
+        /* =================================================
+           SEARCHING UI
+        ================================================== */
+
+        function showSearching() {
+
+            errorState.classList.remove(
+                "show"
+            );
+
+
+            searchingState.style.display =
+                "block";
+
+
+            driverFound.classList.remove(
+                "show"
+            );
+
+
+            cancelButton.style.display =
+                "block";
+
+
+            updateStatusText(
+                "Finding a driver",
+                "Looking for nearby Go Bike drivers..."
+            );
+
+        }
+
+
+        /* =================================================
+           ACCEPTED UI
+        ================================================== */
+
+        function showDriverAccepted(
+            ride
+        ) {
+
+            errorState.classList.remove(
+                "show"
+            );
+
+
+            searchingState.style.display =
+                "none";
+
+
+            driverFound.classList.add(
+                "show"
+            );
+
+
+            cancelButton.style.display =
+                "block";
+
+
+            updateStatusText(
+                "Driver found",
+                "Your Go Bike driver has accepted the request."
+            );
+
+
+            stopTimer();
+
+
+            const driver =
+                ride.driver ||
+                state.driver ||
+                {};
+
+
+            const name =
+                driver.name ||
+                driver.displayName ||
+                ride.driverName ||
+                "Go Bike Driver";
+
+
+            const rating =
+                driver.rating ||
+                ride.driverRating ||
+                "5.0";
+
+
+            const vehicle =
+                driver.vehicleNumber ||
+                driver.vehicle ||
+                ride.vehicleNumber ||
+                "Bike";
+
+
+            document.getElementById(
+                "driverName"
+            ).textContent =
+                name;
+
+
+            document.getElementById(
+                "driverRating"
+            ).textContent =
+                "★ " + rating;
+
+
+            document.getElementById(
+                "driverVehicle"
+            ).textContent =
+                vehicle;
+
+
+            const eta =
+                ride.driverEtaMinutes ||
+                ride.etaMinutes ||
+                "";
+
+
+            document.getElementById(
+                "driverEta"
+            ).textContent =
+                eta
+                    ? eta + " min"
+                    : "Arriving";
+
+        }
+
+
+        /* =================================================
+           STATUS TEXT
+        ================================================== */
+
+        function updateStatusText(
+            title,
+            subtitle
+        ) {
+
+            statusTitle.textContent =
+                title;
+
+            statusSubtitle.textContent =
+                subtitle;
+
+        }
+
+
+        /* =================================================
+           DRIVER LOCATION
+        ================================================== */
+
+        function updateDriverLocation(
+            driverId,
+            location
+        ) {
+
+            if (
+                !map ||
+                !validCoordinate(
+                    location
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            const id =
+                driverId ||
+                "assigned-driver";
+
+
+            const lat =
+                Number(
+                    location.lat
+                );
+
+
+            const lng =
+                Number(
+                    location.lng
+                );
+
+
+            let marker =
+                driverMarkers.get(
+                    id
+                );
+
+
+            if (
+                !marker
+            ) {
+
+                const icon =
+                    L.divIcon(
+                        {
+                            className: "",
+                            html:
+                                '<div class="driver-marker">🛵</div>',
+                            iconSize:
+                                [38,38],
+                            iconAnchor:
+                                [19,19]
+                        }
+                    );
+
+
+                marker =
+                    L.marker(
+                        [lat,lng],
+                        {
+                            icon: icon
+                        }
+                    ).addTo(
+                        map
+                    );
+
+
+                driverMarkers.set(
+                    id,
+                    marker
+                );
+
+            } else {
+
+                marker.setLatLng(
+                    [lat,lng]
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           GO TO RIDE STATUS
+        ================================================== */
+
+        function goToRideStatus(
+            ride
+        ) {
+
+            /*
+             * Keep ride data available for the next page.
+             */
+
+            try {
+
+                sessionStorage.setItem(
+                    "goBikeActiveRide",
+                    JSON.stringify(
+                        ride
+                    )
+                );
+
+            } catch (error) {
+
+                console.warn(
+                    "Could not save active ride.",
+                    error
+                );
+
+            }
+
+
+            /*
+             * The next ride-status page will handle:
+             *
+             * Driver details
+             * Live location
+             * 4-digit OTP
+             * Pickup
+             * Navigation
+             * Drop
+             * Delivery OTP
+             */
+
+            window.location.href =
+                "ride-status.html";
+
+        }
+
+
+        /* =================================================
+           ERROR
+        ================================================== */
+
+        function showError(
+            message
+        ) {
+
+            stopTimer();
+
+
+            errorState.classList.add(
+                "show"
+            );
+
+
+            searchingState.style.display =
+                "none";
+
+
+            driverFound.classList.remove(
+                "show"
+            );
+
+
+            errorMessage.textContent =
+                message ||
+                "Something went wrong.";
+
+
+            updateStatusText(
+                "Unable to find driver",
+                "Please try again."
+            );
+
+        }
+
+
+        /* =================================================
+           CANCEL
+        ================================================== */
+
+        cancelButton.addEventListener(
+            "click",
+            function () {
+
+                cancelModal.classList.add(
+                    "show"
+                );
+
+            }
+        );
+
+
+        document
+            .getElementById(
+                "keepButton"
+            )
+            .addEventListener(
+                "click",
+                function () {
+
+                    cancelModal.classList.remove(
+                        "show"
+                    );
+
+                }
+            );
+
+
+        document
+            .getElementById(
+                "confirmCancel"
+            )
+            .addEventListener(
+                "click",
+                async function () {
+
+                    cancelModal.classList.remove(
+                        "show"
+                    );
+
+
+                    await cancelRide();
+
+                }
+            );
+
+
+        async function cancelRide() {
+
+            const engine =
+                getBookingEngine();
+
+
+            if (
+                !state.rideId
+            ) {
+
+                showToast(
+                    "Ride request ID is missing."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !engine ||
+                typeof engine.cancelRide !==
+                "function"
+            ) {
+
+                showToast(
+                    "Booking engine is not connected."
+                );
+
+                return;
+
+            }
+
+
+            cancelButton.disabled =
+                true;
+
+
+            try {
+
+                const result =
+                    await engine.cancelRide(
+                        state.rideId,
+                        "customer_cancelled"
+                    );
+
+
+                if (
+                    result &&
+                    result.success === false
+                ) {
+
+                    throw new Error(
+                        result.message ||
+                        "Unable to cancel ride."
+                    );
+
+                }
+
+
+                stopTimer();
+
+
+                if (
+                    state.statusUnsubscribe
+                ) {
+
+                    try {
+
+                        state.statusUnsubscribe();
+
+                    } catch (error) {}
+
+                    state.statusUnsubscribe =
+                        null;
+
+                }
+
+
+                try {
+
+                    sessionStorage.removeItem(
+                        "goBikeActiveRideId"
+                    );
+
+                    sessionStorage.removeItem(
+                        "goBikeBookingPayload"
+                    );
+
+                } catch (error) {}
+
+
+                window.location.href =
+                    "home.html";
+
+            } catch (error) {
+
+                cancelButton.disabled =
+                    false;
+
+
+                showToast(
+                    error.message ||
+                    "Unable to cancel ride."
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           RETRY
+        ================================================== */
+
+        document
+            .getElementById(
+                "retryButton"
+            )
+            .addEventListener(
+                "click",
+                function () {
+
+                    errorState.classList.remove(
+                        "show"
+                    );
+
+
+                    cancelButton.style.display =
+                        "block";
+
+
+                    showSearching();
+
+
+                    /*
+                     * Retry only the realtime listener.
+                     * We do NOT create another ride.
+                     */
+
+                    subscribeToRide();
+
+                }
+            );
+
+
+        /* =================================================
+           BACK
+        ================================================== */
+
+        document
+            .getElementById(
+                "backButton"
+            )
+            .addEventListener(
+                "click",
+                function () {
+
+                    /*
+                     * If a ride is actively searching,
+                     * going back must not silently cancel it.
+                     */
+
+                    if (
+                        state.status ===
+                            "searching" ||
+                        state.status ===
+                            "requested" ||
+                        state.status ===
+                            "pending"
+                    ) {
+
+                        cancelModal.classList.add(
+                            "show"
+                        );
+
+                        return;
+
+                    }
+
+
+                    window.history.back();
+
+                }
+            );
+
+
+        /* =================================================
+           TOAST
+        ================================================== */
+
+        let toastTimer = null;
+
+
+        function showToast(
+            message
+        ) {
+
+            const toast =
+                document.getElementById(
+                    "toast"
+                );
+
+
+            toast.textContent =
+                message;
+
+
+            toast.classList.add(
+                "show"
+            );
+
+
+            window.clearTimeout(
+                toastTimer
+            );
+
+
+            toastTimer =
+                window.setTimeout(
+                    function () {
+
+                        toast.classList.remove(
+                            "show"
+                        );
+
+                    },
+                    3000
+                );
+
+        }
+
+
+        /* =================================================
+           CLEANUP
+        ================================================== */
+
+        window.addEventListener(
+            "beforeunload",
+            function () {
+
+                stopTimer();
+
+
+                if (
+                    state.statusUnsubscribe
+                ) {
+
+                    try {
+
+                        state.statusUnsubscribe();
+
+                    } catch (error) {}
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           INITIALIZE
+        ================================================== */
+
+        function init() {
+
+            if (
+                state.initialized
+            ) {
+
+                return;
+
+            }
+
+
+            state.initialized =
+                true;
+
+
+            createMap();
+
+
+            const loaded =
+                loadPayload();
+
+
+            if (
+                !loaded
+            ) {
+
+                return;
+
+            }
+
+
+            startTimer();
+
+
+            /*
+             * If booking engine already created
+             * a ride ID, listen immediately.
+             *
+             * Otherwise the page intentionally
+             * refuses to invent a ride.
+             */
+
+            subscribeToRide();
+
+        }
+
+
+        init();
+
+    })();
+    </script>
+
+</body>
+</html>
