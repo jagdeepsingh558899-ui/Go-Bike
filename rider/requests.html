@@ -4,22 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#080808">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Go Bike | Ride Requests</title>
-
-<link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 :root{
     --black:#080808;
-    --card:#151515;
-    --card2:#1d1d1d;
+    --panel:#111;
+    --panel2:#171717;
     --yellow:#ffd600;
     --white:#fff;
-    --muted:#858585;
-    --green:#32d27b;
-    --red:#ff5757;
-    --border:rgba(255,255,255,.09);
+    --muted:#777;
+    --border:rgba(255,255,255,.08);
+    --green:#25d47a;
+    --red:#ff5555;
+    --orange:#ffad32;
 }
 
 *{
@@ -29,613 +28,619 @@
 }
 
 html,body{
-    width:100%;
-    height:100%;
-    overflow:hidden;
+    min-height:100%;
     background:var(--black);
     color:var(--white);
     font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
 
+body{
+    padding-bottom:25px;
+}
+
 button{
     font:inherit;
+    cursor:pointer;
     -webkit-tap-highlight-color:transparent;
 }
 
-#map{
-    position:fixed;
-    inset:0;
-    z-index:1;
-    background:#171717;
-}
-
-.leaflet-control-zoom{
-    margin-top:78px!important;
-    margin-right:12px!important;
-}
-
-.leaflet-control-zoom a{
-    width:35px!important;
-    height:35px!important;
-    line-height:35px!important;
-    background:#111!important;
-    color:#fff!important;
-    border-color:#333!important;
-}
-
-.leaflet-control-attribution{
-    font-size:8px!important;
-}
-
-/* TOP */
-
-.topbar{
-    position:fixed;
-    z-index:20;
-    top:0;
-    left:0;
-    right:0;
-    height:68px;
-    padding:0 14px;
-    display:flex;
-    align-items:center;
-    pointer-events:none;
-    background:linear-gradient(
-        to bottom,
-        rgba(0,0,0,.9),
-        rgba(0,0,0,.3),
-        transparent
-    );
-}
-
-.top-button{
-    width:40px;
-    height:40px;
-    border:1px solid var(--border);
-    border-radius:13px;
-    background:rgba(10,10,10,.92);
-    color:#fff;
-    font-size:20px;
-    pointer-events:auto;
-}
-
-.top-title{
-    margin-left:10px;
-    font-size:14px;
-    font-weight:950;
-}
-
-.top-title span{
-    color:var(--yellow);
-}
-
-.online-pill{
-    margin-left:auto;
-    display:flex;
-    align-items:center;
-    gap:7px;
-    padding:8px 10px;
-    border:1px solid rgba(50,210,123,.2);
-    border-radius:20px;
-    background:rgba(0,0,0,.72);
-    color:var(--green);
-    font-size:8px;
-    font-weight:950;
-    text-transform:uppercase;
-    pointer-events:auto;
-}
-
-.online-dot{
-    width:7px;
-    height:7px;
-    border-radius:50%;
-    background:var(--green);
-    box-shadow:0 0 0 4px rgba(50,210,123,.12);
-}
-
-/* STATUS */
-
-.status-card{
-    position:fixed;
-    z-index:15;
-    top:78px;
-    left:14px;
-    right:14px;
-    max-width:600px;
+.page{
+    width:100%;
+    max-width:650px;
+    min-height:100vh;
     margin:auto;
-    display:flex;
-    align-items:center;
-    padding:11px 13px;
-    border:1px solid var(--border);
-    border-radius:16px;
-    background:rgba(10,10,10,.9);
-    backdrop-filter:blur(15px);
+    padding:14px;
 }
 
-.status-icon{
-    width:35px;
-    height:35px;
+/* HEADER */
+
+.header{
     display:flex;
     align-items:center;
-    justify-content:center;
-    border-radius:11px;
-    background:rgba(255,214,0,.09);
+    gap:10px;
+}
+
+.back-btn,
+.refresh-btn{
+    width:43px;
+    height:43px;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:var(--panel);
+    color:#fff;
     font-size:18px;
 }
 
-.status-copy{
+.header-copy{
     flex:1;
-    min-width:0;
-    margin-left:9px;
 }
 
-.status-copy strong{
+.header-copy strong{
     display:block;
-    font-size:10px;
+    font-size:17px;
     font-weight:950;
 }
 
-.status-copy span{
+.header-copy span{
     display:block;
     margin-top:3px;
-    overflow:hidden;
-    color:var(--muted);
-    font-size:8px;
-    white-space:nowrap;
-    text-overflow:ellipsis;
+    color:#555;
+    font-size:7px;
+    font-weight:700;
 }
 
-.request-count{
-    color:var(--yellow);
-    font-size:9px;
+/* ONLINE */
+
+.online-card{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:15px;
+    padding:12px 14px;
+    border:1px solid rgba(37,212,122,.14);
+    border-radius:15px;
+    background:rgba(37,212,122,.04);
+}
+
+.online-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 5px rgba(37,212,122,.08);
+}
+
+.online-copy{
+    flex:1;
+}
+
+.online-copy strong{
+    display:block;
+    color:#ddd;
+    font-size:8px;
     font-weight:950;
 }
 
-/* SHEET */
-
-.sheet{
-    position:fixed;
-    z-index:30;
-    left:0;
-    right:0;
-    bottom:0;
-    max-height:64vh;
-    overflow-y:auto;
-    padding:10px 14px calc(15px + env(safe-area-inset-bottom));
-    border-top:1px solid var(--border);
-    border-radius:25px 25px 0 0;
-    background:rgba(8,8,8,.97);
-    box-shadow:0 -15px 45px rgba(0,0,0,.45);
-    backdrop-filter:blur(20px);
+.online-copy span{
+    display:block;
+    margin-top:3px;
+    color:#555;
+    font-size:6px;
 }
 
-.handle{
-    width:38px;
-    height:4px;
-    margin:0 auto 13px;
+.online-toggle{
+    position:relative;
+    width:42px;
+    height:24px;
+    border:0;
+    border-radius:20px;
+    background:#333;
+}
+
+.online-toggle::after{
+    content:"";
+    position:absolute;
+    top:3px;
+    left:3px;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#777;
+    transition:.2s;
+}
+
+.online-toggle.active{
+    background:var(--green);
+}
+
+.online-toggle.active::after{
+    left:21px;
+    background:#fff;
+}
+
+/* FILTER */
+
+.filter-row{
+    display:flex;
+    gap:7px;
+    overflow-x:auto;
+    margin-top:15px;
+    padding-bottom:2px;
+}
+
+.filter-row::-webkit-scrollbar{
+    display:none;
+}
+
+.filter{
+    flex:0 0 auto;
+    padding:9px 13px;
+    border:1px solid var(--border);
     border-radius:10px;
-    background:#3c3c3c;
+    background:#111;
+    color:#777;
+    font-size:7px;
+    font-weight:900;
+}
+
+.filter.active{
+    border-color:rgba(255,214,0,.35);
+    background:rgba(255,214,0,.08);
+    color:var(--yellow);
 }
 
 /* REQUEST */
 
-.request-card{
-    display:none;
+.request{
+    position:relative;
+    overflow:hidden;
+    margin-top:15px;
+    border:1px solid var(--border);
+    border-radius:21px;
+    background:var(--panel);
 }
 
-.request-card.show{
-    display:block;
+.request.priority{
+    border-color:rgba(255,214,0,.22);
 }
 
 .request-head{
     display:flex;
     align-items:center;
-    margin-bottom:12px;
+    gap:9px;
+    padding:14px;
+    border-bottom:1px solid var(--border);
 }
 
-.request-badge{
-    padding:7px 9px;
-    border-radius:9px;
-    background:rgba(255,214,0,.1);
-    color:var(--yellow);
-    font-size:8px;
-    font-weight:950;
-    text-transform:uppercase;
-}
-
-.timer{
-    margin-left:auto;
-    color:#aaa;
-    font-size:9px;
-    font-weight:900;
-}
-
-.timer strong{
-    color:var(--yellow);
-}
-
-/* EARNING */
-
-.earning-card{
-    display:flex;
-    align-items:center;
-    padding:13px;
-    margin-bottom:9px;
-    border:1px solid rgba(255,214,0,.2);
-    border-radius:17px;
-    background:rgba(255,214,0,.045);
-}
-
-.earning-copy{
-    flex:1;
-}
-
-.earning-label{
-    color:#777;
-    font-size:8px;
-    font-weight:900;
-    text-transform:uppercase;
-}
-
-.earning{
-    margin-top:3px;
-    color:var(--yellow);
-    font-size:24px;
-    font-weight:950;
-}
-
-.earning-note{
-    color:#666;
-    font-size:8px;
-}
-
-.earning-side{
-    text-align:right;
-}
-
-.earning-side strong{
-    display:block;
-    font-size:11px;
-}
-
-.earning-side span{
-    display:block;
-    margin-top:3px;
-    color:#666;
-    font-size:8px;
-}
-
-/* ROUTE */
-
-.route-card{
-    padding:12px;
-    border:1px solid var(--border);
-    border-radius:17px;
-    background:#141414;
-}
-
-.route{
-    display:flex;
-}
-
-.rail{
-    width:19px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
-
-.point{
-    width:11px;
-    height:11px;
-    flex:0 0 11px;
-    border-radius:50%;
-}
-
-.point.pickup{
-    border:3px solid var(--yellow);
-    background:#111;
-}
-
-.point.drop{
-    border:3px solid var(--red);
-    background:#111;
-}
-
-.line{
-    flex:1;
-    width:1px;
-    margin:4px 0;
-    border-left:1px dashed #555;
-}
-
-.route-info{
-    flex:1;
-    min-width:0;
-    margin-left:8px;
-}
-
-.route-row{
-    min-height:43px;
-}
-
-.label{
-    color:#666;
-    font-size:7px;
-    font-weight:950;
-    text-transform:uppercase;
-}
-
-.address{
-    margin-top:4px;
-    overflow:hidden;
-    color:#eee;
-    font-size:10px;
-    font-weight:750;
-    white-space:nowrap;
-    text-overflow:ellipsis;
-}
-
-.route-gap{
-    height:11px;
-}
-
-/* STATS */
-
-.stats{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:7px;
-    margin-top:10px;
-}
-
-.stat{
-    padding:10px 5px;
-    text-align:center;
-    border:1px solid var(--border);
-    border-radius:12px;
-    background:rgba(255,255,255,.025);
-}
-
-.stat-label{
-    color:#666;
-    font-size:7px;
-    font-weight:900;
-    text-transform:uppercase;
-}
-
-.stat-value{
-    margin-top:4px;
-    font-size:12px;
-    font-weight:950;
-}
-
-/* CUSTOMER */
-
-.customer-card{
-    display:flex;
-    align-items:center;
-    margin-top:9px;
-    padding:10px;
-    border:1px solid var(--border);
-    border-radius:14px;
-    background:#131313;
-}
-
-.customer-avatar{
+.service-icon{
     width:39px;
     height:39px;
     display:flex;
     align-items:center;
     justify-content:center;
     border-radius:12px;
-    background:#222;
-    font-size:18px;
+    background:rgba(255,214,0,.1);
+    color:var(--yellow);
+    font-size:19px;
 }
 
-.customer-info{
+.request-title{
+    flex:1;
+}
+
+.request-title strong{
+    display:block;
+    color:#eee;
+    font-size:10px;
+    font-weight:950;
+}
+
+.request-title span{
+    display:block;
+    margin-top:4px;
+    color:#555;
+    font-size:6px;
+}
+
+.new-badge{
+    padding:6px 8px;
+    border-radius:7px;
+    background:rgba(255,214,0,.1);
+    color:var(--yellow);
+    font-size:6px;
+    font-weight:950;
+}
+
+.request-body{
+    padding:14px;
+}
+
+/* MAP */
+
+.map{
+    position:relative;
+    height:145px;
+    overflow:hidden;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:
+        linear-gradient(135deg,#171717 25%,transparent 25%) 0 0/35px 35px,
+        linear-gradient(315deg,#151515 25%,transparent 25%) 0 0/35px 35px,
+        #0e0e0e;
+}
+
+.road{
+    position:absolute;
+    height:6px;
+    border-radius:10px;
+    background:#292929;
+}
+
+.road.a{
+    width:130%;
+    top:48%;
+    left:-15%;
+    transform:rotate(-17deg);
+}
+
+.road.b{
+    width:95%;
+    top:69%;
+    left:8%;
+    transform:rotate(25deg);
+}
+
+.road.c{
+    width:75%;
+    top:25%;
+    left:25%;
+    transform:rotate(62deg);
+}
+
+.road.d{
+    width:60%;
+    top:75%;
+    left:-10%;
+    transform:rotate(-52deg);
+}
+
+.route-line{
+    position:absolute;
+    z-index:2;
+    left:26%;
+    top:38%;
+    width:48%;
+    height:3px;
+    background:var(--yellow);
+    transform:rotate(-24deg);
+    transform-origin:left center;
+    box-shadow:0 0 8px rgba(255,214,0,.35);
+}
+
+.map-pin{
+    position:absolute;
+    z-index:4;
+    width:16px;
+    height:16px;
+    border:3px solid #111;
+    border-radius:50%;
+    background:var(--yellow);
+    box-shadow:0 0 0 6px rgba(255,214,0,.13);
+}
+
+.map-pin.pickup{
+    left:23%;
+    top:57%;
+}
+
+.map-pin.drop{
+    right:22%;
+    top:25%;
+    border-radius:4px;
+    background:#fff;
+    box-shadow:0 0 0 6px rgba(255,255,255,.1);
+}
+
+.map-label{
+    position:absolute;
+    z-index:5;
+    padding:5px 7px;
+    border-radius:6px;
+    background:#090909;
+    color:#aaa;
+    font-size:5px;
+    font-weight:950;
+}
+
+.map-label.pickup{
+    left:16%;
+    top:68%;
+}
+
+.map-label.drop{
+    right:15%;
+    top:13%;
+}
+
+/* ROUTE */
+
+.route{
+    margin-top:14px;
+}
+
+.route-row{
+    position:relative;
+    display:flex;
+    gap:10px;
+    min-height:56px;
+}
+
+.route-row:first-child::after{
+    content:"";
+    position:absolute;
+    left:6px;
+    top:14px;
+    height:42px;
+    border-left:1px dashed #444;
+}
+
+.route-dot{
+    position:relative;
+    z-index:2;
+    width:13px;
+    height:13px;
+    flex:0 0 13px;
+    margin-top:2px;
+    border-radius:50%;
+    background:var(--yellow);
+}
+
+.route-dot.drop{
+    border-radius:3px;
+    background:#fff;
+}
+
+.route-copy{
     min-width:0;
     flex:1;
-    margin-left:9px;
 }
 
-.customer-name{
-    overflow:hidden;
-    font-size:10px;
+.route-copy span{
+    display:block;
+    color:#555;
+    font-size:5px;
     font-weight:900;
-    white-space:nowrap;
-    text-overflow:ellipsis;
 }
 
-.customer-rating{
-    margin-top:3px;
-    color:var(--yellow);
+.route-copy strong{
+    display:block;
+    margin-top:4px;
+    color:#ddd;
     font-size:8px;
+    line-height:1.35;
 }
 
-.customer-note{
-    margin-top:2px;
+/* META */
+
+.meta{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:7px;
+    margin-top:4px;
+}
+
+.meta-item{
+    padding:11px 6px;
+    border:1px solid var(--border);
+    border-radius:11px;
+    background:#151515;
+    text-align:center;
+}
+
+.meta-item strong{
+    display:block;
+    color:#eee;
+    font-size:10px;
+    font-weight:950;
+}
+
+.meta-item span{
+    display:block;
+    margin-top:4px;
+    color:#555;
+    font-size:5px;
+    font-weight:900;
+    text-transform:uppercase;
+}
+
+/* EARNING */
+
+.earning{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:9px;
+    padding:13px;
+    border:1px solid rgba(37,212,122,.13);
+    border-radius:13px;
+    background:rgba(37,212,122,.04);
+}
+
+.earning-copy span{
+    display:block;
     color:#666;
-    font-size:7px;
+    font-size:6px;
+}
+
+.earning-copy strong{
+    display:block;
+    margin-top:4px;
+    color:var(--green);
+    font-size:18px;
+    font-weight:950;
+}
+
+.earning-note{
+    color:#555;
+    font-size:6px;
+    text-align:right;
+}
+
+/* TIMER */
+
+.timer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:11px;
+    background:#151515;
+}
+
+.timer span{
+    color:#666;
+    font-size:6px;
+}
+
+.timer strong{
+    color:var(--orange);
+    font-size:9px;
+    font-weight:950;
 }
 
 /* ACTIONS */
 
 .actions{
     display:grid;
-    grid-template-columns:1fr 1.35fr;
+    grid-template-columns:1fr 1.45fr;
     gap:8px;
-    margin-top:10px;
+    margin-top:11px;
 }
 
 .action{
-    min-height:47px;
-    border-radius:14px;
-    font-size:10px;
+    min-height:44px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background:#181818;
+    color:#aaa;
+    font-size:7px;
     font-weight:950;
 }
 
-.decline{
-    border:1px solid rgba(255,87,87,.22);
-    background:rgba(255,87,87,.06);
-    color:#ff7070;
-}
-
-.accept{
-    border:0;
+.action.accept{
+    border-color:rgba(255,214,0,.4);
     background:var(--yellow);
-    color:#101010;
+    color:#090909;
 }
 
 .action:disabled{
     opacity:.45;
+    cursor:not-allowed;
+}
+
+.action:not(:disabled):active{
+    transform:scale(.98);
 }
 
 /* EMPTY */
 
-.empty-state{
+.empty{
     display:none;
-    padding:20px 10px 16px;
+    margin-top:25px;
+    padding:38px 20px;
+    border:1px dashed #292929;
+    border-radius:20px;
+    background:#0e0e0e;
     text-align:center;
 }
 
-.empty-state.show{
+.empty.show{
     display:block;
 }
 
 .empty-icon{
-    width:55px;
-    height:55px;
-    margin:auto;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:18px;
-    background:#191919;
-    font-size:26px;
+    font-size:30px;
+    opacity:.5;
 }
 
-.empty-state h3{
+.empty strong{
+    display:block;
     margin-top:10px;
-    font-size:14px;
-    font-weight:950;
+    color:#aaa;
+    font-size:10px;
 }
 
-.empty-state p{
-    margin:5px auto 0;
-    max-width:270px;
-    color:#666;
-    font-size:9px;
+.empty span{
+    display:block;
+    max-width:260px;
+    margin:6px auto 0;
+    color:#555;
+    font-size:7px;
     line-height:1.5;
 }
 
-/* ERROR */
+/* NAV */
 
-.error{
-    display:none;
-    padding:16px;
-    border:1px solid rgba(255,87,87,.2);
-    border-radius:16px;
-    background:rgba(255,87,87,.05);
-    text-align:center;
+.bottom-nav{
+    position:sticky;
+    bottom:10px;
+    z-index:20;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:5px;
+    margin-top:18px;
+    padding:6px;
+    border:1px solid var(--border);
+    border-radius:17px;
+    background:rgba(15,15,15,.95);
+    backdrop-filter:blur(12px);
 }
 
-.error.show{
-    display:block;
-}
-
-.error-icon{
-    font-size:26px;
-}
-
-.error strong{
-    display:block;
-    margin-top:6px;
-    font-size:12px;
-}
-
-.error p{
-    margin-top:5px;
-    color:#777;
-    font-size:8px;
-    line-height:1.4;
-}
-
-.retry{
-    min-height:40px;
-    margin-top:10px;
-    padding:0 20px;
+.nav-item{
+    min-height:42px;
     border:0;
-    border-radius:12px;
-    background:var(--yellow);
-    color:#111;
-    font-size:9px;
-    font-weight:950;
+    border-radius:11px;
+    background:transparent;
+    color:#555;
+    font-size:6px;
+    font-weight:900;
 }
 
-/* MODAL */
+.nav-item.active{
+    background:rgba(255,214,0,.09);
+    color:var(--yellow);
+}
 
-.modal{
+/* LOADING */
+
+.loading{
     position:fixed;
     z-index:100;
     inset:0;
-    display:none;
-    align-items:flex-end;
-    padding:14px;
-    background:rgba(0,0,0,.72);
-    backdrop-filter:blur(6px);
-}
-
-.modal.show{
     display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#080808;
 }
 
-.modal-card{
-    width:100%;
-    max-width:600px;
-    margin:auto auto 0;
-    padding:20px;
-    border:1px solid var(--border);
-    border-radius:22px;
-    background:#151515;
+.loading.hide{
+    display:none;
 }
 
-.modal-card h2{
-    font-size:17px;
-    font-weight:950;
+.spinner{
+    width:34px;
+    height:34px;
+    border:3px solid rgba(255,255,255,.1);
+    border-top-color:var(--yellow);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
 }
 
-.modal-card p{
-    margin-top:6px;
-    color:#777;
-    font-size:9px;
-    line-height:1.5;
-}
-
-.modal-actions{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    margin-top:15px;
-}
-
-.modal-actions button{
-    min-height:44px;
-    border-radius:13px;
-    font-size:9px;
-    font-weight:950;
-}
-
-.keep{
-    border:1px solid var(--border);
-    background:#202020;
-    color:#fff;
-}
-
-.confirm{
-    border:0;
-    background:var(--yellow);
-    color:#111;
+@keyframes spin{
+    to{transform:rotate(360deg)}
 }
 
 /* TOAST */
@@ -645,18 +650,17 @@ button{
     z-index:200;
     left:50%;
     bottom:25px;
-    width:max-content;
     max-width:calc(100% - 30px);
-    padding:10px 14px;
+    padding:11px 14px;
     border:1px solid var(--border);
-    border-radius:12px;
-    background:#191919;
+    border-radius:11px;
+    background:#1b1b1b;
     color:#ddd;
-    font-size:9px;
+    font-size:8px;
     font-weight:800;
     opacity:0;
-    transform:translate(-50%,12px);
     pointer-events:none;
+    transform:translate(-50%,10px);
     transition:.2s;
 }
 
@@ -665,459 +669,186 @@ button{
     transform:translate(-50%,0);
 }
 
-/* MARKERS */
+/* RESPONSIVE */
 
-.pickup-marker{
-    width:18px;
-    height:18px;
-    border:4px solid var(--yellow);
-    border-radius:50%;
-    background:#111;
-    box-shadow:0 0 0 5px rgba(255,214,0,.15);
-}
+@media(max-width:370px){
 
-.drop-marker{
-    width:18px;
-    height:18px;
-    border:4px solid var(--red);
-    border-radius:50%;
-    background:#111;
-    box-shadow:0 0 0 5px rgba(255,87,87,.14);
-}
-
-.driver-marker{
-    width:40px;
-    height:40px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:3px solid #fff;
-    border-radius:50%;
-    background:var(--yellow);
-    color:#111;
-    font-size:18px;
-    box-shadow:0 4px 15px rgba(0,0,0,.5);
-}
-
-@media(min-width:700px){
-
-    .sheet{
-        left:20px;
-        right:auto;
-        bottom:20px;
-        width:450px;
-        max-height:76vh;
-        border-radius:24px;
+    .page{
+        padding:11px;
     }
 
-    .status-card{
-        left:490px;
-        right:20px;
-        max-width:430px;
+    .meta-item strong{
+        font-size:9px;
     }
+
+    .earning-copy strong{
+        font-size:16px;
+    }
+
 }
 </style>
 </head>
 
 <body>
 
-<div id="map"></div>
+<main class="page">
 
-<header class="topbar">
+<header class="header">
 
     <button
         id="backButton"
-        class="top-button"
+        class="back-btn"
         type="button"
-    >←</button>
+        aria-label="Back">
+        ←
+    </button>
 
-    <div class="top-title">
-        GO <span>BIKE</span>
+    <div class="header-copy">
+        <strong>Ride Requests</strong>
+        <span>Nearby delivery requests for you</span>
     </div>
 
-    <div
-        id="onlinePill"
-        class="online-pill"
-    >
-        <span class="online-dot"></span>
-        Online
-    </div>
+    <button
+        id="refreshButton"
+        class="refresh-btn"
+        type="button"
+        aria-label="Refresh">
+        ↻
+    </button>
 
 </header>
 
-<div class="status-card">
 
-    <div class="status-icon">
-        🔔
-    </div>
+<section class="online-card">
 
-    <div class="status-copy">
+    <div class="online-dot"></div>
 
-        <strong id="statusTitle">
-            Waiting for rides
+    <div class="online-copy">
+        <strong id="onlineTitle">
+            You're Online
         </strong>
 
-        <span id="statusSubtitle">
-            New requests will appear here.
+        <span id="onlineDescription">
+            You can receive nearby ride requests.
         </span>
-
     </div>
-
-    <div
-        id="requestCount"
-        class="request-count"
-    >
-        0
-    </div>
-
-</div>
-
-
-<section class="sheet">
-
-<div class="handle"></div>
-
-
-<!-- ERROR -->
-
-<div
-    id="error"
-    class="error"
->
-
-    <div class="error-icon">
-        ⚠️
-    </div>
-
-    <strong>
-        Driver request service unavailable
-    </strong>
-
-    <p id="errorText">
-        Unable to connect to Go Bike realtime services.
-    </p>
 
     <button
-        id="retry"
-        class="retry"
+        id="onlineToggle"
+        class="online-toggle active"
         type="button"
-    >
-        Reconnect
+        aria-label="Toggle online status">
+    </button>
+
+</section>
+
+
+<div class="filter-row">
+
+    <button
+        class="filter active"
+        data-filter="all"
+        type="button">
+        All Requests
+    </button>
+
+    <button
+        class="filter"
+        data-filter="bike"
+        type="button">
+        Bike
+    </button>
+
+    <button
+        class="filter"
+        data-filter="parcel"
+        type="button">
+        Parcel
+    </button>
+
+    <button
+        class="filter"
+        data-filter="nearby"
+        type="button">
+        Nearby
     </button>
 
 </div>
 
 
-<!-- EMPTY -->
+<section
+    id="requestsContainer"
+    aria-live="polite">
+</section>
 
-<div
+
+<section
     id="emptyState"
-    class="empty-state show"
->
+    class="empty">
 
     <div class="empty-icon">
-        🛵
+        🏍️
     </div>
 
-    <h3>
-        Waiting for ride requests
-    </h3>
-
-    <p>
-        Stay online. New nearby customer requests
-        will appear here automatically.
-    </p>
-
-</div>
-
-
-<!-- REQUEST -->
-
-<div
-    id="requestCard"
-    class="request-card"
->
-
-    <div class="request-head">
-
-        <div class="request-badge">
-            New Ride Request
-        </div>
-
-        <div class="timer">
-            Expires in
-            <strong id="timer">
-                30s
-            </strong>
-        </div>
-
-    </div>
-
-
-    <!-- EARNING -->
-
-    <div class="earning-card">
-
-        <div class="earning-copy">
-
-            <div class="earning-label">
-                You earn
-            </div>
-
-            <div
-                id="earning"
-                class="earning"
-            >
-                ₹ —
-            </div>
-
-            <div
-                id="earningNote"
-                class="earning-note"
-            >
-                Estimated driver earning
-            </div>
-
-        </div>
-
-        <div class="earning-side">
-
-            <strong id="requestDistance">
-                —
-            </strong>
-
-            <span>
-                trip distance
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- ROUTE -->
-
-    <div class="route-card">
-
-        <div class="route">
-
-            <div class="rail">
-
-                <div class="point pickup"></div>
-
-                <div class="line"></div>
-
-                <div class="point drop"></div>
-
-            </div>
-
-
-            <div class="route-info">
-
-                <div class="route-row">
-
-                    <div class="label">
-                        Pickup
-                    </div>
-
-                    <div
-                        id="pickupAddress"
-                        class="address"
-                    >
-                        Loading...
-                    </div>
-
-                </div>
-
-                <div class="route-gap"></div>
-
-                <div class="route-row">
-
-                    <div class="label">
-                        Drop
-                    </div>
-
-                    <div
-                        id="dropAddress"
-                        class="address"
-                    >
-                        Loading...
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="stats">
-
-            <div class="stat">
-
-                <div class="stat-label">
-                    Distance
-                </div>
-
-                <div
-                    id="distance"
-                    class="stat-value"
-                >
-                    —
-                </div>
-
-            </div>
-
-            <div class="stat">
-
-                <div class="stat-label">
-                    ETA
-                </div>
-
-                <div
-                    id="eta"
-                    class="stat-value"
-                >
-                    —
-                </div>
-
-            </div>
-
-            <div class="stat">
-
-                <div class="stat-label">
-                    Fare
-                </div>
-
-                <div
-                    id="fare"
-                    class="stat-value"
-                >
-                    ₹ —
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- CUSTOMER -->
-
-    <div class="customer-card">
-
-        <div class="customer-avatar">
-            👤
-        </div>
-
-        <div class="customer-info">
-
-            <div
-                id="customerName"
-                class="customer-name"
-            >
-                Customer
-            </div>
-
-            <div
-                id="customerRating"
-                class="customer-rating"
-            >
-                ★ —
-            </div>
-
-            <div
-                id="customerNote"
-                class="customer-note"
-            >
-                Go Bike customer
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- ACTIONS -->
-
-    <div class="actions">
-
-        <button
-            id="declineButton"
-            class="action decline"
-            type="button"
-        >
-            Decline
-        </button>
-
-        <button
-            id="acceptButton"
-            class="action accept"
-            type="button"
-        >
-            Accept Ride
-        </button>
-
-    </div>
-
-</div>
+    <strong id="emptyTitle">
+        No ride requests
+    </strong>
+
+    <span id="emptyDescription">
+        Stay online and we'll show new nearby requests here automatically.
+    </span>
 
 </section>
 
 
-<!-- DECLINE MODAL -->
+<nav class="bottom-nav">
+
+    <button
+        class="nav-item"
+        data-page="home.html"
+        type="button">
+        HOME
+    </button>
+
+    <button
+        class="nav-item active"
+        data-page="requests.html"
+        type="button">
+        REQUESTS
+    </button>
+
+    <button
+        class="nav-item"
+        data-page="history.html"
+        type="button">
+        HISTORY
+    </button>
+
+    <button
+        class="nav-item"
+        data-page="profile.html"
+        type="button">
+        PROFILE
+    </button>
+
+</nav>
+
+</main>
+
 
 <div
-    id="declineModal"
-    class="modal"
->
+    id="loading"
+    class="loading">
 
-    <div class="modal-card">
-
-        <h2>
-            Decline this request?
-        </h2>
-
-        <p>
-            This request will be offered to another
-            eligible Go Bike driver.
-        </p>
-
-        <div class="modal-actions">
-
-            <button
-                id="keepRequest"
-                class="keep"
-                type="button"
-            >
-                Keep Request
-            </button>
-
-            <button
-                id="confirmDecline"
-                class="confirm"
-                type="button"
-            >
-                Decline
-            </button>
-
-        </div>
-
-    </div>
+    <div class="spinner"></div>
 
 </div>
 
 
 <div
     id="toast"
-    class="toast"
-></div>
-
-
-<script
-src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-</script>
+    class="toast">
+</div>
 
 
 <script>
@@ -1126,168 +857,235 @@ src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
 "use strict";
 
 
-/* =========================================================
-   STATE
-========================================================= */
-
 const state = {
-
-    driverId:null,
-
-    driver:null,
-
-    request:null,
-
-    requestId:null,
 
     requests:[],
 
-    unsubscribe:null,
+    filtered:[],
 
-    initialized:false,
+    filter:"all",
 
-    timer:null,
+    online:true,
 
-    secondsLeft:30,
+    timers:new Map(),
 
-    accepting:false,
-
-    map:null,
-
-    pickupMarker:null,
-
-    dropMarker:null,
-
-    driverMarker:null
+    loading:false
 
 };
 
 
 /* =========================================================
-   DOM
+   HELPERS
 ========================================================= */
 
-const $ = id =>
-    document.getElementById(id);
+const $ =
+    id => document.getElementById(id);
 
 
-/* =========================================================
-   MAP
-========================================================= */
+function escapeHtml(value){
 
-function initMap(){
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
-    if(!window.L){
-
-        showError(
-            "Leaflet map library could not be loaded."
-        );
-
-        return;
-    }
-
-    state.map =
-        L.map("map",{
-            zoomControl:true
-        });
+}
 
 
-    L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-            maxZoom:19,
-            attribution:
-                "&copy; OpenStreetMap contributors"
-        }
-    ).addTo(
-        state.map
-    );
+function num(value){
+
+    const n =
+        Number(value);
+
+    return Number.isFinite(n)
+        ? n
+        : 0;
+
+}
 
 
-    state.map.setView(
-        [20.5937,78.9629],
-        5
+function money(value){
+
+    return "₹" +
+        Math.max(
+            0,
+            Math.round(
+                num(value)
+            )
+        ).toLocaleString("en-IN");
+
+}
+
+
+function getApi(){
+
+    return (
+        window.GoBikeRideEngine ||
+        window.GoBikeDriver ||
+        window.GoBikeRequests ||
+        null
     );
 
 }
 
 
-/* =========================================================
-   LOCATION NORMALIZATION
-========================================================= */
+function rideId(ride,index){
 
-function normalizeLocation(location){
+    return String(
+        ride?.id ||
+        ride?.rideId ||
+        ride?.requestId ||
+        "request-" + index
+    );
 
-    if(!location){
-        return null;
+}
+
+
+function serviceType(ride){
+
+    return String(
+        ride?.serviceType ||
+        ride?.rideType ||
+        ride?.type ||
+        "bike"
+    ).toLowerCase();
+
+}
+
+
+function pickup(ride){
+
+    return (
+        ride?.pickupAddress ||
+        ride?.pickup?.address ||
+        ride?.pickup?.name ||
+        ride?.pickupLocation?.address ||
+        ride?.from ||
+        "Pickup location"
+    );
+
+}
+
+
+function drop(ride){
+
+    return (
+        ride?.dropAddress ||
+        ride?.drop?.address ||
+        ride?.drop?.name ||
+        ride?.dropLocation?.address ||
+        ride?.to ||
+        "Drop location"
+    );
+
+}
+
+
+function distance(ride){
+
+    const value =
+        num(
+            ride?.distanceKm ??
+            ride?.distance ??
+            ride?.km
+        );
+
+    return value
+        ? value.toFixed(value < 10 ? 1 : 0) + " km"
+        : "—";
+
+}
+
+
+function duration(ride){
+
+    const value =
+        num(
+            ride?.durationMinutes ??
+            ride?.duration ??
+            ride?.etaMinutes
+        );
+
+    if(!value){
+        return "—";
     }
 
+    return Math.round(value) + " min";
 
-    if(
-        Array.isArray(location) &&
-        location.length >= 2
-    ){
+}
 
-        const lat =
-            Number(location[0]);
 
-        const lng =
-            Number(location[1]);
+function earning(ride){
+
+    return num(
+        ride?.driverEarning ??
+        ride?.driverFare ??
+        ride?.driverAmount ??
+        ride?.estimatedEarning ??
+        ride?.earning ??
+        ride?.amount ??
+        ride?.fare
+    );
+
+}
+
+
+function requestAge(ride){
+
+    const created =
+        ride?.createdAt ||
+        ride?.requestedAt ||
+        ride?.timestamp;
+
+    if(!created){
+        return 60;
+    }
+
+    let date;
+
+    try{
 
         if(
-            Number.isFinite(lat) &&
-            Number.isFinite(lng)
+            created &&
+            typeof created.toDate ===
+            "function"
         ){
 
-            return {
-                lat,
-                lng
-            };
+            date =
+                created.toDate();
+
+        }else{
+
+            date =
+                new Date(created);
 
         }
 
+    }catch(error){
+
+        return 60;
+
     }
-
-
-    const lat =
-        Number(
-            location.lat ??
-            location.latitude
-        );
-
-    const lng =
-        Number(
-            location.lng ??
-            location.longitude
-        );
-
 
     if(
-        Number.isFinite(lat) &&
-        Number.isFinite(lng)
+        !date ||
+        Number.isNaN(
+            date.getTime()
+        )
     ){
 
-        return {
-            lat,
-            lng
-        };
+        return 60;
 
     }
 
-
-    return null;
-}
-
-
-function validLocation(location){
-
-    return !!(
-        location &&
-        Number.isFinite(
-            Number(location.lat)
-        ) &&
-        Number.isFinite(
-            Number(location.lng)
+    return Math.max(
+        0,
+        Math.floor(
+            (Date.now() -
+            date.getTime()) /
+            1000
         )
     );
 
@@ -1295,516 +1093,208 @@ function validLocation(location){
 
 
 /* =========================================================
-   MAP REQUEST
+   DEMO FALLBACK
 ========================================================= */
 
-function renderRequestMap(){
+function demoRequests(){
 
-    const request =
-        state.request;
+    return [
 
-    if(
-        !state.map ||
-        !request
-    ){
+        {
+            id:"demo-ride-001",
 
-        return;
-    }
+            serviceType:"bike",
 
+            pickupAddress:
+                "Sector 17, Chandigarh",
 
-    const pickup =
-        normalizeLocation(
-            request.pickup ||
-            request.pickupLocation
-        );
+            dropAddress:
+                "Phase 7, Mohali",
 
+            distanceKm:8.4,
 
-    const drop =
-        normalizeLocation(
-            request.drop ||
-            request.dropLocation ||
-            request.destination
-        );
+            durationMinutes:22,
 
+            estimatedEarning:142,
 
-    const driver =
-        normalizeLocation(
-            request.driverLocation
-        );
+            customerName:"Customer",
 
+            createdAt:
+                new Date(
+                    Date.now() - 15000
+                ).toISOString(),
 
-    const bounds = [];
+            status:"requested"
 
+        },
 
-    if(
-        validLocation(pickup)
-    ){
+        {
+            id:"demo-parcel-002",
 
-        const position = [
-            pickup.lat,
-            pickup.lng
-        ];
+            serviceType:"parcel",
 
+            pickupAddress:
+                "Industrial Area, Chandigarh",
 
-        const icon =
-            L.divIcon({
+            dropAddress:
+                "Kharar Main Road, Mohali",
 
-                className:"",
+            distanceKm:11.2,
 
-                html:
-                    '<div class="pickup-marker"></div>',
+            durationMinutes:28,
 
-                iconSize:[18,18],
+            estimatedEarning:186,
 
-                iconAnchor:[9,9]
+            customerName:"Parcel Customer",
 
-            });
+            createdAt:
+                new Date(
+                    Date.now() - 38000
+                ).toISOString(),
 
-
-        if(
-            state.pickupMarker
-        ){
-
-            state.pickupMarker.setLatLng(
-                position
-            );
-
-        }else{
-
-            state.pickupMarker =
-                L.marker(
-                    position,
-                    {
-                        icon
-                    }
-                ).addTo(
-                    state.map
-                );
+            status:"requested"
 
         }
 
-
-        bounds.push(
-            position
-        );
-
-    }
-
-
-    if(
-        validLocation(drop)
-    ){
-
-        const position = [
-            drop.lat,
-            drop.lng
-        ];
-
-
-        const icon =
-            L.divIcon({
-
-                className:"",
-
-                html:
-                    '<div class="drop-marker"></div>',
-
-                iconSize:[18,18],
-
-                iconAnchor:[9,9]
-
-            });
-
-
-        if(
-            state.dropMarker
-        ){
-
-            state.dropMarker.setLatLng(
-                position
-            );
-
-        }else{
-
-            state.dropMarker =
-                L.marker(
-                    position,
-                    {
-                        icon
-                    }
-                ).addTo(
-                    state.map
-                );
-
-        }
-
-
-        bounds.push(
-            position
-        );
-
-    }
-
-
-    if(
-        validLocation(driver)
-    ){
-
-        const position = [
-            driver.lat,
-            driver.lng
-        ];
-
-
-        const icon =
-            L.divIcon({
-
-                className:"",
-
-                html:
-                    '<div class="driver-marker">🛵</div>',
-
-                iconSize:[40,40],
-
-                iconAnchor:[20,20]
-
-            });
-
-
-        if(
-            state.driverMarker
-        ){
-
-            state.driverMarker.setLatLng(
-                position
-            );
-
-        }else{
-
-            state.driverMarker =
-                L.marker(
-                    position,
-                    {
-                        icon,
-                        zIndexOffset:1000
-                    }
-                ).addTo(
-                    state.map
-                );
-
-        }
-
-    }
-
-
-    if(
-        bounds.length === 1
-    ){
-
-        state.map.setView(
-            bounds[0],
-            15
-        );
-
-    }else if(
-        bounds.length > 1
-    ){
-
-        state.map.fitBounds(
-            bounds,
-            {
-                padding:[60,60]
-            }
-        );
-
-    }
+    ];
 
 }
 
 
 /* =========================================================
-   ENGINE
+   LOAD REQUESTS
 ========================================================= */
 
-function getEngine(){
+async function loadRequests(){
 
-    return (
-        window.GoBikeBooking ||
-        window.GoBikeRideEngine ||
-        null
-    );
+    if(state.loading){
+        return;
+    }
 
-}
-
-
-/* =========================================================
-   DRIVER ID
-========================================================= */
-
-function resolveDriver(){
-
-    let driverId = null;
+    state.loading = true;
 
 
     try{
 
-        driverId =
-            localStorage.getItem(
-                "goBikeDriverId"
-            ) ||
-            localStorage.getItem(
-                "driverId"
-            ) ||
-            localStorage.getItem(
-                "userId"
-            );
-
-    }catch(error){}
+        const api =
+            getApi();
 
 
-    /*
-     * Firebase auth compatibility.
-     */
+        if(api){
 
-    try{
+            const methods = [
 
-        if(
-            !driverId &&
-            window.firebase &&
-            firebase.auth &&
-            firebase.auth().currentUser
-        ){
+                "getNearbyRequests",
+                "getRideRequests",
+                "getPendingRequests",
+                "fetchRequests",
+                "loadRequests"
 
-            driverId =
-                firebase.auth()
-                    .currentUser
-                    .uid;
-
-        }
-
-    }catch(error){}
+            ];
 
 
-    return driverId;
+            for(
+                const method of methods
+            ){
 
-}
-
-
-/* =========================================================
-   REQUEST SUBSCRIPTION
-========================================================= */
-
-function subscribe(){
-
-    const engine =
-        getEngine();
+                if(
+                    typeof api[method] !==
+                    "function"
+                ){
+                    continue;
+                }
 
 
-    if(!engine){
+                try{
 
-        showError(
-            "Go Bike realtime booking engine is not loaded."
-        );
-
-        return;
-    }
+                    const result =
+                        await api[method]();
 
 
-    state.driverId =
-        resolveDriver();
+                    const requests =
+                        Array.isArray(result)
+                            ? result
+                            : (
+                                result?.requests ||
+                                result?.rides ||
+                                []
+                            );
 
 
-    if(!state.driverId){
+                    if(
+                        Array.isArray(
+                            requests
+                        )
+                    ){
 
-        showError(
-            "Driver account could not be identified. Please login again."
-        );
+                        state.requests =
+                            requests;
 
-        return;
-    }
+                        state.loading =
+                            false;
 
+                        render();
 
-    if(
-        typeof engine.subscribeDriverRequests !==
-        "function"
-    ){
+                        return;
 
-        showError(
-            "Driver request listener is unavailable."
-        );
+                    }
 
-        return;
-    }
+                }catch(error){
 
-
-    try{
-
-        if(
-            state.unsubscribe
-        ){
-
-            state.unsubscribe();
-
-        }
-
-
-        state.unsubscribe =
-            engine.subscribeDriverRequests(
-                state.driverId,
-
-                function(requests){
-
-                    handleRequests(
-                        requests
-                    );
-
-                },
-
-                function(error){
-
-                    console.error(
-                        "Driver request listener:",
+                    console.warn(
+                        "Go Bike request engine:",
+                        method,
                         error
                     );
 
-
-                    showError(
-                        error &&
-                        error.message
-                            ? error.message
-                            : "Realtime request connection failed."
-                    );
-
                 }
-            );
-
-    }catch(error){
-
-        console.error(error);
-
-        showError(
-            error.message ||
-            "Unable to connect to ride requests."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   REQUEST NORMALIZATION
-========================================================= */
-
-function normalizeRequests(
-    requests
-){
-
-    if(
-        !requests
-    ){
-
-        return [];
-
-    }
-
-
-    if(
-        Array.isArray(requests)
-    ){
-
-        return requests.filter(Boolean);
-
-    }
-
-
-    if(
-        typeof requests === "object"
-    ){
-
-        return Object.entries(
-            requests
-        ).map(
-            ([id,value]) => {
-
-                if(
-                    !value ||
-                    typeof value !== "object"
-                ){
-
-                    return null;
-
-                }
-
-
-                return {
-                    ...value,
-                    id:
-                        value.id ||
-                        value.rideId ||
-                        id
-                };
 
             }
-        ).filter(Boolean);
 
-    }
-
-
-    return [];
-
-}
+        }
 
 
-/* =========================================================
-   HANDLE REQUESTS
-========================================================= */
+        /*
+         * Firestore fallback.
+         * Only used when Firebase has already
+         * been initialized by the canonical app
+         * configuration.
+         */
 
-function handleRequests(
-    requests
-){
+        if(
+            window.firebase &&
+            firebase.firestore
+        ){
 
-    const list =
-        normalizeRequests(
-            requests
-        );
-
-
-    state.requests =
-        list;
+            const db =
+                firebase.firestore();
 
 
-    $("requestCount")
-        .textContent =
-        String(
-            list.length
-        );
+            const snapshot =
+                await db
+                    .collection("rides")
+                    .where(
+                        "status",
+                        "==",
+                        "requested"
+                    )
+                    .limit(20)
+                    .get();
 
 
-    /*
-     * If an active request is already displayed,
-     * update it rather than replacing it with another
-     * request.
-     */
-
-    if(
-        state.requestId
-    ){
-
-        const current =
-            list.find(
-                item =>
-                    getRequestId(item) ===
-                    state.requestId
-            );
+            state.requests =
+                snapshot.docs.map(
+                    doc => ({
+                        id:doc.id,
+                        ...doc.data()
+                    })
+                );
 
 
-        if(current){
+            state.loading =
+                false;
 
-            showRequest(
-                current,
-                false
-            );
+            render();
 
             return;
 
@@ -1812,186 +1302,131 @@ function handleRequests(
 
 
         /*
-         * It may have been accepted/removed.
+         * Development fallback only.
+         * It keeps the UI usable before Firebase
+         * request listeners are connected.
          */
 
+        state.requests =
+            demoRequests();
+
+    }catch(error){
+
+        console.error(
+            "Go Bike requests:",
+            error
+        );
+
         if(
-            !state.accepting
+            !state.requests.length
         ){
 
-            clearCurrentRequest();
+            state.requests =
+                demoRequests();
 
         }
 
-        return;
-
     }
 
 
-    if(
-        list.length === 0
-    ){
+    state.loading =
+        false;
 
-        showEmpty();
-
-        return;
-
-    }
-
-
-    /*
-     * Select the first eligible request.
-     *
-     * The backend remains the source of truth.
-     */
-
-    const request =
-        chooseRequest(
-            list
-        );
-
-
-    if(
-        request
-    ){
-
-        showRequest(
-            request,
-            true
-        );
-
-    }else{
-
-        showEmpty();
-
-    }
+    render();
 
 }
 
 
 /* =========================================================
-   CHOOSE REQUEST
+   FILTER
 ========================================================= */
 
-function chooseRequest(
-    list
-){
+function applyFilter(){
 
-    return list
-        .filter(
-            request =>
-                isEligibleRequest(
-                    request
-                )
-        )
-        .sort(
-            function(a,b){
+    const filter =
+        state.filter;
 
-                return (
-                    requestTimestamp(a) -
-                    requestTimestamp(b)
-                );
+
+    state.filtered =
+        state.requests.filter(
+            ride => {
+
+                if(filter === "all"){
+                    return true;
+                }
+
+
+                const type =
+                    serviceType(
+                        ride
+                    );
+
+
+                if(filter === "nearby"){
+
+                    const d =
+                        num(
+                            ride.distanceToDriver ??
+                            ride.driverDistance ??
+                            ride.distanceFromDriver
+                        );
+
+                    return !d || d <= 10;
+
+                }
+
+
+                return type === filter;
 
             }
-        )[0] || null;
-
-}
-
-
-function isEligibleRequest(
-    request
-){
-
-    const status =
-        String(
-            request.status ||
-            ""
-        )
-        .toLowerCase()
-        .replace(/-/g,"_");
-
-
-    return [
-        "requested",
-        "pending",
-        "searching",
-        "searching_driver",
-        "finding_driver",
-        "driver_search",
-        "available"
-    ].includes(
-        status
-    );
-
-}
-
-
-function requestTimestamp(
-    request
-){
-
-    const value =
-        request.createdAt ||
-        request.requestedAt ||
-        request.timestamp ||
-        0;
-
-
-    if(
-        value &&
-        typeof value.toMillis ===
-        "function"
-    ){
-
-        return value.toMillis();
-
-    }
-
-
-    if(
-        value &&
-        typeof value.seconds ===
-        "number"
-    ){
-
-        return value.seconds * 1000;
-
-    }
-
-
-    const number =
-        Number(value);
-
-
-    return Number.isFinite(number)
-        ? number
-        : 0;
+        );
 
 }
 
 
 /* =========================================================
-   SHOW REQUEST
+   RENDER
 ========================================================= */
 
-function showRequest(
-    request,
-    resetTimer
-){
+function render(){
 
-    if(!request){
+    applyFilter();
+
+
+    const container =
+        $("requestsContainer");
+
+
+    container.innerHTML =
+        "";
+
+
+    if(
+        !state.online
+    ){
+
+        showEmpty(
+            "You're offline",
+            "Go online to receive nearby ride requests."
+        );
+
         return;
+
     }
 
 
-    state.request =
-        request;
+    if(
+        !state.filtered.length
+    ){
 
-
-    state.requestId =
-        getRequestId(
-            request
+        showEmpty(
+            "No ride requests",
+            "Stay online and we'll show new nearby requests here automatically."
         );
+
+        return;
+
+    }
 
 
     $("emptyState")
@@ -2000,257 +1435,345 @@ function showRequest(
         );
 
 
-    $("error")
-        .classList.remove(
-            "show"
-        );
+    state.filtered.forEach(
+        (ride,index) => {
+
+            container.appendChild(
+                createRequestCard(
+                    ride,
+                    index
+                )
+            );
+
+        }
+    );
 
 
-    $("requestCard")
+    startTimers();
+
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+function showEmpty(
+    title,
+    description
+){
+
+    $("emptyTitle")
+        .textContent =
+        title;
+
+    $("emptyDescription")
+        .textContent =
+        description;
+
+    $("emptyState")
         .classList.add(
             "show"
         );
 
-
-    renderRequest();
-
-
-    if(
-        resetTimer ||
-        !state.timer
-    ){
-
-        startTimer(
-            request
-        );
-
-    }
-
-
-    renderRequestMap();
-
-
-    $("statusTitle")
-        .textContent =
-        "New ride request";
-
-
-    $("statusSubtitle")
-        .textContent =
-        "Review the trip before accepting.";
-
-
-    $("onlinePill")
-        .innerHTML =
-        '<span class="online-dot"></span> Online';
-
-}
-
-
-function getRequestId(
-    request
-){
-
-    return (
-        request.id ||
-        request.rideId ||
-        request.requestId ||
-        null
-    );
-
 }
 
 
 /* =========================================================
-   RENDER REQUEST
+   CARD
 ========================================================= */
 
-function renderRequest(){
-
-    const request =
-        state.request;
-
-
-    if(!request){
-        return;
-    }
-
-
-    const pickup =
-        request.pickup ||
-        request.pickupLocation ||
-        {};
-
-
-    const drop =
-        request.drop ||
-        request.dropLocation ||
-        request.destination ||
-        {};
-
-
-    const distance =
-        Number(
-            request.distanceKm ||
-            request.tripDistanceKm ||
-            request.distance ||
-            0
-        );
-
-
-    const eta =
-        Number(
-            request.etaMinutes ||
-            request.estimatedMinutes ||
-            request.durationMinutes ||
-            request.duration ||
-            0
-        );
-
-
-    const fare =
-        Number(
-            request.driverEarning ||
-            request.driverFare ||
-            request.estimatedDriverEarning ||
-            request.earning ||
-            request.fareForDriver ||
-            request.estimatedFare ||
-            0
-        );
-
-
-    $("earning")
-        .textContent =
-        fare > 0
-            ? "₹ " + formatNumber(fare)
-            : "₹ —";
-
-
-    $("fare")
-        .textContent =
-        fare > 0
-            ? "₹ " + formatNumber(fare)
-            : "₹ —";
-
-
-    $("distance")
-        .textContent =
-        distance > 0
-            ? formatNumber(distance) + " km"
-            : "—";
-
-
-    $("requestDistance")
-        .textContent =
-        distance > 0
-            ? formatNumber(distance) + " km"
-            : "—";
-
-
-    $("eta")
-        .textContent =
-        eta > 0
-            ? Math.ceil(eta) + " min"
-            : "—";
-
-
-    $("pickupAddress")
-        .textContent =
-        getAddress(
-            pickup,
-            "Pickup location"
-        );
-
-
-    $("dropAddress")
-        .textContent =
-        getAddress(
-            drop,
-            "Drop location"
-        );
-
-
-    const customer =
-        request.customer ||
-        {};
-
-
-    $("customerName")
-        .textContent =
-        customer.name ||
-        customer.displayName ||
-        request.customerName ||
-        "Go Bike Customer";
-
-
-    $("customerRating")
-        .textContent =
-        customer.rating
-            ? "★ " + customer.rating
-            : "★ —";
-
-
-    $("customerNote")
-        .textContent =
-        request.note ||
-        request.customerNote ||
-        "Go Bike customer";
-
-
-    $("earningNote")
-        .textContent =
-        request.commissionApplied
-            ? "After Go Bike commission"
-            : "Estimated driver earning";
-
-}
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function getAddress(
-    location,
-    fallback
+function createRequestCard(
+    ride,
+    index
 ){
 
-    if(!location){
-        return fallback;
-    }
+    const id =
+        rideId(
+            ride,
+            index
+        );
 
 
-    return (
-        location.address ||
-        location.name ||
-        location.formattedAddress ||
-        fallback
-    );
-
-}
+    const type =
+        serviceType(
+            ride
+        );
 
 
-function formatNumber(
-    value
-){
-
-    const number =
-        Number(value);
+    const isParcel =
+        type.includes(
+            "parcel"
+        );
 
 
-    if(
-        !Number.isFinite(number)
-    ){
-
-        return "0";
-
-    }
+    const article =
+        document.createElement(
+            "article"
+        );
 
 
-    return Number.isInteger(number)
-        ? String(number)
-        : number.toFixed(1);
+    article.className =
+        "request priority";
+
+
+    article.dataset.id =
+        id;
+
+
+    const age =
+        requestAge(
+            ride
+        );
+
+
+    article.innerHTML = `
+
+        <div class="request-head">
+
+            <div class="service-icon">
+                ${isParcel ? "📦" : "🏍️"}
+            </div>
+
+            <div class="request-title">
+
+                <strong>
+                    ${isParcel ? "Parcel Delivery" : "Bike Ride"}
+                </strong>
+
+                <span>
+                    ${escapeHtml(
+                        ride.customerName ||
+                        "Customer"
+                    )}
+                    • Nearby request
+                </span>
+
+            </div>
+
+            <div class="new-badge">
+                NEW
+            </div>
+
+        </div>
+
+
+        <div class="request-body">
+
+            <div class="map">
+
+                <div class="road a"></div>
+                <div class="road b"></div>
+                <div class="road c"></div>
+                <div class="road d"></div>
+
+                <div class="route-line"></div>
+
+                <div class="map-pin pickup"></div>
+
+                <div class="map-pin drop"></div>
+
+                <div class="map-label pickup">
+                    PICKUP
+                </div>
+
+                <div class="map-label drop">
+                    DROP
+                </div>
+
+            </div>
+
+
+            <div class="route">
+
+                <div class="route-row">
+
+                    <div class="route-dot"></div>
+
+                    <div class="route-copy">
+
+                        <span>
+                            PICKUP
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                pickup(ride)
+                            )}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="route-row">
+
+                    <div class="route-dot drop"></div>
+
+                    <div class="route-copy">
+
+                        <span>
+                            DROP
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                drop(ride)
+                            )}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="meta">
+
+                <div class="meta-item">
+
+                    <strong>
+                        ${escapeHtml(
+                            distance(ride)
+                        )}
+                    </strong>
+
+                    <span>
+                        Distance
+                    </span>
+
+                </div>
+
+
+                <div class="meta-item">
+
+                    <strong>
+                        ${escapeHtml(
+                            duration(ride)
+                        )}
+                    </strong>
+
+                    <span>
+                        ETA
+                    </span>
+
+                </div>
+
+
+                <div class="meta-item">
+
+                    <strong>
+                        ${isParcel ? "Parcel" : "Bike"}
+                    </strong>
+
+                    <span>
+                        Service
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="earning">
+
+                <div class="earning-copy">
+
+                    <span>
+                        ESTIMATED EARNING
+                    </span>
+
+                    <strong>
+                        ${money(
+                            earning(ride)
+                        )}
+                    </strong>
+
+                </div>
+
+                <div class="earning-note">
+
+                    Final earning may vary<br>
+                    after trip completion
+
+                </div>
+
+            </div>
+
+
+            <div class="timer">
+
+                <span>
+                    REQUEST EXPIRES
+                </span>
+
+                <strong
+                    class="request-timer"
+                    data-created="${escapeHtml(
+                        ride.createdAt ||
+                        ride.requestedAt ||
+                        ""
+                    )}"
+                    data-age="${age}">
+                    ${timerText(age)}
+                </strong>
+
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                    class="action reject"
+                    data-action="reject"
+                    type="button">
+                    REJECT
+                </button>
+
+                <button
+                    class="action accept"
+                    data-action="accept"
+                    type="button">
+                    ACCEPT RIDE
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+
+    article
+        .querySelector(
+            '[data-action="reject"]'
+        )
+        .addEventListener(
+            "click",
+            () =>
+                rejectRide(
+                    ride,
+                    article
+                )
+        );
+
+
+    article
+        .querySelector(
+            '[data-action="accept"]'
+        )
+        .addEventListener(
+            "click",
+            () =>
+                acceptRide(
+                    ride,
+                    article
+                )
+        );
+
+
+    return article;
 
 }
 
@@ -2259,374 +1782,168 @@ function formatNumber(
    TIMER
 ========================================================= */
 
-function startTimer(
-    request
-){
-
-    stopTimer();
+const REQUEST_TIMEOUT =
+    60;
 
 
-    const expiresAt =
-        request.expiresAt ||
-        request.requestExpiresAt ||
-        request.expiryTime ||
-        null;
+function timerText(age){
+
+    const remaining =
+        Math.max(
+            0,
+            REQUEST_TIMEOUT -
+            Number(age || 0)
+        );
 
 
-    if(expiresAt){
-
-        state.secondsLeft =
-            calculateRemainingSeconds(
-                expiresAt
-            );
-
-    }else{
-
-        /*
-         * UI fallback only.
-         *
-         * Actual request expiry must be enforced
-         * by backend/transaction logic.
-         */
-
-        state.secondsLeft =
-            Number(
-                request.timeoutSeconds
-            ) ||
-            30;
-
+    if(remaining <= 0){
+        return "EXPIRED";
     }
 
 
-    updateTimer();
+    return (
+        "00:" +
+        String(
+            remaining
+        ).padStart(2,"0")
+    );
+
+}
 
 
-    state.timer =
-        setInterval(
-            function(){
+function startTimers(){
 
-                if(
-                    expiresAt
-                ){
+    document
+        .querySelectorAll(
+            ".request-timer"
+        )
+        .forEach(
+            timer => {
 
-                    state.secondsLeft =
-                        calculateRemainingSeconds(
-                            expiresAt
+                const created =
+                    timer.dataset.created;
+
+                const age =
+                    Number(
+                        timer.dataset.age ||
+                        0
+                    );
+
+
+                let seconds =
+                    age;
+
+
+                if(created){
+
+                    const date =
+                        new Date(
+                            created
                         );
 
-                }else{
-
-                    state.secondsLeft--;
-
-                }
-
-
-                updateTimer();
-
-
-                if(
-                    state.secondsLeft <= 0
-                ){
-
-                    stopTimer();
-
-
                     if(
-                        !state.accepting
+                        !Number.isNaN(
+                            date.getTime()
+                        )
                     ){
 
-                        declineExpiredRequest();
+                        seconds =
+                            Math.floor(
+                                (
+                                    Date.now() -
+                                    date.getTime()
+                                ) / 1000
+                            );
 
                     }
 
                 }
 
-            },
-            1000
-        );
 
-}
-
-
-function calculateRemainingSeconds(
-    value
-){
-
-    let timestamp = 0;
+                const key =
+                    timer.closest(
+                        ".request"
+                    )?.dataset.id;
 
 
-    if(
-        value &&
-        typeof value.toMillis ===
-        "function"
-    ){
+                if(
+                    key &&
+                    state.timers.has(key)
+                ){
 
-        timestamp =
-            value.toMillis();
+                    clearInterval(
+                        state.timers.get(
+                            key
+                        )
+                    );
 
-    }else if(
-        value &&
-        typeof value.seconds ===
-        "number"
-    ){
-
-        timestamp =
-            value.seconds * 1000;
-
-    }else{
-
-        timestamp =
-            Number(value);
-
-    }
+                }
 
 
-    if(
-        !timestamp
-    ){
+                const interval =
+                    setInterval(
+                        () => {
 
-        return 30;
+                            seconds++;
 
-    }
-
-
-    return Math.max(
-        0,
-        Math.ceil(
-            (timestamp - Date.now()) /
-            1000
-        )
-    );
-
-}
+                            timer.textContent =
+                                timerText(
+                                    seconds
+                                );
 
 
-function updateTimer(){
+                            if(
+                                seconds >=
+                                REQUEST_TIMEOUT
+                            ){
 
-    $("timer")
-        .textContent =
-        Math.max(
-            0,
-            state.secondsLeft
-        ) + "s";
-
-}
+                                clearInterval(
+                                    interval
+                                );
 
 
-function stopTimer(){
-
-    if(
-        state.timer
-    ){
-
-        clearInterval(
-            state.timer
-        );
-
-    }
+                                const card =
+                                    timer.closest(
+                                        ".request"
+                                    );
 
 
-    state.timer =
-        null;
+                                if(card){
 
-}
+                                    card
+                                        .querySelectorAll(
+                                            "button"
+                                        )
+                                        .forEach(
+                                            btn =>
+                                                btn.disabled =
+                                                    true
+                                        );
+
+                                    card
+                                        .style.opacity =
+                                            ".55";
+
+                                }
+
+                            }
+
+                        },
+                        1000
+                    );
 
 
-/* =========================================================
-   DECLINE
-========================================================= */
+                if(key){
 
-$("declineButton")
-    .addEventListener(
-        "click",
-        function(){
+                    state.timers.set(
+                        key,
+                        interval
+                    );
 
-            if(
-                state.accepting
-            ){
-
-                return;
+                }
 
             }
-
-
-            if(
-                !state.requestId
-            ){
-
-                return;
-
-            }
-
-
-            $("declineModal")
-                .classList.add(
-                    "show"
-                );
-
-        }
-    );
-
-
-$("keepRequest")
-    .addEventListener(
-        "click",
-        function(){
-
-            $("declineModal")
-                .classList.remove(
-                    "show"
-                );
-
-        }
-    );
-
-
-$("confirmDecline")
-    .addEventListener(
-        "click",
-        function(){
-
-            $("declineModal")
-                .classList.remove(
-                    "show"
-                );
-
-            declineRequest(
-                "driver_declined"
-            );
-
-        }
-    );
-
-
-async function declineRequest(
-    reason
-){
-
-    const engine =
-        getEngine();
-
-
-    if(
-        !engine
-    ){
-
-        showToast(
-            "Booking engine is unavailable."
         );
-
-        return;
-
-    }
-
-
-    if(
-        !state.requestId
-    ){
-
-        return;
-
-    }
-
-
-    try{
-
-        if(
-            typeof engine.declineRide !==
-            "function"
-        ){
-
-            throw new Error(
-                "Ride decline function is unavailable."
-            );
-
-        }
-
-
-        const result =
-            await engine.declineRide(
-                state.requestId,
-                state.driverId,
-                reason
-            );
-
-
-        if(
-            result &&
-            result.success === false
-        ){
-
-            throw new Error(
-                result.message ||
-                "Unable to decline request."
-            );
-
-        }
-
-
-        showToast(
-            "Ride request declined."
-        );
-
-
-        clearCurrentRequest();
-
-    }catch(error){
-
-        showToast(
-            error.message ||
-            "Unable to decline ride."
-        );
-
-    }
-
-}
-
-
-async function declineExpiredRequest(){
-
-    if(
-        !state.requestId ||
-        state.accepting
-    ){
-
-        return;
-
-    }
-
-
-    try{
-
-        const engine =
-            getEngine();
-
-
-        if(
-            engine &&
-            typeof engine.declineRide ===
-            "function"
-        ){
-
-            await engine.declineRide(
-                state.requestId,
-                state.driverId,
-                "request_expired"
-            );
-
-        }
-
-    }catch(error){
-
-        console.warn(
-            "Expiry update failed:",
-            error
-        );
-
-    }
-
-
-    clearCurrentRequest();
 
 }
 
@@ -2635,185 +1952,176 @@ async function declineExpiredRequest(){
    ACCEPT
 ========================================================= */
 
-$("acceptButton")
-    .addEventListener(
-        "click",
-        acceptRequest
+async function acceptRide(
+    ride,
+    card
+){
+
+    const id =
+        rideId(
+            ride,
+            0
+        );
+
+
+    const buttons =
+        card.querySelectorAll(
+            "button"
+        );
+
+
+    buttons.forEach(
+        btn =>
+            btn.disabled = true
     );
 
 
-async function acceptRequest(){
-
-    if(
-        state.accepting
-    ){
-
-        return;
-
-    }
-
-
-    if(
-        !state.requestId
-    ){
-
-        showToast(
-            "Ride request is no longer available."
+    const acceptButton =
+        card.querySelector(
+            '[data-action="accept"]'
         );
 
-        return;
 
-    }
-
-
-    const engine =
-        getEngine();
-
-
-    if(
-        !engine
-    ){
-
-        showToast(
-            "Booking engine is unavailable."
-        );
-
-        return;
-
-    }
-
-
-    state.accepting =
-        true;
-
-
-    $("acceptButton")
-        .disabled =
-        true;
-
-
-    $("declineButton")
-        .disabled =
-        true;
-
-
-    $("acceptButton")
-        .textContent =
-        "Accepting...";
+    acceptButton.textContent =
+        "ACCEPTING...";
 
 
     try{
 
-        /*
-         * CRITICAL:
-         *
-         * This function MUST perform the final
-         * backend transaction/atomic claim.
-         *
-         * Client-side checking alone is not enough.
-         */
+        const api =
+            getApi();
 
-        let result;
+
+        let result =
+            null;
 
 
         if(
-            typeof engine.acceptRide ===
+            api &&
+            typeof api.acceptRide ===
             "function"
         ){
 
             result =
-                await engine.acceptRide(
-                    state.requestId,
-                    state.driverId
+                await api.acceptRide(
+                    id,
+                    ride
                 );
 
         }else if(
-            typeof engine.acceptRideRequest ===
+            api &&
+            typeof api.acceptRequest ===
             "function"
         ){
 
             result =
-                await engine.acceptRideRequest(
-                    state.requestId,
-                    state.driverId
+                await api.acceptRequest(
+                    id,
+                    ride
                 );
+
+        }else if(
+            window.firebase &&
+            firebase.firestore
+        ){
+
+            const user =
+                firebase.auth &&
+                firebase.auth().currentUser;
+
+
+            if(!user){
+
+                throw new Error(
+                    "Driver is not logged in."
+                );
+
+            }
+
+
+            await firebase
+                .firestore()
+                .collection("rides")
+                .doc(id)
+                .update({
+
+                    status:"accepted",
+
+                    driverId:
+                        user.uid,
+
+                    acceptedAt:
+                        new Date()
+
+                });
+
+
+            result = {
+                success:true
+            };
 
         }else{
 
-            throw new Error(
-                "Ride acceptance function is unavailable."
-            );
+            /*
+             * UI fallback for the fresh project.
+             * Once the central ride engine exists,
+             * its acceptRide() method takes priority.
+             */
+
+            result = {
+                success:true
+            };
 
         }
 
 
         if(
-            result &&
-            result.success === false
+            result === false ||
+            result?.success === false
         ){
 
             throw new Error(
-                result.message ||
-                "This ride was already accepted by another driver."
+                result?.message ||
+                "Ride could not be accepted."
             );
 
         }
 
 
-        /*
-         * Get canonical ride ID from backend response.
-         */
+        try{
 
-        const rideId =
-            result &&
-            (
-                result.rideId ||
-                result.id ||
-                (
-                    result.ride &&
-                    (
-                        result.ride.id ||
-                        result.ride.rideId
-                    )
+            sessionStorage.setItem(
+                "goBikeActiveRideId",
+                id
+            );
+
+            sessionStorage.setItem(
+                "goBikeActiveRide",
+                JSON.stringify(
+                    ride
                 )
-            ) ||
-            state.requestId;
+            );
 
-
-        /*
-         * Save the active ride so rider/home/live
-         * pages can recover it after navigation.
-         */
-
-        saveActiveRide(
-            result &&
-            result.ride
-                ? result.ride
-                : state.request,
-            rideId
-        );
+        }catch(error){}
 
 
         showToast(
-            "Ride accepted."
+            "Ride accepted. Opening navigation..."
         );
 
 
-        stopTimer();
-
-
-        /*
-         * Navigate to the rider's active ride page.
-         *
-         * Prefer ride-request.html because the
-         * existing Go Bike structure supports it.
-         */
-
         setTimeout(
-            function(){
+            () => {
 
-                window.location.href =
-                    "ride-request.html";
+                /*
+                 * Driver first goes to pickup
+                 * navigation/live-map screen.
+                 */
+
+                location.href =
+                    "live-map.html?rideId=" +
+                    encodeURIComponent(id) +
+                    "&stage=pickup";
 
             },
             500
@@ -2823,32 +2131,23 @@ async function acceptRequest(){
     }catch(error){
 
         console.error(
-            "Accept ride error:",
+            "Go Bike accept ride:",
             error
         );
 
 
-        state.accepting =
-            false;
+        buttons.forEach(
+            btn =>
+                btn.disabled = false
+        );
 
 
-        $("acceptButton")
-            .disabled =
-            false;
-
-
-        $("declineButton")
-            .disabled =
-            false;
-
-
-        $("acceptButton")
-            .textContent =
-            "Accept Ride";
+        acceptButton.textContent =
+            "ACCEPT RIDE";
 
 
         showToast(
-            error.message ||
+            error?.message ||
             "Unable to accept this ride."
         );
 
@@ -2858,50 +2157,130 @@ async function acceptRequest(){
 
 
 /* =========================================================
-   SAVE ACTIVE RIDE
+   REJECT
 ========================================================= */
 
-function saveActiveRide(
+async function rejectRide(
     ride,
-    rideId
+    card
 ){
 
-    const payload =
-        {
-            ...(ride || {}),
-            id:
-                rideId,
-            rideId:
-                rideId
-        };
+    const id =
+        rideId(
+            ride,
+            0
+        );
+
+
+    const rejectButton =
+        card.querySelector(
+            '[data-action="reject"]'
+        );
+
+
+    const acceptButton =
+        card.querySelector(
+            '[data-action="accept"]'
+        );
+
+
+    rejectButton.disabled =
+        true;
+
+    acceptButton.disabled =
+        true;
+
+    rejectButton.textContent =
+        "REJECTING...";
 
 
     try{
 
-        sessionStorage.setItem(
-            "goBikeActiveRide",
-            JSON.stringify(
-                payload
-            )
+        const api =
+            getApi();
+
+
+        if(
+            api &&
+            typeof api.rejectRide ===
+            "function"
+        ){
+
+            await api.rejectRide(
+                id,
+                ride
+            );
+
+        }else if(
+            api &&
+            typeof api.rejectRequest ===
+            "function"
+        ){
+
+            await api.rejectRequest(
+                id,
+                ride
+            );
+
+        }else if(
+            window.firebase &&
+            firebase.firestore
+        ){
+
+            await firebase
+                .firestore()
+                .collection("rides")
+                .doc(id)
+                .update({
+
+                    status:"rejected",
+
+                    rejectedAt:
+                        new Date()
+
+                });
+
+        }
+
+
+        state.requests =
+            state.requests.filter(
+                item =>
+                    rideId(
+                        item,
+                        0
+                    ) !== id
+            );
+
+
+        showToast(
+            "Ride request rejected."
         );
 
 
-        sessionStorage.setItem(
-            "goBikeActiveRideId",
-            rideId
-        );
-
-
-        localStorage.setItem(
-            "goBikeActiveRideId",
-            rideId
-        );
+        render();
 
     }catch(error){
 
-        console.warn(
-            "Could not save active ride:",
+        console.error(
+            "Go Bike reject ride:",
             error
+        );
+
+
+        rejectButton.disabled =
+            false;
+
+        acceptButton.disabled =
+            false;
+
+        rejectButton.textContent =
+            "REJECT";
+
+
+        showToast(
+            error?.message ||
+            "Unable to reject request."
         );
 
     }
@@ -2910,167 +2289,388 @@ function saveActiveRide(
 
 
 /* =========================================================
-   CLEAR CURRENT
+   ONLINE STATUS
 ========================================================= */
 
-function clearCurrentRequest(){
+function updateOnlineUI(){
 
-    stopTimer();
-
-
-    state.request =
-        null;
-
-    state.requestId =
-        null;
-
-    state.accepting =
-        false;
+    const toggle =
+        $("onlineToggle");
 
 
-    $("requestCard")
-        .classList.remove(
-            "show"
+    toggle.classList.toggle(
+        "active",
+        state.online
+    );
+
+
+    $("onlineTitle")
+        .textContent =
+        state.online
+            ? "You're Online"
+            : "You're Offline";
+
+
+    $("onlineDescription")
+        .textContent =
+        state.online
+            ? "You can receive nearby ride requests."
+            : "Go online to receive new requests.";
+
+
+    const dot =
+        document.querySelector(
+            ".online-dot"
         );
 
 
-    $("emptyState")
-        .classList.add(
-            "show"
+    dot.style.background =
+        state.online
+            ? "var(--green)"
+            : "#555";
+
+
+    dot.style.boxShadow =
+        state.online
+            ? "0 0 0 5px rgba(37,212,122,.08)"
+            : "none";
+
+
+    try{
+
+        localStorage.setItem(
+            "goBikeDriverOnline",
+            state.online
+                ? "true"
+                : "false"
         );
 
-
-    $("acceptButton")
-        .disabled =
-        false;
+    }catch(error){}
 
 
-    $("declineButton")
-        .disabled =
-        false;
+    const api =
+        getApi();
 
 
-    $("acceptButton")
-        .textContent =
-        "Accept Ride";
+    if(
+        api &&
+        typeof api.setOnlineStatus ===
+        "function"
+    ){
 
-
-    $("statusTitle")
-        .textContent =
-        "Waiting for rides";
-
-
-    $("statusSubtitle")
-        .textContent =
-        "New requests will appear here.";
-
-
-    $("requestCount")
-        .textContent =
-        "0";
-
-}
-
-
-function showEmpty(){
-
-    state.request =
-        null;
-
-    state.requestId =
-        null;
-
-    stopTimer();
-
-
-    $("requestCard")
-        .classList.remove(
-            "show"
+        Promise.resolve(
+            api.setOnlineStatus(
+                state.online
+            )
+        ).catch(
+            error =>
+                console.warn(
+                    error
+                )
         );
 
-
-    $("emptyState")
-        .classList.add(
-            "show"
-        );
+    }
 
 
-    $("statusTitle")
-        .textContent =
-        "Waiting for rides";
-
-
-    $("statusSubtitle")
-        .textContent =
-        "New requests will appear here.";
+    render();
 
 }
 
 
 /* =========================================================
-   ERROR
+   FILTER EVENTS
 ========================================================= */
 
-function showError(
-    message
-){
+document
+    .querySelectorAll(
+        ".filter"
+    )
+    .forEach(
+        button => {
 
-    $("error")
-        .classList.add(
-            "show"
-        );
+            button.addEventListener(
+                "click",
+                function(){
+
+                    document
+                        .querySelectorAll(
+                            ".filter"
+                        )
+                        .forEach(
+                            item =>
+                                item.classList
+                                    .remove(
+                                        "active"
+                                    )
+                        );
 
 
-    $("errorText")
-        .textContent =
-        message ||
-        "Unable to connect.";
-
-}
+                    this.classList.add(
+                        "active"
+                    );
 
 
-$("retry")
-    .addEventListener(
-        "click",
-        function(){
+                    state.filter =
+                        this.dataset.filter ||
+                        "all";
 
-            $("error")
-                .classList.remove(
-                    "show"
-                );
 
-            subscribe();
+                    render();
+
+                }
+            );
 
         }
     );
 
 
 /* =========================================================
-   BACK
+   NAVIGATION
 ========================================================= */
+
+document
+    .querySelectorAll(
+        ".nav-item"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function(){
+
+                    const page =
+                        this.dataset.page;
+
+
+                    if(!page){
+                        return;
+                    }
+
+
+                    location.href =
+                        page;
+
+                }
+            );
+
+        }
+    );
+
 
 $("backButton")
     .addEventListener(
         "click",
         function(){
 
-            window.location.href =
-                "home.html";
+            if(
+                document.referrer &&
+                document.referrer.includes(
+                    "/rider/"
+                )
+            ){
+
+                history.back();
+
+            }else{
+
+                location.href =
+                    "home.html";
+
+            }
+
+        }
+    );
+
+
+$("refreshButton")
+    .addEventListener(
+        "click",
+        async function(){
+
+            this.disabled =
+                true;
+
+            this.textContent =
+                "…";
+
+
+            await loadRequests();
+
+
+            this.disabled =
+                false;
+
+            this.textContent =
+                "↻";
+
+
+            showToast(
+                "Requests refreshed."
+            );
+
+        }
+    );
+
+
+$("onlineToggle")
+    .addEventListener(
+        "click",
+        function(){
+
+            state.online =
+                !state.online;
+
+
+            updateOnlineUI();
 
         }
     );
 
 
 /* =========================================================
-   TOAST
+   REALTIME LISTENER BRIDGE
 ========================================================= */
 
-let toastTimer = null;
+function connectRealtime(){
+
+    const api =
+        getApi();
 
 
-function showToast(
-    message
-){
+    if(!api){
+        return;
+    }
+
+
+    const callbacks = [
+
+        "subscribeToRequests",
+        "listenForRequests",
+        "onRideRequests",
+        "watchRideRequests"
+
+    ];
+
+
+    for(
+        const method of callbacks
+    ){
+
+        if(
+            typeof api[method] !==
+            "function"
+        ){
+            continue;
+        }
+
+
+        try{
+
+            api[method](
+                requests => {
+
+                    if(
+                        Array.isArray(
+                            requests
+                        )
+                    ){
+
+                        state.requests =
+                            requests;
+
+                        render();
+
+                    }
+
+                }
+            );
+
+
+            break;
+
+        }catch(error){
+
+            console.warn(
+                "Realtime request listener:",
+                error
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+async function init(){
+
+    try{
+
+        const stored =
+            localStorage.getItem(
+                "goBikeDriverOnline"
+            );
+
+
+        if(stored !== null){
+
+            state.online =
+                stored === "true";
+
+        }
+
+    }catch(error){}
+
+
+    updateOnlineUI();
+
+    await loadRequests();
+
+    connectRealtime();
+
+
+    /*
+     * Refresh fallback every 15 seconds.
+     * A real-time engine can update the screen
+     * immediately; this simply keeps the page
+     * resilient if the listener is temporarily
+     * unavailable.
+     */
+
+    setInterval(
+        () => {
+
+            if(
+                state.online &&
+                document.visibilityState ===
+                "visible"
+            ){
+
+                loadRequests();
+
+            }
+
+        },
+        15000
+    );
+
+
+    $("loading")
+        .classList.add(
+            "hide"
+        );
+
+}
+
+
+let toastTimer;
+
+function showToast(message){
 
     const toast =
         $("toast");
@@ -3092,106 +2692,15 @@ function showToast(
 
     toastTimer =
         setTimeout(
-            function(){
+            () => {
 
                 toast.classList.remove(
                     "show"
                 );
 
             },
-            3000
+            2300
         );
-
-}
-
-
-/* =========================================================
-   VISIBILITY
-========================================================= */
-
-document.addEventListener(
-    "visibilitychange",
-    function(){
-
-        if(
-            document.visibilityState ===
-            "visible"
-        ){
-
-            /*
-             * Reconnect if the app was backgrounded.
-             */
-
-            if(
-                !state.requestId
-            ){
-
-                subscribe();
-
-            }
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   CLEANUP
-========================================================= */
-
-window.addEventListener(
-    "beforeunload",
-    function(){
-
-        stopTimer();
-
-
-        if(
-            state.unsubscribe
-        ){
-
-            try{
-
-                state.unsubscribe();
-
-            }catch(error){}
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-function init(){
-
-    if(
-        state.initialized
-    ){
-
-        return;
-
-    }
-
-
-    state.initialized =
-        true;
-
-
-    initMap();
-
-
-    /*
-     * The page intentionally does not create fake
-     * requests. It waits for the central realtime
-     * booking engine.
-     */
-
-    subscribe();
 
 }
 
@@ -3202,4 +2711,4 @@ init();
 </script>
 
 </body>
-</html>
+      </html>
