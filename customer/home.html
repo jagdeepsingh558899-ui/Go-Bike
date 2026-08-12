@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#080808">
+
+  <title>Go Bike | Customer</title>
+
+  <!-- Go Bike CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  >
+
+  <style>
+    /* =====================================================
+       CUSTOMER HOME
+       ===================================================== */
+
+    body {
+      background: #080808;
+      overflow: hidden;
+    }
+
+    .customer-app {
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #080808;
+    }
+
+    /* Header */
+
+    .customer-header {
+      position: relative;
+      z-index: 1000;
+
+      min-height: 68px;
+      padding: 10px 16px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      background: #080808;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .customer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .customer-brand-icon {
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 11px;
+      background: #ffd600;
+
+      font-size: 21px;
+    }
+
+    .customer-brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .customer-brand-text strong {
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 1.3px;
+    }
+
+    .customer-brand-text small {
+      color: #8a8a8a;
+      font-size: 8px;
+      letter-spacing: 1px;
+    }
+
+    .notification-button {
+      width: 42px;
+      height: 42px;
+
+      position: relative;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+
+      background: #111;
+      color: white;
+
+      font-size: 20px;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+
+      width: 7px;
+      height: 7px;
+
+      border-radius: 50%;
+      background: #ff5252;
+
+      display: none;
+    }
+
+    /* Map */
+
+    .customer-map-wrapper {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #customerMap {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* Location button */
+
+    .map-location-button {
+      position: absolute;
+      z-index: 500;
+
+      right: 15px;
+      bottom: 235px;
+
+      width: 48px;
+      height: 48px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+
+      background: #111;
+      color: #ffd600;
+
+      font-size: 20px;
+
+      box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    }
+
+    /* Bottom booking panel */
+
+    .booking-panel {
+      position: absolute;
+      z-index: 600;
+
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+
+      background: rgba(8,8,8,0.96);
+
+      border-top: 1px solid rgba(255,255,255,0.08);
+
+      border-radius: 24px 24px 0 0;
+
+      box-shadow: 0 -15px 40px rgba(0,0,0,0.35);
+    }
+
+    .panel-handle {
+      width: 40px;
+      height: 4px;
+
+      margin: 0 auto 15px;
+
+      border-radius: 10px;
+      background: #444;
+    }
+
+    .booking-title {
+      margin-bottom: 12px;
+    }
+
+    .booking-title span {
+      color: #ffd600;
+
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .booking-title h1 {
+      margin-top: 3px;
+
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    /* Location inputs */
+
+    .location-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .location-input {
+      min-height: 48px;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      padding: 0 13px;
+
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+
+      background: #111;
+    }
+
+    .location-dot {
+      width: 11px;
+      height: 11px;
+
+      flex-shrink: 0;
+
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .location-dot.drop {
+      background: #ffd600;
+    }
+
+    .location-input input {
+      width: 100%;
+
+      border: 0;
+      outline: 0;
+
+      background: transparent;
+      color: #fff;
+
+      font-size: 13px;
+    }
+
+    .location-input input::placeholder {
+      color: #777;
+    }
+
+    /* Service */
+
+    .service-row {
+      margin-top: 12px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      gap: 10px;
+    }
+
+    .service-option {
+      flex: 1;
+
+      min-height: 55px;
+
+      padding: 8px 12px;
+
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 13px;
+
+      background: #111;
+    }
+
+    .service-option.active {
+      border-color: #ffd600;
+      background: rgba(255,214,0,0.08);
+    }
+
+    .service-icon {
+      font-size: 23px;
+    }
+
+    .service-name {
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .service-description {
+      color: #8a8a8a;
+      font-size: 10px;
+    }
+
+    .fare-preview {
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .fare-preview small {
+      display: block;
+
+      color: #8a8a8a;
+      font-size: 9px;
+    }
+
+    .fare-preview strong {
+      color: #ffd600;
+      font-size: 17px;
+    }
+
+    /* Book button */
+
+    .book-button {
+      width: 100%;
+
+      margin-top: 12px;
+
+      min-height: 52px;
+
+      border-radius: 13px;
+
+      background: #ffd600;
+      color: #080808;
+
+      font-size: 15px;
+      font-weight: 900;
+
+      transition: transform .2s ease;
+    }
+
+    .book-button:active {
+      transform: scale(.98);
+    }
+
+    .book-button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    /* Leaflet */
+
+    .leaflet-control-zoom {
+      margin-top: 15px !important;
+      margin-left: 15px !important;
+    }
+
+    .leaflet-control-zoom a {
+      background: #111 !important;
+      color: #fff !important;
+      border-color: #333 !important;
+    }
+
+    /* Mobile */
+
+    @media (max-width: 480px) {
+
+      .booking-panel {
+        padding-left: 13px;
+        padding-right: 13px;
+      }
+
+      .map-location-button {
+        bottom: 270px;
+        right: 13px;
+      }
+
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="customer-app">
+
+    <!-- ===================================================
+         HEADER
+    ==================================================== -->
+
+    <header class="customer-header">
+
+      <a href="home.html" class="customer-brand">
+
+        <div class="customer-brand-icon">
+          🛵
+        </div>
+
+        <div class="customer-brand-text">
+          <strong>GO BIKE</strong>
+          <small>PARCEL DELIVERY</small>
+        </div>
+
+      </a>
+
+      <button
+        id="notificationButton"
+        class="notification-button"
+        type="button"
+        aria-label="Notifications"
+      >
+        🔔
+
+        <span
+          id="notificationBadge"
+          class="notification-badge"
+        ></span>
+      </button>
+
+    </header>
+
+
+    <!-- ===================================================
+         MAP
+    ==================================================== -->
+
+    <section class="customer-map-wrapper">
+
+      <div id="customerMap"></div>
+
+
+      <button
+        id="currentLocationButton"
+        class="map-location-button"
+        type="button"
+        aria-label="Use current location"
+      >
+        ◎
+      </button>
+
+
+      <!-- =================================================
+           BOOKING PANEL
+      ================================================== -->
+
+      <section class="booking-panel">
+
+        <div class="panel-handle"></div>
+
+        <div class="booking-title">
+
+          <span>
+            GO BIKE DELIVERY
+          </span>
+
+          <h1>
+            Where are you sending?
+          </h1>
+
+        </div>
+
+
+        <div class="location-box">
+
+          <div class="location-input">
+
+            <span class="location-dot"></span>
+
+            <input
+              id="pickupInput"
+              type="text"
+              placeholder="Select pickup location"
+              autocomplete="off"
+            >
+
+          </div>
+
+
+          <div class="location-input">
+
+            <span class="location-dot drop"></span>
+
+            <input
+              id="dropInput"
+              type="text"
+              placeholder="Select drop location"
+              autocomplete="off"
+            >
+
+          </div>
+
+        </div>
+
+
+        <div class="service-row">
+
+          <div class="service-option active">
+
+            <div class="service-icon">
+              🛵
+            </div>
+
+            <div>
+
+              <div class="service-name">
+                Bike Parcel
+              </div>
+
+              <div class="service-description">
+                Fast local delivery
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="farePreview"
+            class="fare-preview"
+          >
+
+            <small>
+              EST. FARE
+            </small>
+
+            <strong>
+              ₹--
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <button
+          id="bookRideButton"
+          class="book-button"
+          type="button"
+          disabled
+        >
+          SELECT PICKUP & DROP
+        </button>
+
+      </section>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       LEAFLET
+  ====================================================== -->
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+
+
+  <!-- Go Bike Firebase configuration -->
+
+  <script src="../firebase/firebase-config.js"></script>
+
+
+  <!-- Main app -->
+
+  <script src="../js/app.js"></script>
+
+
+  <!-- Customer map -->
+
+  <script
+    type="module"
+    src="../js/map.js"
+  ></script>
+
+</body>
+              </html>
