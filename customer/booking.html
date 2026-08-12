@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#080808"
+  >
+
+  <title>Confirm Parcel | Go Bike</title>
+
+  <link
+    rel="stylesheet"
+    href="../css/style.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="../css/responsive.css"
+  >
+
+  <style>
+
+    body {
+      margin: 0;
+      background: #080808;
+      color: #fff;
+    }
+
+    .booking-page {
+      min-height: 100dvh;
+      background: #080808;
+      padding-bottom: 30px;
+    }
+
+    .booking-header {
+      height: 64px;
+      padding: 0 16px;
+
+      display: flex;
+      align-items: center;
+      gap: 14px;
+
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .back-button {
+      width: 42px;
+      height: 42px;
+
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+
+      background: #111;
+      color: #fff;
+
+      font-size: 20px;
+    }
+
+    .booking-header h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .booking-container {
+      width: min(100% - 28px, 600px);
+      margin: 18px auto;
+    }
+
+    .section {
+      margin-bottom: 14px;
+      padding: 16px;
+
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 17px;
+
+      background: #111;
+    }
+
+    .section-title {
+      margin-bottom: 13px;
+
+      color: #ffd600;
+
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .location-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .location-line {
+      width: 2px;
+      margin: 4px 0;
+
+      background: #333;
+    }
+
+    .location-item {
+      flex: 1;
+    }
+
+    .location-label {
+      color: #8a8a8a;
+      font-size: 10px;
+      margin-bottom: 4px;
+    }
+
+    .location-value {
+      font-size: 13px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .service-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .service-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .service-icon {
+      width: 48px;
+      height: 48px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 14px;
+
+      background: #ffd600;
+      color: #080808;
+
+      font-size: 25px;
+    }
+
+    .service-name {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .service-desc {
+      margin-top: 3px;
+
+      color: #8a8a8a;
+      font-size: 11px;
+    }
+
+    .fare {
+      color: #ffd600;
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .form-group {
+      margin-bottom: 13px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 7px;
+
+      color: #ddd;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+
+      width: 100%;
+      box-sizing: border-box;
+
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+
+      background: #080808;
+      color: #fff;
+
+      padding: 13px;
+
+      outline: none;
+
+      font-size: 13px;
+    }
+
+    .form-group textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: #ffd600;
+    }
+
+    .fare-row {
+      display: flex;
+      justify-content: space-between;
+
+      padding: 7px 0;
+
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .fare-row.total {
+      margin-top: 8px;
+      padding-top: 14px;
+
+      border-top: 1px solid rgba(255,255,255,.08);
+
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .fare-row.total strong {
+      color: #ffd600;
+      font-size: 20px;
+    }
+
+    .confirm-button {
+      width: 100%;
+      min-height: 54px;
+
+      border: 0;
+      border-radius: 14px;
+
+      background: #ffd600;
+      color: #080808;
+
+      font-size: 15px;
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    .confirm-button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 10px;
+
+      text-align: center;
+
+      color: #ff5252;
+      font-size: 12px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <main class="booking-page">
+
+    <!-- HEADER -->
+
+    <header class="booking-header">
+
+      <button
+        id="backButton"
+        class="back-button"
+        type="button"
+        aria-label="Go back"
+      >
+        ←
+      </button>
+
+      <h1>
+        Confirm Parcel
+      </h1>
+
+    </header>
+
+
+    <div class="booking-container">
+
+
+      <!-- LOCATIONS -->
+
+      <section class="section">
+
+        <div class="section-title">
+          Delivery Route
+        </div>
+
+        <div class="location-row">
+
+          <div class="location-item">
+
+            <div class="location-label">
+              PICKUP
+            </div>
+
+            <div
+              id="pickupAddress"
+              class="location-value"
+            >
+              Loading...
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div
+          style="
+            height:1px;
+            background:rgba(255,255,255,.06);
+            margin:14px 0;
+          "
+        ></div>
+
+
+        <div class="location-row">
+
+          <div class="location-item">
+
+            <div class="location-label">
+              DROP
+            </div>
+
+            <div
+              id="dropAddress"
+              class="location-value"
+            >
+              Loading...
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SERVICE -->
+
+      <section class="section">
+
+        <div class="section-title">
+          Delivery Service
+        </div>
+
+        <div class="service-card">
+
+          <div class="service-left">
+
+            <div class="service-icon">
+              🛵
+            </div>
+
+            <div>
+
+              <div class="service-name">
+                Bike Parcel
+              </div>
+
+              <div class="service-desc">
+                Fast local parcel delivery
+              </div>
+
+            </div>
+
+          </div>
+
+          <div
+            id="serviceFare"
+            class="fare"
+          >
+            ₹--
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- RECEIVER -->
+
+      <section class="section">
+
+        <div class="section-title">
+          Receiver Details
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="receiverName">
+            Receiver Name
+          </label>
+
+          <input
+            id="receiverName"
+            type="text"
+            placeholder="Enter receiver name"
+            autocomplete="name"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="receiverPhone">
+            Receiver Phone
+          </label>
+
+          <input
+            id="receiverPhone"
+            type="tel"
+            placeholder="Enter receiver phone"
+            inputmode="tel"
+            autocomplete="tel"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="parcelType">
+            Parcel Type
+          </label>
+
+          <select id="parcelType">
+
+            <option value="document">
+              Document
+            </option>
+
+            <option value="food">
+              Food
+            </option>
+
+            <option value="clothing">
+              Clothing
+            </option>
+
+            <option value="electronics">
+              Electronics
+            </option>
+
+            <option value="other">
+              Other
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="deliveryNote">
+            Delivery Instructions
+          </label>
+
+          <textarea
+            id="deliveryNote"
+            placeholder="Example: Call receiver before arrival"
+          ></textarea>
+
+        </div>
+
+      </section>
+
+
+      <!-- FARE -->
+
+      <section class="section">
+
+        <div class="section-title">
+          Fare Estimate
+        </div>
+
+
+        <div class="fare-row">
+
+          <span>
+            Base fare
+          </span>
+
+          <span id="baseFare">
+            ₹30
+          </span>
+
+        </div>
+
+
+        <div class="fare-row">
+
+          <span>
+            Distance fare
+          </span>
+
+          <span id="distanceFare">
+            ₹--
+          </span>
+
+        </div>
+
+
+        <div class="fare-row">
+
+          <span>
+            Platform fee
+          </span>
+
+          <span>
+            ₹0
+          </span>
+
+        </div>
+
+
+        <div class="fare-row total">
+
+          <span>
+            Estimated Total
+          </span>
+
+          <strong id="totalFare">
+            ₹--
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <!-- CONFIRM -->
+
+      <button
+        id="confirmBookingButton"
+        class="confirm-button"
+        type="button"
+        disabled
+      >
+        CONFIRM PARCEL BOOKING
+      </button>
+
+
+      <div
+        id="bookingMessage"
+        class="message"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+    </div>
+
+  </main>
+
+
+  <!-- =====================================================
+       FIREBASE CONFIG
+  ====================================================== -->
+
+  <script src="../firebase/firebase-config.js"></script>
+
+
+  <!-- =====================================================
+       BOOKING LOGIC
+  ====================================================== -->
+
+  <script
+    type="module"
+    src="../js/booking.js"
+  ></script>
+
+</body>
+
+</html>
