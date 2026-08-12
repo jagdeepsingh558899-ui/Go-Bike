@@ -1,0 +1,301 @@
+/* =========================================================
+   GO BIKE — RESPONSIVE DESIGN
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .hero {
+    min-height: auto;
+    padding: 55px 0 80px;
+
+    grid-template-columns: 1fr;
+    gap: 45px;
+  }
+
+  .hero-content {
+    max-width: 700px;
+  }
+
+  .hero-visual {
+    width: 100%;
+  }
+
+  .map-preview {
+    width: min(100%, 520px);
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .top-header {
+    padding: 18px 5%;
+  }
+
+  .hero {
+    width: 90%;
+    padding-top: 35px;
+  }
+
+  .hero h2 {
+    font-size: clamp(42px, 12vw, 62px);
+    letter-spacing: -2px;
+  }
+
+  .hero-text {
+    font-size: 15px;
+  }
+
+  .services,
+  .how-it-works {
+    padding: 65px 0;
+  }
+
+  .cta-section {
+    width: 90%;
+    padding: 50px 8%;
+    margin-bottom: 45px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  body {
+    font-size: 14px;
+  }
+
+  .top-header {
+    padding: 15px 5%;
+  }
+
+  .brand-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-logo img {
+    width: 31px;
+    height: 31px;
+  }
+
+  .brand-text strong {
+    font-size: 16px;
+  }
+
+  .brand-text small {
+    font-size: 7px;
+  }
+
+
+  /* Hero */
+
+  .hero {
+    width: 90%;
+    padding: 35px 0 60px;
+    gap: 35px;
+  }
+
+  .hero h2 {
+    margin-top: 14px;
+
+    font-size: clamp(40px, 13vw, 54px);
+
+    line-height: 0.98;
+    letter-spacing: -2px;
+  }
+
+  .hero-text {
+    margin-top: 20px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+
+  /* Buttons */
+
+  .hero-actions {
+    width: 100%;
+    flex-direction: column;
+    margin-top: 27px;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .btn {
+    min-height: 52px;
+  }
+
+
+  /* Map */
+
+  .map-preview {
+    width: 100%;
+    border-radius: 25px;
+  }
+
+  .bike-marker {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  .map-label {
+    padding: 6px 9px;
+    font-size: 9px;
+  }
+
+
+  /* Services */
+
+  .services,
+  .how-it-works {
+    width: 90%;
+    padding: 55px 0;
+  }
+
+  .section-heading h3 {
+    font-size: 30px;
+  }
+
+  .service-card {
+    padding: 18px;
+  }
+
+  .service-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 21px;
+  }
+
+  .service-content h4 {
+    font-size: 16px;
+  }
+
+  .service-content p {
+    font-size: 13px;
+  }
+
+
+  /* Steps */
+
+  .steps {
+    gap: 12px;
+  }
+
+  .step-card {
+    padding: 20px;
+  }
+
+  .step-card h4 {
+    margin-top: 25px;
+    font-size: 16px;
+  }
+
+  .step-card p {
+    font-size: 13px;
+  }
+
+
+  /* CTA */
+
+  .cta-section {
+    width: 90%;
+    padding: 45px 25px;
+    border-radius: 24px;
+  }
+
+  .cta-content h3 {
+    font-size: 40px;
+    letter-spacing: -1.5px;
+  }
+
+
+  /* Footer */
+
+  .footer {
+    width: 90%;
+    padding: 25px 0 35px;
+
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer p {
+    text-align: left;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+  .hero h2 {
+    font-size: 37px;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+
+  .service-card {
+    gap: 12px;
+  }
+
+  .service-arrow {
+    font-size: 20px;
+  }
+
+}
+
+
+/* =========================================================
+   LANDSCAPE MOBILE
+   ========================================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+
+  .splash-content {
+    transform: scale(0.8);
+  }
+
+  .hero {
+    padding-top: 25px;
+    padding-bottom: 40px;
+  }
+
+}
+
+
+/* =========================================================
+   SAFE AREA — MODERN PHONES
+   ========================================================= */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+}
