@@ -15,7 +15,7 @@
 
     <meta
         name="description"
-        content="Go Bike login — Fast. Simple. Delivered."
+        content="Login to Go Bike."
     >
 
     <title>Go Bike | Login</title>
@@ -32,9 +32,10 @@
             --black-2: #111111;
             --card: #151515;
             --yellow: #FFD600;
-            --yellow-2: #FFE44D;
+            --yellow-light: #FFE44D;
             --white: #FFFFFF;
             --muted: #969696;
+            --muted-2: #666666;
             --border: rgba(255,255,255,.09);
             --danger: #FF5252;
             --success: #35D07F;
@@ -56,6 +57,7 @@
         body {
             min-height: 100vh;
             min-height: 100dvh;
+
             color: var(--white);
 
             font-family:
@@ -75,14 +77,14 @@
             font: inherit;
         }
 
-        button {
+        button,
+        a {
             -webkit-tap-highlight-color: transparent;
         }
 
         a {
             color: inherit;
             text-decoration: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .page {
@@ -90,8 +92,10 @@
             min-height: 100vh;
             min-height: 100dvh;
 
-            display: flex;
-            flex-direction: column;
+            padding:
+                max(20px, env(safe-area-inset-top))
+                20px
+                max(24px, env(safe-area-inset-bottom));
 
             background:
                 radial-gradient(
@@ -100,25 +104,24 @@
                     transparent 32%
                 ),
                 var(--black);
-
-            padding:
-                max(20px, env(safe-area-inset-top))
-                20px
-                max(22px, env(safe-area-inset-bottom));
         }
 
-        /* ================================
-           TOP BAR
-        ================================= */
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* =========================================
+           TOPBAR
+        ========================================== */
 
         .topbar {
-            width: 100%;
-            max-width: 520px;
-            margin: 0 auto;
-
             display: flex;
             align-items: center;
             justify-content: space-between;
+
+            margin-bottom: 48px;
         }
 
         .back-button {
@@ -138,75 +141,54 @@
             cursor: pointer;
 
             font-size: 20px;
-
-            transition:
-                transform .2s ease,
-                background .2s ease,
-                border-color .2s ease;
         }
 
         .back-button:active {
             transform: scale(.94);
         }
 
-        .back-button:hover {
-            border-color: rgba(255,214,0,.3);
-            background: rgba(255,214,0,.06);
-        }
-
-        .mini-brand {
+        .brand {
             display: flex;
             align-items: center;
             gap: 9px;
         }
 
-        .mini-brand img {
+        .brand img {
             width: 34px;
             height: 34px;
             object-fit: contain;
         }
 
-        .mini-brand strong {
+        .brand strong {
             font-size: 18px;
             font-weight: 900;
             letter-spacing: -.7px;
         }
 
-        .mini-brand span {
+        .brand span {
             color: var(--yellow);
         }
 
-        /* ================================
-           MAIN
-        ================================= */
-
-        .main {
-            flex: 1;
-
-            width: 100%;
-            max-width: 520px;
-
-            margin: 0 auto;
-
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .spacer {
+            width: 42px;
         }
 
-        .heading {
-            margin-bottom: 26px;
+        /* =========================================
+           TITLE
+        ========================================== */
+
+        .title {
+            margin-bottom: 25px;
         }
 
         .role-badge {
-            width: max-content;
-
             display: inline-flex;
             align-items: center;
             gap: 7px;
 
             padding: 7px 11px;
 
-            margin-bottom: 15px;
+            margin-bottom: 14px;
 
             border: 1px solid rgba(255,214,0,.16);
             border-radius: 999px;
@@ -216,23 +198,23 @@
             color: var(--yellow);
 
             font-size: 11px;
-            font-weight: 800;
+            font-weight: 850;
             letter-spacing: .4px;
             text-transform: uppercase;
         }
 
-        .heading h1 {
-            font-size: clamp(30px, 8vw, 42px);
-            line-height: 1;
+        .title h1 {
+            font-size: clamp(32px, 9vw, 44px);
+            line-height: .98;
             font-weight: 900;
-            letter-spacing: -1.8px;
+            letter-spacing: -2px;
         }
 
-        .heading h1 span {
+        .title h1 span {
             color: var(--yellow);
         }
 
-        .heading p {
+        .title p {
             margin-top: 11px;
 
             color: var(--muted);
@@ -241,13 +223,11 @@
             line-height: 1.5;
         }
 
-        /* ================================
-           AUTH CARD
-        ================================= */
+        /* =========================================
+           CARD
+        ========================================== */
 
-        .auth-card {
-            width: 100%;
-
+        .card {
             padding: 20px;
 
             border: 1px solid var(--border);
@@ -257,80 +237,93 @@
                 linear-gradient(
                     145deg,
                     rgba(255,255,255,.045),
-                    rgba(255,255,255,.018)
+                    rgba(255,255,255,.015)
                 );
 
             box-shadow:
-                0 25px 70px rgba(0,0,0,.28);
+                0 25px 70px rgba(0,0,0,.32);
         }
 
-        /* ================================
-           TABS
-        ================================= */
+        /* =========================================
+           ALERT
+        ========================================== */
 
-        .auth-tabs {
+        .alert {
+            display: none;
+
+            margin-bottom: 15px;
+
+            padding: 11px 12px;
+
+            border: 1px solid rgba(255,82,82,.22);
+            border-radius: 12px;
+
+            background: rgba(255,82,82,.07);
+
+            color: #FF9B9B;
+
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert.success {
+            border-color: rgba(53,208,127,.22);
+            background: rgba(53,208,127,.07);
+            color: #8AE6B4;
+        }
+
+        /* =========================================
+           LOGIN TABS
+        ========================================== */
+
+        .login-tabs {
             display: grid;
             grid-template-columns: 1fr 1fr;
 
             padding: 4px;
+
             margin-bottom: 20px;
 
+            border: 1px solid var(--border);
             border-radius: 14px;
 
-            background: rgba(255,255,255,.045);
+            background: rgba(0,0,0,.22);
         }
 
-        .tab {
-            min-height: 42px;
+        .login-tab {
+            min-height: 40px;
 
             border: 0;
-            border-radius: 11px;
+            border-radius: 10px;
 
             background: transparent;
-            color: #858585;
+            color: #777;
 
             cursor: pointer;
 
-            font-size: 13px;
-            font-weight: 800;
+            font-size: 11px;
+            font-weight: 850;
 
             transition:
-                color .2s ease,
-                background .2s ease;
+                background .2s ease,
+                color .2s ease;
         }
 
-        .tab.active {
+        .login-tab.active {
             background: var(--yellow);
             color: #111;
         }
 
-        /* ================================
-           FORMS
-        ================================= */
-
-        .form {
-            display: none;
-        }
-
-        .form.active {
-            display: block;
-            animation: formIn .25s ease;
-        }
-
-        @keyframes formIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* =========================================
+           FIELDS
+        ========================================== */
 
         .field {
-            margin-bottom: 14px;
+            margin-bottom: 15px;
         }
 
         .field label {
@@ -394,9 +387,13 @@
                 0 0 0 3px rgba(255,214,0,.07);
         }
 
+        .input.invalid {
+            border-color: rgba(255,82,82,.65);
+        }
+
         .password-toggle {
             position: absolute;
-            right: 10px;
+            right: 9px;
             top: 50%;
 
             width: 36px;
@@ -411,10 +408,6 @@
             color: #777;
 
             cursor: pointer;
-        }
-
-        .password-toggle:active {
-            background: rgba(255,255,255,.05);
         }
 
         .phone-row {
@@ -445,51 +438,41 @@
             padding-left: 14px;
         }
 
-        /* ================================
-           OPTIONS
-        ================================= */
+        /* =========================================
+           FORGOT
+        ========================================== */
 
-        .form-options {
+        .forgot-row {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            justify-content: flex-end;
 
-            gap: 10px;
-
-            margin: 2px 0 18px;
+            margin-top: -5px;
+            margin-bottom: 17px;
         }
 
-        .remember {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
+        .forgot-button {
+            border: 0;
 
-            color: #858585;
-
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .remember input {
-            accent-color: var(--yellow);
-        }
-
-        .forgot {
+            background: transparent;
             color: var(--yellow);
+
+            cursor: pointer;
 
             font-size: 11px;
             font-weight: 750;
         }
 
-        /* ================================
+        /* =========================================
            PRIMARY BUTTON
-        ================================= */
+        ========================================== */
 
         .primary-button {
-            position: relative;
-
             width: 100%;
-            min-height: 52px;
+            min-height: 53px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
             border: 0;
             border-radius: 15px;
@@ -502,9 +485,6 @@
             font-size: 14px;
             font-weight: 900;
 
-            box-shadow:
-                0 10px 30px rgba(255,214,0,.10);
-
             transition:
                 transform .2s ease,
                 background .2s ease,
@@ -512,7 +492,7 @@
         }
 
         .primary-button:hover {
-            background: var(--yellow-2);
+            background: var(--yellow-light);
         }
 
         .primary-button:active {
@@ -529,8 +509,6 @@
 
             width: 19px;
             height: 19px;
-
-            margin: 0 auto;
 
             border: 2px solid rgba(0,0,0,.2);
             border-top-color: #111;
@@ -554,9 +532,56 @@
             }
         }
 
-        /* ================================
+        /* =========================================
+           OTP
+        ========================================== */
+
+        .otp-section {
+            display: none;
+        }
+
+        .otp-section.visible {
+            display: block;
+        }
+
+        .otp-info {
+            margin-bottom: 14px;
+
+            color: #888;
+
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .otp-input {
+            letter-spacing: 7px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 850;
+        }
+
+        .otp-actions {
+            display: flex;
+            justify-content: space-between;
+
+            margin-top: 10px;
+        }
+
+        .text-button {
+            border: 0;
+
+            background: transparent;
+            color: var(--yellow);
+
+            cursor: pointer;
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* =========================================
            DIVIDER
-        ================================= */
+        ========================================== */
 
         .divider {
             display: flex;
@@ -586,9 +611,9 @@
             text-transform: uppercase;
         }
 
-        /* ================================
+        /* =========================================
            GOOGLE
-        ================================= */
+        ========================================== */
 
         .google-button {
             width: 100%;
@@ -630,53 +655,16 @@
 
             border-radius: 50%;
 
-            background: white;
-
+            background: #fff;
             color: #4285F4;
 
             font-size: 13px;
             font-weight: 900;
         }
 
-        /* ================================
-           OTP
-        ================================= */
-
-        .otp-note {
-            margin-bottom: 14px;
-
-            color: #888;
-
-            font-size: 12px;
-            line-height: 1.45;
-        }
-
-        .otp-actions {
-            margin-top: 12px;
-
-            display: flex;
-            justify-content: center;
-        }
-
-        .resend-button {
-            border: 0;
-            background: transparent;
-            color: var(--yellow);
-
-            cursor: pointer;
-
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .resend-button:disabled {
-            color: #555;
-            cursor: not-allowed;
-        }
-
-        /* ================================
+        /* =========================================
            REGISTER
-        ================================= */
+        ========================================== */
 
         .register-link {
             margin-top: 20px;
@@ -692,49 +680,14 @@
             font-weight: 800;
         }
 
-        /* ================================
-           ALERT
-        ================================= */
-
-        .alert {
-            display: none;
-
-            margin-bottom: 14px;
-
-            padding: 11px 12px;
-
-            border: 1px solid rgba(255,82,82,.2);
-            border-radius: 12px;
-
-            background: rgba(255,82,82,.07);
-
-            color: #FF9B9B;
-
-            font-size: 12px;
-            line-height: 1.4;
-        }
-
-        .alert.show {
-            display: block;
-        }
-
-        .alert.success {
-            border-color: rgba(53,208,127,.2);
-            background: rgba(53,208,127,.07);
-            color: #8AE6B4;
-        }
-
-        /* ================================
+        /* =========================================
            FOOTER
-        ================================= */
+        ========================================== */
 
         .footer {
-            width: 100%;
-            max-width: 520px;
+            margin-top: 22px;
 
-            margin: 20px auto 0;
-
-            color: #5D5D5D;
+            color: #555;
 
             font-size: 10px;
             font-weight: 600;
@@ -743,17 +696,20 @@
         }
 
         @media (min-width: 700px) {
+
             .page {
                 padding-left: 40px;
                 padding-right: 40px;
             }
 
-            .auth-card {
-                padding: 26px;
+            .card {
+                padding: 27px;
             }
+
         }
 
         @media (prefers-reduced-motion: reduce) {
+
             *,
             *::before,
             *::after {
@@ -761,6 +717,7 @@
                 animation-iteration-count: 1 !important;
                 transition-duration: .01ms !important;
             }
+
         }
     </style>
 </head>
@@ -769,43 +726,47 @@
 
 <div class="page">
 
-    <!-- TOP BAR -->
+    <div class="container">
 
-    <header class="topbar">
+        <!-- =====================================
+             TOPBAR
+        ====================================== -->
 
-        <button
-            id="backButton"
-            class="back-button"
-            type="button"
-            aria-label="Go back"
-        >
-            ←
-        </button>
+        <header class="topbar">
 
-        <div class="mini-brand">
-
-            <img
-                src="../assets/logo.svg"
-                alt="Go Bike"
-                onerror="this.onerror=null;this.src='../assets/logo.png';"
+            <button
+                id="backButton"
+                class="back-button"
+                type="button"
+                aria-label="Go back"
             >
+                ←
+            </button>
 
-            <strong>
-                GO <span>BIKE</span>
-            </strong>
+            <div class="brand">
 
-        </div>
+                <img
+                    src="../assets/logo.svg"
+                    alt="Go Bike"
+                    onerror="this.onerror=null;this.src='../assets/logo.png';"
+                >
 
-        <div style="width:42px;"></div>
+                <strong>
+                    GO <span>BIKE</span>
+                </strong>
 
-    </header>
+            </div>
+
+            <div class="spacer"></div>
+
+        </header>
 
 
-    <!-- MAIN -->
+        <!-- =====================================
+             TITLE
+        ====================================== -->
 
-    <main class="main">
-
-        <section class="heading">
+        <section class="title">
 
             <div
                 id="roleBadge"
@@ -819,39 +780,18 @@
                 <span>back.</span>
             </h1>
 
-            <p id="headingText">
+            <p id="description">
                 Login to continue with Go Bike.
             </p>
 
         </section>
 
 
-        <section class="auth-card">
+        <!-- =====================================
+             CARD
+        ====================================== -->
 
-            <!-- AUTH TABS -->
-
-            <div class="auth-tabs">
-
-                <button
-                    id="passwordTab"
-                    class="tab active"
-                    type="button"
-                >
-                    Password
-                </button>
-
-                <button
-                    id="otpTab"
-                    class="tab"
-                    type="button"
-                >
-                    Mobile OTP
-                </button>
-
-            </div>
-
-
-            <!-- ALERT -->
+        <section class="card">
 
             <div
                 id="alert"
@@ -860,18 +800,42 @@
             ></div>
 
 
-            <!-- PASSWORD LOGIN -->
+            <!-- LOGIN METHOD -->
+
+            <div class="login-tabs">
+
+                <button
+                    id="emailTab"
+                    class="login-tab active"
+                    type="button"
+                >
+                    Email
+                </button>
+
+                <button
+                    id="phoneTab"
+                    class="login-tab"
+                    type="button"
+                >
+                    Mobile OTP
+                </button>
+
+            </div>
+
+
+            <!-- =================================
+                 EMAIL LOGIN
+            ================================== -->
 
             <form
-                id="passwordForm"
-                class="form active"
+                id="emailForm"
                 novalidate
             >
 
                 <div class="field">
 
                     <label for="email">
-                        Email
+                        Email address
                     </label>
 
                     <div class="input-wrap">
@@ -886,7 +850,7 @@
                             type="email"
                             inputmode="email"
                             autocomplete="email"
-                            placeholder="Enter your email"
+                            placeholder="you@example.com"
                             required
                         >
 
@@ -930,31 +894,21 @@
                 </div>
 
 
-                <div class="form-options">
+                <div class="forgot-row">
 
-                    <label class="remember">
-
-                        <input
-                            id="rememberMe"
-                            type="checkbox"
-                        >
-
-                        Remember me
-
-                    </label>
-
-                    <a
-                        class="forgot"
-                        href="forgot-password.html"
+                    <button
+                        id="forgotPassword"
+                        class="forgot-button"
+                        type="button"
                     >
                         Forgot password?
-                    </a>
+                    </button>
 
                 </div>
 
 
                 <button
-                    id="loginButton"
+                    id="emailLoginButton"
                     class="primary-button"
                     type="submit"
                 >
@@ -970,72 +924,137 @@
             </form>
 
 
-            <!-- OTP LOGIN -->
+            <!-- =================================
+                 PHONE LOGIN
+            ================================== -->
 
             <form
-                id="otpForm"
-                class="form"
+                id="phoneForm"
+                class="otp-section"
                 novalidate
             >
 
-                <p class="otp-note">
-                    Enter your Indian mobile number. We'll send a
-                    secure verification code.
-                </p>
+                <div
+                    id="phoneStep"
+                >
 
-                <div class="field">
+                    <div class="field">
 
-                    <label for="phone">
-                        Mobile Number
-                    </label>
+                        <label for="phone">
+                            Mobile number
+                        </label>
 
-                    <div class="phone-row">
+                        <div class="phone-row">
 
-                        <div class="country-code">
-                            +91 🇮🇳
+                            <div class="country-code">
+                                +91 🇮🇳
+                            </div>
+
+                            <input
+                                id="phone"
+                                class="input"
+                                type="tel"
+                                inputmode="numeric"
+                                autocomplete="tel"
+                                placeholder="10-digit mobile number"
+                                maxlength="10"
+                            >
+
                         </div>
 
-                        <input
-                            id="phone"
-                            class="input"
-                            type="tel"
-                            inputmode="numeric"
-                            autocomplete="tel"
-                            maxlength="10"
-                            placeholder="10-digit number"
-                            required
-                        >
-
                     </div>
+
+
+                    <div
+                        id="recaptcha-container"
+                    ></div>
+
+
+                    <button
+                        id="sendOtpButton"
+                        class="primary-button"
+                        type="button"
+                    >
+
+                        <span class="button-text">
+                            Send OTP
+                        </span>
+
+                        <span class="button-loader"></span>
+
+                    </button>
 
                 </div>
 
 
-                <button
-                    id="sendOtpButton"
-                    class="primary-button"
-                    type="submit"
+                <div
+                    id="otpStep"
+                    style="display:none;"
                 >
 
-                    <span class="button-text">
-                        Send OTP
-                    </span>
+                    <div class="otp-info">
 
-                    <span class="button-loader"></span>
+                        Enter the 6-digit OTP sent to
+                        <strong id="otpPhone">
+                            your mobile
+                        </strong>.
 
-                </button>
+                    </div>
 
 
-                <div class="otp-actions">
+                    <div class="field">
+
+                        <label for="otp">
+                            Verification code
+                        </label>
+
+                        <input
+                            id="otp"
+                            class="input otp-input"
+                            type="text"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            maxlength="6"
+                            placeholder="000000"
+                        >
+
+                    </div>
+
 
                     <button
-                        id="resendOtpButton"
-                        class="resend-button"
+                        id="verifyOtpButton"
+                        class="primary-button"
                         type="button"
-                        disabled
                     >
-                        Resend OTP
+
+                        <span class="button-text">
+                            Verify & Login
+                        </span>
+
+                        <span class="button-loader"></span>
+
                     </button>
+
+
+                    <div class="otp-actions">
+
+                        <button
+                            id="changePhone"
+                            class="text-button"
+                            type="button"
+                        >
+                            Change number
+                        </button>
+
+                        <button
+                            id="resendOtp"
+                            class="text-button"
+                            type="button"
+                        >
+                            Resend OTP
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -1045,8 +1064,9 @@
             <!-- GOOGLE -->
 
             <div class="divider">
-                <span>or continue with</span>
+                <span>or</span>
             </div>
+
 
             <button
                 id="googleButton"
@@ -1063,6 +1083,8 @@
             </button>
 
 
+            <!-- REGISTER -->
+
             <div class="register-link">
 
                 Don't have an account?
@@ -1078,12 +1100,16 @@
 
         </section>
 
-    </main>
 
+        <footer class="footer">
 
-    <footer class="footer">
-        © <span id="year"></span> Go Bike
-    </footer>
+            ©
+            <span id="year"></span>
+            Go Bike
+
+        </footer>
+
+    </div>
 
 </div>
 
@@ -1093,72 +1119,107 @@
 
     "use strict";
 
+
     /* =========================================
        ELEMENTS
     ========================================== */
 
-    const passwordTab =
-        document.getElementById("passwordTab");
+    const roleBadge =
+        document.getElementById("roleBadge");
 
-    const otpTab =
-        document.getElementById("otpTab");
+    const description =
+        document.getElementById("description");
 
-    const passwordForm =
-        document.getElementById("passwordForm");
+    const emailTab =
+        document.getElementById("emailTab");
 
-    const otpForm =
-        document.getElementById("otpForm");
+    const phoneTab =
+        document.getElementById("phoneTab");
+
+    const emailForm =
+        document.getElementById("emailForm");
+
+    const phoneForm =
+        document.getElementById("phoneForm");
+
+    const email =
+        document.getElementById("email");
+
+    const password =
+        document.getElementById("password");
 
     const passwordToggle =
         document.getElementById("passwordToggle");
 
-    const passwordInput =
-        document.getElementById("password");
-
-    const loginButton =
-        document.getElementById("loginButton");
-
-    const sendOtpButton =
-        document.getElementById("sendOtpButton");
-
-    const googleButton =
-        document.getElementById("googleButton");
-
-    const resendOtpButton =
-        document.getElementById("resendOtpButton");
-
-    const phoneInput =
+    const phone =
         document.getElementById("phone");
 
-    const emailInput =
-        document.getElementById("email");
+    const otp =
+        document.getElementById("otp");
 
-    const alertBox =
-        document.getElementById("alert");
+    const otpPhone =
+        document.getElementById("otpPhone");
 
-    const roleBadge =
-        document.getElementById("roleBadge");
+    const phoneStep =
+        document.getElementById("phoneStep");
 
-    const headingText =
-        document.getElementById("headingText");
+    const otpStep =
+        document.getElementById("otpStep");
+
+    const emailLoginButton =
+        document.getElementById(
+            "emailLoginButton"
+        );
+
+    const sendOtpButton =
+        document.getElementById(
+            "sendOtpButton"
+        );
+
+    const verifyOtpButton =
+        document.getElementById(
+            "verifyOtpButton"
+        );
+
+    const googleButton =
+        document.getElementById(
+            "googleButton"
+        );
+
+    const forgotPassword =
+        document.getElementById(
+            "forgotPassword"
+        );
 
     const registerLink =
-        document.getElementById("registerLink");
+        document.getElementById(
+            "registerLink"
+        );
+
+    const changePhone =
+        document.getElementById(
+            "changePhone"
+        );
+
+    const resendOtp =
+        document.getElementById(
+            "resendOtp"
+        );
 
     const backButton =
-        document.getElementById("backButton");
+        document.getElementById(
+            "backButton"
+        );
+
+    const alertBox =
+        document.getElementById(
+            "alert"
+        );
 
     const year =
-        document.getElementById("year");
-
-
-    /* =========================================
-       YEAR
-    ========================================== */
-
-    if (year) {
-        year.textContent = new Date().getFullYear();
-    }
+        document.getElementById(
+            "year"
+        );
 
 
     /* =========================================
@@ -1166,77 +1227,89 @@
     ========================================== */
 
     const params =
-        new URLSearchParams(window.location.search);
+        new URLSearchParams(
+            window.location.search
+        );
 
     let role =
         params.get("role");
 
 
-    function getSavedRole() {
+    try {
 
-        try {
-            return localStorage.getItem("goBikeRole");
-        } catch (error) {
-            return null;
+        if (
+            !role
+        ) {
+
+            role =
+                localStorage.getItem(
+                    "goBikeRole"
+                );
+
         }
+
+    } catch (error) {
+
+        // Ignore storage errors.
+
     }
 
 
     if (
-        role !== "customer" &&
         role !== "driver"
     ) {
-        role = getSavedRole();
-    }
 
-
-    if (
-        role !== "customer" &&
-        role !== "driver"
-    ) {
         role = "customer";
+
     }
 
 
-    function saveRole() {
+    try {
 
-        try {
-            localStorage.setItem(
-                "goBikeRole",
-                role
-            );
-        } catch (error) {
-            // Continue without local storage.
-        }
+        localStorage.setItem(
+            "goBikeRole",
+            role
+        );
+
+    } catch (error) {
+
+        // Ignore storage errors.
+
     }
 
 
-    saveRole();
-
+    /* =========================================
+       ROLE UI
+    ========================================== */
 
     function updateRoleUI() {
 
-        if (role === "driver") {
+        if (
+            role === "driver"
+        ) {
 
             roleBadge.textContent =
                 "🏍️ Driver";
 
-            headingText.textContent =
-                "Login to start delivering with Go Bike.";
+            description.textContent =
+                "Login to go online and start accepting Go Bike deliveries.";
 
         } else {
 
             roleBadge.textContent =
                 "👤 Customer";
 
-            headingText.textContent =
-                "Login to continue with Go Bike.";
+            description.textContent =
+                "Login to book a Go Bike parcel delivery.";
 
         }
 
+
         registerLink.href =
             "register.html?role=" +
-            encodeURIComponent(role);
+            encodeURIComponent(
+                role
+            );
 
     }
 
@@ -1256,81 +1329,136 @@
         type = "error"
     ) {
 
-        if (!alertBox) {
-            return;
+        window.clearTimeout(
+            alertTimer
+        );
+
+
+        alertBox.textContent =
+            message;
+
+
+        alertBox.className =
+            "alert show";
+
+
+        if (
+            type === "success"
+        ) {
+
+            alertBox.classList.add(
+                "success"
+            );
+
         }
 
-        window.clearTimeout(alertTimer);
-
-        alertBox.textContent = message;
-
-        alertBox.className = "alert show";
-
-        if (type === "success") {
-            alertBox.classList.add("success");
-        }
 
         alertTimer =
             window.setTimeout(
                 function () {
-                    alertBox.classList.remove("show");
+
+                    alertBox.classList.remove(
+                        "show"
+                    );
+
                 },
-                4500
+                5000
             );
+
     }
 
 
     function clearAlert() {
 
-        if (alertBox) {
-            alertBox.classList.remove("show");
-            alertBox.textContent = "";
-        }
+        alertBox.className =
+            "alert";
+
+        alertBox.textContent =
+            "";
 
     }
 
 
     /* =========================================
-       TABS
+       LOADING
     ========================================== */
 
-    function activateTab(tab) {
+    function setLoading(
+        button,
+        loading
+    ) {
 
-        clearAlert();
-
-        if (tab === "password") {
-
-            passwordTab.classList.add("active");
-            otpTab.classList.remove("active");
-
-            passwordForm.classList.add("active");
-            otpForm.classList.remove("active");
-
-        } else {
-
-            otpTab.classList.add("active");
-            passwordTab.classList.remove("active");
-
-            otpForm.classList.add("active");
-            passwordForm.classList.remove("active");
-
+        if (!button) {
+            return;
         }
+
+
+        button.disabled =
+            loading;
+
+
+        button.classList.toggle(
+            "loading",
+            loading
+        );
 
     }
 
 
-    passwordTab.addEventListener(
+    /* =========================================
+       EMAIL TAB
+    ========================================== */
+
+    emailTab.addEventListener(
         "click",
         function () {
-            activateTab("password");
+
+            emailTab.classList.add(
+                "active"
+            );
+
+            phoneTab.classList.remove(
+                "active"
+            );
+
+            emailForm.style.display =
+                "block";
+
+            phoneForm.classList.remove(
+                "visible"
+            );
+
+            clearAlert();
+
         }
     );
 
 
-    otpTab.addEventListener(
+    /* =========================================
+       PHONE TAB
+    ========================================== */
+
+    phoneTab.addEventListener(
         "click",
         function () {
-            activateTab("otp");
+
+            phoneTab.classList.add(
+                "active"
+            );
+
+            emailTab.classList.remove(
+                "active"
+            );
+
+            emailForm.style.display =
+                "none";
+
+            phoneForm.classList.add(
+                "visible"
+            );
+
+            clearAlert();
+
         }
     );
 
@@ -1343,78 +1471,30 @@
         "click",
         function () {
 
-            const isPassword =
-                passwordInput.type === "password";
+            const hidden =
+                password.type === "password";
 
-            passwordInput.type =
-                isPassword
+
+            password.type =
+                hidden
                     ? "text"
                     : "password";
 
+
             passwordToggle.textContent =
-                isPassword
+                hidden
                     ? "🙈"
                     : "👁";
-
-            passwordToggle.setAttribute(
-                "aria-label",
-                isPassword
-                    ? "Hide password"
-                    : "Show password"
-            );
 
         }
     );
 
 
     /* =========================================
-       VALIDATION
+       EMAIL LOGIN
     ========================================== */
 
-    function isValidEmail(value) {
-
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-            .test(value);
-
-    }
-
-
-    function isValidIndianPhone(value) {
-
-        return /^[6-9]\d{9}$/
-            .test(value);
-
-    }
-
-
-    /* =========================================
-       BUTTON STATE
-    ========================================== */
-
-    function setLoading(
-        button,
-        loading
-    ) {
-
-        if (!button) {
-            return;
-        }
-
-        button.disabled = loading;
-
-        button.classList.toggle(
-            "loading",
-            loading
-        );
-
-    }
-
-
-    /* =========================================
-       PASSWORD LOGIN
-    ========================================== */
-
-    passwordForm.addEventListener(
+    emailForm.addEventListener(
         "submit",
         async function (event) {
 
@@ -1422,76 +1502,69 @@
 
             clearAlert();
 
-            const email =
-                emailInput.value.trim();
 
-            const password =
-                passwordInput.value;
+            const emailValue =
+                email.value
+                    .trim()
+                    .toLowerCase();
 
 
-            if (!email) {
+            const passwordValue =
+                password.value;
+
+
+            if (!emailValue) {
 
                 showAlert(
-                    "Please enter your email."
+                    "Please enter your email address."
                 );
 
-                emailInput.focus();
+                email.focus();
+
                 return;
 
             }
 
 
-            if (!isValidEmail(email)) {
+            if (
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                    .test(
+                        emailValue
+                    )
+            ) {
 
                 showAlert(
                     "Please enter a valid email address."
                 );
 
-                emailInput.focus();
+                email.focus();
+
                 return;
 
             }
 
 
-            if (!password) {
+            if (!passwordValue) {
 
                 showAlert(
                     "Please enter your password."
                 );
 
-                passwordInput.focus();
+                password.focus();
+
                 return;
 
             }
 
-
-            if (password.length < 6) {
-
-                showAlert(
-                    "Password must contain at least 6 characters."
-                );
-
-                passwordInput.focus();
-                return;
-
-            }
-
-
-            /*
-             * Firebase login will be connected through
-             * the single Go Bike authentication module.
-             *
-             * This page does not initialize Firebase.
-             */
 
             if (
                 !window.GoBikeAuth ||
-                typeof window.GoBikeAuth.loginWithEmail
-                    !== "function"
+                typeof window.GoBikeAuth.login !==
+                    "function"
             ) {
 
                 showAlert(
-                    "Authentication service is not connected yet. Please try again after Firebase setup."
+                    "Authentication service is not connected."
                 );
 
                 return;
@@ -1500,7 +1573,7 @@
 
 
             setLoading(
-                loginButton,
+                emailLoginButton,
                 true
             );
 
@@ -1508,18 +1581,16 @@
             try {
 
                 const result =
-                    await window.GoBikeAuth
-                        .loginWithEmail({
-                            email: email,
-                            password: password,
-                            role: role,
-                            remember:
-                                document
-                                    .getElementById(
-                                        "rememberMe"
-                                    )
-                                    .checked
-                        });
+                    await window.GoBikeAuth.login({
+                        email:
+                            emailValue,
+
+                        password:
+                            passwordValue,
+
+                        role:
+                            role
+                    });
 
 
                 if (
@@ -1537,13 +1608,28 @@
                 }
 
 
-                window.location.href =
-                    result.redirect ||
-                    (
-                        role === "driver"
-                            ? "../driver/home.html"
-                            : "../customer/home.html"
-                    );
+                showAlert(
+                    "Login successful. Opening Go Bike...",
+                    "success"
+                );
+
+
+                window.setTimeout(
+                    function () {
+
+                        window.location.replace(
+                            result.redirect ||
+                            (
+                                role === "driver"
+                                    ? "../driver/home.html"
+                                    : "../customer/home.html"
+                            )
+                        );
+
+                    },
+                    500
+                );
+
 
             } catch (error) {
 
@@ -1554,8 +1640,10 @@
                         : "Unable to login. Please try again."
                 );
 
+            } finally {
+
                 setLoading(
-                    loginButton,
+                    emailLoginButton,
                     false
                 );
 
@@ -1566,214 +1654,321 @@
 
 
     /* =========================================
-       PHONE OTP
+       PHONE NORMALIZATION
     ========================================== */
 
-    let lastOtpPhone = "";
-    let resendSeconds = 0;
-    let resendTimer = null;
+    function getPhone() {
 
-
-    function startResendTimer() {
-
-        window.clearInterval(
-            resendTimer
-        );
-
-        resendSeconds = 30;
-
-        resendOtpButton.disabled = true;
-
-        function update() {
-
-            if (resendSeconds <= 0) {
-
-                window.clearInterval(
-                    resendTimer
-                );
-
-                resendOtpButton.disabled = false;
-
-                resendOtpButton.textContent =
-                    "Resend OTP";
-
-                return;
-
-            }
-
-            resendOtpButton.textContent =
-                "Resend OTP (" +
-                resendSeconds +
-                "s)";
-
-            resendSeconds--;
-
-        }
-
-        update();
-
-        resendTimer =
-            window.setInterval(
-                update,
-                1000
-            );
+        return phone.value
+            .replace(/\D/g, "")
+            .slice(0, 10);
 
     }
 
 
-    async function sendOtp() {
+    phone.addEventListener(
+        "input",
+        function () {
 
-        clearAlert();
-
-        const phone =
-            phoneInput.value
-                .replace(/\D/g, "");
-
-
-        if (!isValidIndianPhone(phone)) {
-
-            showAlert(
-                "Enter a valid 10-digit Indian mobile number."
-            );
-
-            phoneInput.focus();
-
-            return;
-
-        }
-
-
-        if (
-            !window.GoBikeAuth ||
-            typeof window.GoBikeAuth
-                .sendPhoneOtp
-                !== "function"
-        ) {
-
-            showAlert(
-                "Phone authentication service is not connected yet."
-            );
-
-            return;
-
-        }
-
-
-        setLoading(
-            sendOtpButton,
-            true
-        );
-
-
-        try {
-
-            const result =
-                await window.GoBikeAuth
-                    .sendPhoneOtp({
-                        phone:
-                            "+91" + phone,
-                        role: role
-                    });
-
-
-            if (
-                !result ||
-                result.success !== true
-            ) {
-
-                throw new Error(
-                    result &&
-                    result.message
-                        ? result.message
-                        : "Unable to send OTP."
-                );
-
-            }
-
-
-            lastOtpPhone = phone;
-
-
-            try {
-
-                sessionStorage.setItem(
-                    "goBikeOtpPhone",
-                    phone
-                );
-
-                sessionStorage.setItem(
-                    "goBikeOtpRole",
-                    role
-                );
-
-            } catch (error) {
-                // Continue without session storage.
-            }
-
-
-            showAlert(
-                "OTP sent successfully. Continue to verification.",
-                "success"
-            );
-
-
-            startResendTimer();
-
-
-            /*
-             * Verification page will be created separately.
-             */
-
-            window.location.href =
-                "verify-otp.html?role=" +
-                encodeURIComponent(role);
-
-
-        } catch (error) {
-
-            showAlert(
-                error &&
-                error.message
-                    ? error.message
-                    : "Unable to send OTP."
-            );
-
-        } finally {
-
-            setLoading(
-                sendOtpButton,
-                false
-            );
-
-        }
-
-    }
-
-
-    otpForm.addEventListener(
-        "submit",
-        function (event) {
-
-            event.preventDefault();
-
-            sendOtp();
+            phone.value =
+                getPhone();
 
         }
     );
 
 
-    resendOtpButton.addEventListener(
+    otp.addEventListener(
+        "input",
+        function () {
+
+            otp.value =
+                otp.value
+                    .replace(/\D/g, "")
+                    .slice(0, 6);
+
+        }
+    );
+
+
+    /* =========================================
+       SEND OTP
+    ========================================== */
+
+    sendOtpButton.addEventListener(
+        "click",
+        async function () {
+
+            clearAlert();
+
+
+            const phoneValue =
+                getPhone();
+
+
+            if (
+                !/^[6-9]\d{9}$/
+                    .test(
+                        phoneValue
+                    )
+            ) {
+
+                showAlert(
+                    "Enter a valid 10-digit Indian mobile number."
+                );
+
+                phone.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !window.GoBikeAuth ||
+                typeof window.GoBikeAuth.sendOTP !==
+                    "function"
+            ) {
+
+                showAlert(
+                    "OTP authentication service is not connected."
+                );
+
+                return;
+
+            }
+
+
+            setLoading(
+                sendOtpButton,
+                true
+            );
+
+
+            try {
+
+                const result =
+                    await window.GoBikeAuth.sendOTP(
+                        "+91" + phoneValue,
+                        "recaptcha-container"
+                    );
+
+
+                if (
+                    !result ||
+                    result.success !== true
+                ) {
+
+                    throw new Error(
+                        result &&
+                        result.message
+                            ? result.message
+                            : "Unable to send OTP."
+                    );
+
+                }
+
+
+                otpPhone.textContent =
+                    "+91 " +
+                    phoneValue;
+
+
+                phoneStep.style.display =
+                    "none";
+
+                otpStep.style.display =
+                    "block";
+
+
+                otp.focus();
+
+
+                showAlert(
+                    "OTP sent successfully.",
+                    "success"
+                );
+
+
+            } catch (error) {
+
+                showAlert(
+                    error &&
+                    error.message
+                        ? error.message
+                        : "Unable to send OTP."
+                );
+
+            } finally {
+
+                setLoading(
+                    sendOtpButton,
+                    false
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       VERIFY OTP
+    ========================================== */
+
+    verifyOtpButton.addEventListener(
+        "click",
+        async function () {
+
+            clearAlert();
+
+
+            const code =
+                otp.value
+                    .replace(/\D/g, "");
+
+
+            if (
+                code.length !== 6
+            ) {
+
+                showAlert(
+                    "Please enter the 6-digit OTP."
+                );
+
+                otp.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !window.GoBikeAuth ||
+                typeof window.GoBikeAuth.verifyOTP !==
+                    "function"
+            ) {
+
+                showAlert(
+                    "OTP authentication service is not connected."
+                );
+
+                return;
+
+            }
+
+
+            setLoading(
+                verifyOtpButton,
+                true
+            );
+
+
+            try {
+
+                const result =
+                    await window.GoBikeAuth.verifyOTP(
+                        code,
+                        {
+                            role:
+                                role
+                        }
+                    );
+
+
+                if (
+                    !result ||
+                    result.success !== true
+                ) {
+
+                    throw new Error(
+                        result &&
+                        result.message
+                            ? result.message
+                            : "OTP verification failed."
+                    );
+
+                }
+
+
+                showAlert(
+                    "Verified successfully. Opening Go Bike...",
+                    "success"
+                );
+
+
+                window.setTimeout(
+                    function () {
+
+                        window.location.replace(
+                            result.redirect ||
+                            (
+                                role === "driver"
+                                    ? "../driver/home.html"
+                                    : "../customer/home.html"
+                            )
+                        );
+
+                    },
+                    500
+                );
+
+
+            } catch (error) {
+
+                showAlert(
+                    error &&
+                    error.message
+                        ? error.message
+                        : "OTP verification failed."
+                );
+
+            } finally {
+
+                setLoading(
+                    verifyOtpButton,
+                    false
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       CHANGE PHONE
+    ========================================== */
+
+    changePhone.addEventListener(
         "click",
         function () {
 
-            if (
-                resendOtpButton.disabled ||
-                !lastOtpPhone
-            ) {
-                return;
-            }
+            otp.value =
+                "";
 
-            sendOtp();
+            otpStep.style.display =
+                "none";
+
+            phoneStep.style.display =
+                "block";
+
+            clearAlert();
+
+            phone.focus();
+
+        }
+    );
+
+
+    /* =========================================
+       RESEND OTP
+    ========================================== */
+
+    resendOtp.addEventListener(
+        "click",
+        function () {
+
+            sendOtpButton.click();
 
         }
     );
@@ -1793,12 +1988,12 @@
             if (
                 !window.GoBikeAuth ||
                 typeof window.GoBikeAuth
-                    .loginWithGoogle
-                    !== "function"
+                    .loginWithGoogle !==
+                    "function"
             ) {
 
                 showAlert(
-                    "Google authentication service is not connected yet."
+                    "Google authentication service is not connected."
                 );
 
                 return;
@@ -1806,24 +2001,33 @@
             }
 
 
-            setLoading(
-                googleButton,
-                true
-            );
+            googleButton.disabled =
+                true;
 
-
-            /*
-             * Google button has its own visual style,
-             * so loading is handled by disabling it.
-             */
 
             try {
 
                 const result =
                     await window.GoBikeAuth
                         .loginWithGoogle({
-                            role: role
+                            role:
+                                role
                         });
+
+
+                if (
+                    result &&
+                    result.pendingRedirect
+                ) {
+
+                    showAlert(
+                        "Continuing with Google...",
+                        "success"
+                    );
+
+                    return;
+
+                }
 
 
                 if (
@@ -1841,13 +2045,15 @@
                 }
 
 
-                window.location.href =
+                window.location.replace(
                     result.redirect ||
                     (
                         role === "driver"
                             ? "../driver/home.html"
                             : "../customer/home.html"
-                    );
+                    )
+                );
+
 
             } catch (error) {
 
@@ -1855,12 +2061,131 @@
                     error &&
                     error.message
                         ? error.message
-                        : "Unable to continue with Google."
+                        : "Unable to login with Google."
                 );
 
             } finally {
 
-                googleButton.disabled = false;
+                googleButton.disabled =
+                    false;
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       FORGOT PASSWORD
+    ========================================== */
+
+    forgotPassword.addEventListener(
+        "click",
+        async function () {
+
+            clearAlert();
+
+
+            const emailValue =
+                email.value
+                    .trim()
+                    .toLowerCase();
+
+
+            if (!emailValue) {
+
+                showAlert(
+                    "Enter your email address first."
+                );
+
+                email.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                    .test(
+                        emailValue
+                    )
+            ) {
+
+                showAlert(
+                    "Please enter a valid email address."
+                );
+
+                email.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !window.GoBikeAuth ||
+                typeof window.GoBikeAuth
+                    .resetPassword !==
+                    "function"
+            ) {
+
+                showAlert(
+                    "Password reset service is not connected."
+                );
+
+                return;
+
+            }
+
+
+            forgotPassword.disabled =
+                true;
+
+
+            try {
+
+                const result =
+                    await window.GoBikeAuth
+                        .resetPassword(
+                            emailValue
+                        );
+
+
+                if (
+                    !result ||
+                    result.success !== true
+                ) {
+
+                    throw new Error(
+                        result &&
+                        result.message
+                            ? result.message
+                            : "Unable to send reset email."
+                    );
+
+                }
+
+
+                showAlert(
+                    "Password reset email sent. Please check your inbox.",
+                    "success"
+                );
+
+
+            } catch (error) {
+
+                showAlert(
+                    error &&
+                    error.message
+                        ? error.message
+                        : "Unable to send reset email."
+                );
+
+            } finally {
+
+                forgotPassword.disabled =
+                    false;
 
             }
 
@@ -1884,8 +2209,9 @@
 
             } else {
 
-                window.location.href =
-                    "../index.html";
+                window.location.replace(
+                    "../index.html"
+                );
 
             }
 
@@ -1894,47 +2220,50 @@
 
 
     /* =========================================
-       PHONE INPUT SANITIZATION
+       YEAR
     ========================================== */
 
-    phoneInput.addEventListener(
-        "input",
-        function () {
-
-            let value =
-                phoneInput.value
-                    .replace(/\D/g, "")
-                    .slice(0, 10);
-
-            phoneInput.value = value;
-
-        }
-    );
+    year.textContent =
+        new Date().getFullYear();
 
 
     /* =========================================
-       AUTO-FOCUS
+       ALREADY LOGGED IN
+       Do not force redirect immediately.
+       Auth-state is handled centrally by
+       protected pages, avoiding redirect loops.
     ========================================== */
-
-    window.setTimeout(
-        function () {
-
-            if (
-                window.matchMedia(
-                    "(min-width: 700px)"
-                ).matches
-            ) {
-
-                emailInput.focus();
-
-            }
-
-        },
-        250
-    );
 
 })();
 </script>
 
+
+<!--
+    Firebase SDK must be loaded before these files.
+
+    Recommended order:
+
+    Firebase App
+    Firebase Auth
+    Firebase Firestore
+    Firebase Storage
+    Firebase Realtime Database
+
+    Then:
+    ../firebase/firebase-config.js
+    ../js/auth.js
+
+    Example:
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+
+    <script src="../firebase/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+-->
+
 </body>
-  </html>
+    </html>
