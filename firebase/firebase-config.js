@@ -1,8 +1,33 @@
 /* =========================================================
-   GO BIKE — FIREBASE CONFIGURATION
+   GO BIKE — FIREBASE CORE
    ========================================================= */
 
 "use strict";
+
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+import {
+  getAuth
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+import {
+  getFirestore
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+import {
+  getDatabase
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+import {
+  getStorage
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js";
+
+
+/* =========================================================
+   FIREBASE CONFIG
+   ========================================================= */
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -15,13 +40,39 @@ const firebaseConfig = {
 };
 
 
-/*
- * Firebase configuration is intentionally kept
- * in one canonical file.
- *
- * IMPORTANT:
- * Firebase Security Rules are responsible for
- * protecting your database and user data.
- */
+/* =========================================================
+   INITIALIZE FIREBASE
+   ========================================================= */
 
-window.GoBikeFirebaseConfig = firebaseConfig;
+const app =
+  initializeApp(firebaseConfig);
+
+
+/* =========================================================
+   SERVICES
+   ========================================================= */
+
+const auth =
+  getAuth(app);
+
+const db =
+  getFirestore(app);
+
+const rtdb =
+  getDatabase(app);
+
+const storage =
+  getStorage(app);
+
+
+/* =========================================================
+   GLOBAL EXPORTS
+   ========================================================= */
+
+export {
+  app,
+  auth,
+  db,
+  rtdb,
+  storage
+};
