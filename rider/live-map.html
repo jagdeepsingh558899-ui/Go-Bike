@@ -1,0 +1,3293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<meta name="theme-color" content="#080808">
+
+<title>Go Bike | Live Navigation</title>
+
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+
+:root{
+    --black:#080808;
+    --panel:rgba(12,12,12,.96);
+    --yellow:#ffd600;
+    --white:#fff;
+    --muted:#777;
+    --green:#35d47b;
+    --red:#ff5656;
+    --blue:#4da3ff;
+    --border:rgba(255,255,255,.10);
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:var(--black);
+    color:var(--white);
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+}
+
+button{
+    font:inherit;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+}
+
+#map{
+    position:fixed;
+    inset:0;
+    z-index:1;
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar{
+    position:fixed;
+    z-index:20;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:72px;
+
+    display:flex;
+    align-items:center;
+
+    padding:
+        10px 13px;
+
+    pointer-events:none;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0,0,0,.94),
+            rgba(0,0,0,.55),
+            transparent
+        );
+}
+
+.icon-button{
+    width:42px;
+    height:42px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:13px;
+
+    background:
+        rgba(8,8,8,.92);
+
+    color:#fff;
+
+    font-size:20px;
+
+    pointer-events:auto;
+}
+
+.brand{
+    margin-left:10px;
+
+    font-size:14px;
+    font-weight:950;
+}
+
+.brand span{
+    color:var(--yellow);
+}
+
+.status{
+    margin-left:auto;
+
+    display:flex;
+    align-items:center;
+    gap:7px;
+
+    padding:8px 11px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:20px;
+
+    background:
+        rgba(0,0,0,.78);
+
+    font-size:8px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+.status-dot{
+    width:7px;
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--green);
+
+    box-shadow:
+        0 0 0 4px
+        rgba(53,212,123,.12);
+}
+
+/* =========================================================
+   NAVIGATION CARD
+========================================================= */
+
+.nav-card{
+    position:fixed;
+    z-index:15;
+
+    top:82px;
+    left:13px;
+    right:13px;
+
+    padding:12px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:18px;
+
+    background:
+        var(--panel);
+
+    box-shadow:
+        0 12px 35px
+        rgba(0,0,0,.38);
+
+    backdrop-filter:blur(18px);
+}
+
+.nav-head{
+    display:flex;
+    align-items:center;
+}
+
+.nav-icon{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:
+        rgba(255,214,0,.10);
+
+    font-size:18px;
+}
+
+.nav-copy{
+    min-width:0;
+    flex:1;
+
+    margin-left:9px;
+}
+
+.nav-label{
+    color:#777;
+
+    font-size:7px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+.nav-title{
+    overflow:hidden;
+
+    margin-top:3px;
+
+    font-size:11px;
+    font-weight:950;
+
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.nav-eta{
+    text-align:right;
+}
+
+.nav-eta strong{
+    display:block;
+
+    color:var(--yellow);
+
+    font-size:15px;
+    font-weight:950;
+}
+
+.nav-eta span{
+    display:block;
+
+    margin-top:2px;
+
+    color:#666;
+
+    font-size:7px;
+}
+
+.progress{
+    height:4px;
+
+    margin-top:10px;
+
+    overflow:hidden;
+
+    border-radius:10px;
+
+    background:#292929;
+}
+
+.progress-bar{
+    width:0%;
+    height:100%;
+
+    border-radius:10px;
+
+    background:var(--yellow);
+
+    transition:
+        width .4s ease;
+}
+
+/* =========================================================
+   RIGHT MAP CONTROLS
+========================================================= */
+
+.map-controls{
+    position:fixed;
+    z-index:15;
+
+    right:13px;
+    bottom:290px;
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.map-control{
+    width:43px;
+    height:43px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:14px;
+
+    background:
+        rgba(8,8,8,.93);
+
+    color:#fff;
+
+    font-size:18px;
+
+    box-shadow:
+        0 6px 20px
+        rgba(0,0,0,.3);
+}
+
+.map-control.active{
+    background:var(--yellow);
+    color:#111;
+}
+
+/* =========================================================
+   BOTTOM PANEL
+========================================================= */
+
+.bottom{
+    position:fixed;
+    z-index:30;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    padding:
+        9px 13px
+        calc(13px + env(safe-area-inset-bottom));
+
+    border-top:
+        1px solid
+        var(--border);
+
+    border-radius:
+        25px
+        25px
+        0
+        0;
+
+    background:
+        rgba(8,8,8,.97);
+
+    box-shadow:
+        0 -18px 50px
+        rgba(0,0,0,.48);
+
+    backdrop-filter:blur(20px);
+}
+
+.handle{
+    width:38px;
+    height:4px;
+
+    margin:0 auto 10px;
+
+    border-radius:10px;
+
+    background:#3c3c3c;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats{
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:7px;
+}
+
+.stat{
+    padding:9px 4px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:12px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    text-align:center;
+}
+
+.stat-label{
+    color:#666;
+
+    font-size:7px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+.stat-value{
+    margin-top:4px;
+
+    font-size:11px;
+    font-weight:950;
+}
+
+/* =========================================================
+   DESTINATION
+========================================================= */
+
+.destination{
+    display:flex;
+    align-items:center;
+
+    margin-top:8px;
+
+    padding:10px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:14px;
+
+    background:#141414;
+}
+
+.destination-point{
+    width:11px;
+    height:11px;
+
+    flex:0 0 11px;
+
+    border:
+        3px solid
+        var(--red);
+
+    border-radius:50%;
+}
+
+.destination-copy{
+    min-width:0;
+    flex:1;
+
+    margin-left:9px;
+}
+
+.destination-label{
+    color:#666;
+
+    font-size:7px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+.destination-address{
+    overflow:hidden;
+
+    margin-top:3px;
+
+    font-size:9px;
+    font-weight:800;
+
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.actions{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:8px;
+
+    margin-top:8px;
+}
+
+.action{
+    min-height:45px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:13px;
+
+    background:#1b1b1b;
+
+    color:#fff;
+
+    font-size:8px;
+    font-weight:950;
+}
+
+.action.primary{
+    border:0;
+
+    background:var(--yellow);
+
+    color:#111;
+}
+
+.action.green{
+    border:0;
+
+    background:var(--green);
+
+    color:#07140d;
+}
+
+.action.red{
+    border:
+        1px solid
+        rgba(255,86,86,.25);
+
+    background:
+        rgba(255,86,86,.07);
+
+    color:#ff8585;
+}
+
+/* =========================================================
+   GPS WARNING
+========================================================= */
+
+.gps-warning{
+    position:fixed;
+    z-index:40;
+
+    top:160px;
+    left:50%;
+
+    width:max-content;
+    max-width:
+        calc(100% - 30px);
+
+    padding:9px 12px;
+
+    border:
+        1px solid
+        rgba(255,86,86,.25);
+
+    border-radius:12px;
+
+    background:
+        rgba(70,12,12,.94);
+
+    color:#ffb0b0;
+
+    font-size:8px;
+    font-weight:850;
+
+    text-align:center;
+
+    opacity:0;
+
+    transform:
+        translate(-50%,-8px);
+
+    pointer-events:none;
+
+    transition:.2s;
+}
+
+.gps-warning.show{
+    opacity:1;
+
+    transform:
+        translate(-50%,0);
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.loading{
+    position:fixed;
+    z-index:100;
+
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#080808;
+}
+
+.loading.hidden{
+    display:none;
+}
+
+.loading-box{
+    width:230px;
+
+    padding:25px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:20px;
+
+    background:#141414;
+
+    text-align:center;
+}
+
+.spinner{
+    width:36px;
+    height:36px;
+
+    margin:auto;
+
+    border:
+        3px solid
+        rgba(255,255,255,.12);
+
+    border-top-color:
+        var(--yellow);
+
+    border-radius:50%;
+
+    animation:
+        spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.loading-box strong{
+    display:block;
+
+    margin-top:11px;
+
+    font-size:11px;
+}
+
+.loading-box p{
+    margin-top:5px;
+
+    color:#666;
+
+    font-size:8px;
+
+    line-height:1.5;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.error{
+    position:fixed;
+    z-index:100;
+
+    inset:0;
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:#080808;
+}
+
+.error.show{
+    display:flex;
+}
+
+.error-card{
+    width:100%;
+    max-width:390px;
+
+    padding:24px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:21px;
+
+    background:#141414;
+
+    text-align:center;
+}
+
+.error-icon{
+    font-size:30px;
+}
+
+.error-card h2{
+    margin-top:10px;
+
+    font-size:15px;
+}
+
+.error-card p{
+    margin-top:6px;
+
+    color:#777;
+
+    font-size:9px;
+
+    line-height:1.5;
+}
+
+.retry{
+    min-height:43px;
+
+    margin-top:13px;
+
+    padding:0 22px;
+
+    border:0;
+
+    border-radius:13px;
+
+    background:var(--yellow);
+
+    color:#111;
+
+    font-size:9px;
+    font-weight:950;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+    position:fixed;
+    z-index:200;
+
+    left:50%;
+    bottom:20px;
+
+    width:max-content;
+    max-width:
+        calc(100% - 30px);
+
+    padding:10px 14px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:12px;
+
+    background:#191919;
+
+    color:#ddd;
+
+    font-size:9px;
+    font-weight:800;
+
+    opacity:0;
+
+    transform:
+        translate(-50%,10px);
+
+    pointer-events:none;
+
+    transition:.2s;
+}
+
+.toast.show{
+    opacity:1;
+
+    transform:
+        translate(-50%,0);
+}
+
+/* =========================================================
+   LEAFLET
+========================================================= */
+
+.leaflet-control-zoom{
+    display:none;
+}
+
+.leaflet-control-attribution{
+    font-size:7px!important;
+}
+
+.driver-icon{
+    width:46px;
+    height:46px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:
+        3px solid
+        #fff;
+
+    border-radius:50%;
+
+    background:var(--yellow);
+
+    color:#111;
+
+    font-size:20px;
+
+    box-shadow:
+        0 5px 20px
+        rgba(0,0,0,.55);
+}
+
+.pickup-icon{
+    width:18px;
+    height:18px;
+
+    border:
+        4px solid
+        var(--yellow);
+
+    border-radius:50%;
+
+    background:#111;
+
+    box-shadow:
+        0 0 0 5px
+        rgba(255,214,0,.14);
+}
+
+.drop-icon{
+    width:18px;
+    height:18px;
+
+    border:
+        4px solid
+        var(--red);
+
+    border-radius:50%;
+
+    background:#111;
+
+    box-shadow:
+        0 0 0 5px
+        rgba(255,86,86,.14);
+}
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media(min-width:700px){
+
+    .nav-card{
+        left:20px;
+        right:auto;
+        width:430px;
+    }
+
+    .bottom{
+        left:20px;
+        right:auto;
+        bottom:20px;
+
+        width:430px;
+
+        border-radius:24px;
+    }
+
+    .map-controls{
+        right:25px;
+        bottom:35px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+
+<header class="topbar">
+
+    <button
+        id="backButton"
+        class="icon-button"
+        type="button"
+    >
+        ←
+    </button>
+
+    <div class="brand">
+        GO <span>BIKE</span>
+    </div>
+
+    <div
+        id="status"
+        class="status"
+    >
+        <span class="status-dot"></span>
+        LIVE
+    </div>
+
+</header>
+
+
+<!-- NAVIGATION INFORMATION -->
+
+<section class="nav-card">
+
+    <div class="nav-head">
+
+        <div
+            id="navIcon"
+            class="nav-icon"
+        >
+            🧭
+        </div>
+
+        <div class="nav-copy">
+
+            <div class="nav-label">
+                Navigation
+            </div>
+
+            <div
+                id="navTitle"
+                class="nav-title"
+            >
+                Preparing route...
+            </div>
+
+        </div>
+
+        <div class="nav-eta">
+
+            <strong id="topEta">
+                —
+            </strong>
+
+            <span>
+                ETA
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="progress">
+
+        <div
+            id="progressBar"
+            class="progress-bar"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<!-- MAP CONTROLS -->
+
+<div class="map-controls">
+
+    <button
+        id="locationButton"
+        class="map-control"
+        type="button"
+        title="My location"
+    >
+        ◎
+    </button>
+
+    <button
+        id="fitButton"
+        class="map-control"
+        type="button"
+        title="Fit route"
+    >
+        ⛶
+    </button>
+
+    <button
+        id="trafficButton"
+        class="map-control"
+        type="button"
+        title="Navigation"
+    >
+        🧭
+    </button>
+
+</div>
+
+
+<!-- GPS WARNING -->
+
+<div
+    id="gpsWarning"
+    class="gps-warning"
+>
+    GPS signal unavailable. Keep location enabled.
+</div>
+
+
+<!-- BOTTOM -->
+
+<section class="bottom">
+
+    <div class="handle"></div>
+
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Remaining
+            </div>
+
+            <div
+                id="remainingDistance"
+                class="stat-value"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                ETA
+            </div>
+
+            <div
+                id="remainingEta"
+                class="stat-value"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="stat">
+
+            <div class="stat-label">
+                Speed
+            </div>
+
+            <div
+                id="speed"
+                class="stat-value"
+            >
+                —
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="destination">
+
+        <div class="destination-point"></div>
+
+        <div class="destination-copy">
+
+            <div class="destination-label">
+                Destination
+            </div>
+
+            <div
+                id="destinationAddress"
+                class="destination-address"
+            >
+                Loading...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="actions">
+
+        <button
+            id="navigationButton"
+            class="action primary"
+            type="button"
+        >
+            🧭 Open Navigation
+        </button>
+
+        <button
+            id="rideButton"
+            class="action green"
+            type="button"
+        >
+            Ride Details
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- LOADING -->
+
+<div
+    id="loading"
+    class="loading"
+>
+
+    <div class="loading-box">
+
+        <div class="spinner"></div>
+
+        <strong>
+            Starting live navigation
+        </strong>
+
+        <p>
+            Connecting to your active Go Bike ride...
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- ERROR -->
+
+<div
+    id="error"
+    class="error"
+>
+
+    <div class="error-card">
+
+        <div class="error-icon">
+            ⚠️
+        </div>
+
+        <h2>
+            Navigation unavailable
+        </h2>
+
+        <p id="errorText">
+            Unable to connect to the live ride.
+        </p>
+
+        <button
+            id="retryButton"
+            class="retry"
+            type="button"
+        >
+            Retry
+        </button>
+
+    </div>
+
+</div>
+
+
+<div
+    id="toast"
+    class="toast"
+></div>
+
+
+<script
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script>
+
+(function(){
+
+"use strict";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+    initialized:false,
+
+    map:null,
+
+    ride:null,
+
+    rideId:null,
+
+    driverId:null,
+
+    phase:"ACCEPTED",
+
+    destinationType:"pickup",
+
+    driverLocation:null,
+
+    previousLocation:null,
+
+    pickup:null,
+
+    drop:null,
+
+    driverMarker:null,
+
+    pickupMarker:null,
+
+    dropMarker:null,
+
+    routeLine:null,
+
+    accuracyCircle:null,
+
+    watchId:null,
+
+    unsubscribe:null,
+
+    lastLocationSentAt:0,
+
+    lastLocationSendPromise:null,
+
+    locationInterval:4000,
+
+    routeRefreshAt:0,
+
+    busy:false
+
+};
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const $ =
+    id =>
+    document.getElementById(id);
+
+
+/* =========================================================
+   ENGINE
+========================================================= */
+
+function engine(){
+
+    return (
+        window.GoBikeBooking ||
+        window.GoBikeRideEngine ||
+        null
+    );
+
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+function initMap(){
+
+    if(
+        !window.L
+    ){
+
+        showError(
+            "Map library could not be loaded."
+        );
+
+        return;
+
+    }
+
+
+    state.map =
+        L.map(
+            "map",
+            {
+                zoomControl:false
+            }
+        );
+
+
+    L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            maxZoom:19,
+            attribution:
+                "&copy; OpenStreetMap contributors"
+        }
+    ).addTo(
+        state.map
+    );
+
+
+    state.map.setView(
+        [20.5937,78.9629],
+        5
+    );
+
+}
+
+
+/* =========================================================
+   LOCATION
+========================================================= */
+
+function normalizeLocation(
+    value
+){
+
+    if(!value){
+
+        return null;
+
+    }
+
+
+    if(
+        Array.isArray(value) &&
+        value.length >= 2
+    ){
+
+        const lat =
+            Number(value[0]);
+
+        const lng =
+            Number(value[1]);
+
+
+        if(
+            Number.isFinite(lat) &&
+            Number.isFinite(lng)
+        ){
+
+            return {
+                lat,
+                lng
+            };
+
+        }
+
+    }
+
+
+    const lat =
+        Number(
+            value.lat ??
+            value.latitude
+        );
+
+
+    const lng =
+        Number(
+            value.lng ??
+            value.longitude
+        );
+
+
+    if(
+        Number.isFinite(lat) &&
+        Number.isFinite(lng)
+    ){
+
+        return {
+            lat,
+            lng
+        };
+
+    }
+
+
+    return null;
+
+}
+
+
+function validLocation(
+    value
+){
+
+    return !!(
+        value &&
+        Number.isFinite(
+            Number(value.lat)
+        ) &&
+        Number.isFinite(
+            Number(value.lng)
+        )
+    );
+
+}
+
+
+/* =========================================================
+   IDS
+========================================================= */
+
+function resolveDriverId(){
+
+    let id = null;
+
+
+    try{
+
+        id =
+            localStorage.getItem(
+                "goBikeDriverId"
+            ) ||
+            localStorage.getItem(
+                "driverId"
+            ) ||
+            localStorage.getItem(
+                "userId"
+            );
+
+    }catch(error){}
+
+
+    try{
+
+        if(
+            !id &&
+            window.firebase &&
+            firebase.auth &&
+            firebase.auth().currentUser
+        ){
+
+            id =
+                firebase.auth()
+                    .currentUser
+                    .uid;
+
+        }
+
+    }catch(error){}
+
+
+    return id;
+
+}
+
+
+function resolveRideId(){
+
+    let id = null;
+
+
+    try{
+
+        id =
+            localStorage.getItem(
+                "goBikeActiveRideId"
+            ) ||
+            sessionStorage.getItem(
+                "goBikeActiveRideId"
+            );
+
+    }catch(error){}
+
+
+    if(!id){
+
+        try{
+
+            const raw =
+                sessionStorage.getItem(
+                    "goBikeActiveRide"
+                );
+
+
+            if(raw){
+
+                const ride =
+                    JSON.parse(raw);
+
+
+                id =
+                    ride.rideId ||
+                    ride.id;
+
+            }
+
+        }catch(error){}
+
+    }
+
+
+    return id;
+
+}
+
+
+/* =========================================================
+   LOAD
+========================================================= */
+
+function load(){
+
+    state.driverId =
+        resolveDriverId();
+
+    state.rideId =
+        resolveRideId();
+
+
+    if(
+        !state.driverId
+    ){
+
+        showError(
+            "Driver account could not be identified."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        !state.rideId
+    ){
+
+        showError(
+            "No active ride was found."
+        );
+
+        return;
+
+    }
+
+
+    const api =
+        engine();
+
+
+    if(!api){
+
+        showError(
+            "Go Bike ride engine is not loaded."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        typeof api.subscribeActiveRide ===
+        "function"
+    ){
+
+        try{
+
+            state.unsubscribe =
+                api.subscribeActiveRide(
+                    state.rideId,
+                    state.driverId,
+
+                    function(ride){
+
+                        if(!ride){
+
+                            showError(
+                                "Active ride is no longer available."
+                            );
+
+                            return;
+
+                        }
+
+
+                        applyRide(
+                            ride
+                        );
+
+                    },
+
+                    function(error){
+
+                        console.error(
+                            error
+                        );
+
+                        showError(
+                            error.message ||
+                            "Realtime ride connection failed."
+                        );
+
+                    }
+                );
+
+
+            return;
+
+        }catch(error){
+
+            console.error(
+                error
+            );
+
+        }
+
+    }
+
+
+    if(
+        typeof api.getRide ===
+        "function"
+    ){
+
+        Promise.resolve(
+            api.getRide(
+                state.rideId
+            )
+        )
+        .then(
+            function(ride){
+
+                if(!ride){
+
+                    throw new Error(
+                        "Active ride not found."
+                    );
+
+                }
+
+
+                applyRide(
+                    ride
+                );
+
+            }
+        )
+        .catch(
+            function(error){
+
+                showError(
+                    error.message ||
+                    "Unable to load active ride."
+                );
+
+            }
+        );
+
+
+        return;
+
+    }
+
+
+    try{
+
+        const raw =
+            sessionStorage.getItem(
+                "goBikeActiveRide"
+            );
+
+
+        if(raw){
+
+            applyRide(
+                JSON.parse(raw)
+            );
+
+            return;
+
+        }
+
+    }catch(error){}
+
+
+    showError(
+        "No compatible ride service was found."
+    );
+
+}
+
+
+/* =========================================================
+   APPLY
+========================================================= */
+
+function applyRide(
+    ride
+){
+
+    if(!ride){
+
+        return;
+
+    }
+
+
+    state.ride =
+        ride;
+
+
+    state.rideId =
+        ride.rideId ||
+        ride.id ||
+        state.rideId;
+
+
+    state.phase =
+        normalizePhase(
+            ride.status ||
+            ride.rideStatus ||
+            ride.phase ||
+            "ACCEPTED"
+        );
+
+
+    state.pickup =
+        normalizeLocation(
+            ride.pickup ||
+            ride.pickupLocation
+        );
+
+
+    state.drop =
+        normalizeLocation(
+            ride.drop ||
+            ride.dropLocation ||
+            ride.destination
+        );
+
+
+    /*
+     * Navigation target:
+     *
+     * ACCEPTED / GOING_TO_PICKUP / ARRIVED
+     * -> pickup
+     *
+     * STARTED
+     * -> drop
+     */
+
+    state.destinationType =
+        state.phase === "STARTED"
+            ? "drop"
+            : "pickup";
+
+
+    render();
+
+
+    renderMap();
+
+
+    startGps();
+
+
+    $("loading")
+        .classList.add(
+            "hidden"
+        );
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function normalizePhase(
+    value
+){
+
+    const status =
+        String(
+            value ||
+            ""
+        )
+        .toUpperCase()
+        .replace(/[\s-]+/g,"_");
+
+
+    const statuses = {
+
+        REQUESTED:"ACCEPTED",
+
+        PENDING:"ACCEPTED",
+
+        SEARCHING:"ACCEPTED",
+
+        ACCEPTED:"ACCEPTED",
+
+        DRIVER_ACCEPTED:"ACCEPTED",
+
+        GOING_TO_PICKUP:"GOING_TO_PICKUP",
+
+        EN_ROUTE_TO_PICKUP:"GOING_TO_PICKUP",
+
+        ARRIVED:"ARRIVED",
+
+        DRIVER_ARRIVED:"ARRIVED",
+
+        STARTED:"STARTED",
+
+        IN_PROGRESS:"STARTED",
+
+        ON_TRIP:"STARTED",
+
+        GOING_TO_DROP:"STARTED",
+
+        COMPLETED:"COMPLETED",
+
+        FINISHED:"COMPLETED",
+
+        CANCELLED:"CANCELLED",
+
+        CANCELED:"CANCELLED"
+
+    };
+
+
+    return (
+        statuses[status] ||
+        "ACCEPTED"
+    );
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+    const destination =
+        state.destinationType === "drop"
+            ? state.drop
+            : state.pickup;
+
+
+    let addressText =
+        "Destination";
+
+
+    if(
+        state.destinationType ===
+        "drop"
+    ){
+
+        addressText =
+            getAddress(
+                state.ride.drop ||
+                state.ride.dropLocation ||
+                state.ride.destination,
+                "Drop location"
+            );
+
+    }else{
+
+        addressText =
+            getAddress(
+                state.ride.pickup ||
+                state.ride.pickupLocation,
+                "Pickup location"
+            );
+
+    }
+
+
+    $("destinationAddress")
+        .textContent =
+        addressText;
+
+
+    /*
+     * Status
+     */
+
+    if(
+        state.phase === "STARTED"
+    ){
+
+        $("status")
+            .innerHTML =
+            '<span class="status-dot"></span> RIDE LIVE';
+
+        $("navTitle")
+            .textContent =
+            "Navigate to customer drop";
+
+    }else if(
+        state.phase === "GOING_TO_PICKUP"
+    ){
+
+        $("status")
+            .innerHTML =
+            '<span class="status-dot"></span> TO PICKUP';
+
+        $("navTitle")
+            .textContent =
+            "Navigate to customer pickup";
+
+    }else if(
+        state.phase === "ARRIVED"
+    ){
+
+        $("status")
+            .innerHTML =
+            '<span class="status-dot"></span> ARRIVED';
+
+        $("navTitle")
+            .textContent =
+            "Waiting at pickup";
+
+    }else if(
+        state.phase === "COMPLETED"
+    ){
+
+        $("status")
+            .innerHTML =
+            '<span class="status-dot"></span> COMPLETED';
+
+        $("navTitle")
+            .textContent =
+            "Ride completed";
+
+    }else if(
+        state.phase === "CANCELLED"
+    ){
+
+        $("status")
+            .innerHTML =
+            '<span class="status-dot"></span> CANCELLED';
+
+        $("navTitle")
+            .textContent =
+            "Ride cancelled";
+
+    }else{
+
+        $("status")
+            .innerHTML =
+            '<span class="status-dot"></span> LIVE';
+
+        $("navTitle")
+            .textContent =
+            "Navigate to pickup";
+
+    }
+
+
+    updateStats();
+
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+function updateStats(){
+
+    const distance =
+        Number(
+            state.ride?.remainingDistanceKm ??
+            state.ride?.distanceRemainingKm ??
+            state.ride?.distanceKm ??
+            0
+        );
+
+
+    const eta =
+        Number(
+            state.ride?.remainingEtaMinutes ??
+            state.ride?.etaMinutes ??
+            state.ride?.estimatedMinutes ??
+            0
+        );
+
+
+    $("remainingDistance")
+        .textContent =
+        distance > 0
+            ? formatNumber(distance) + " km"
+            : "—";
+
+
+    $("remainingEta")
+        .textContent =
+        eta > 0
+            ? Math.ceil(eta) + " min"
+            : "—";
+
+
+    $("topEta")
+        .textContent =
+        eta > 0
+            ? Math.ceil(eta) + " min"
+            : "—";
+
+
+    /*
+     * Current GPS speed.
+     */
+
+    if(
+        state.lastSpeedKmh !== undefined
+    ){
+
+        $("speed")
+            .textContent =
+            state.lastSpeedKmh > 1
+                ? Math.round(
+                    state.lastSpeedKmh
+                  ) + " km/h"
+                : "0 km/h";
+
+    }
+
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+function renderMap(){
+
+    if(
+        !state.map
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        validLocation(
+            state.pickup
+        )
+    ){
+
+        const icon =
+            L.divIcon({
+
+                className:"",
+
+                html:
+                    '<div class="pickup-icon"></div>',
+
+                iconSize:[18,18],
+
+                iconAnchor:[9,9]
+
+            });
+
+
+        if(
+            state.pickupMarker
+        ){
+
+            state.pickupMarker
+                .setLatLng([
+                    state.pickup.lat,
+                    state.pickup.lng
+                ]);
+
+        }else{
+
+            state.pickupMarker =
+                L.marker(
+                    [
+                        state.pickup.lat,
+                        state.pickup.lng
+                    ],
+                    {
+                        icon
+                    }
+                )
+                .addTo(
+                    state.map
+                );
+
+        }
+
+    }
+
+
+    if(
+        validLocation(
+            state.drop
+        )
+    ){
+
+        const icon =
+            L.divIcon({
+
+                className:"",
+
+                html:
+                    '<div class="drop-icon"></div>',
+
+                iconSize:[18,18],
+
+                iconAnchor:[9,9]
+
+            });
+
+
+        if(
+            state.dropMarker
+        ){
+
+            state.dropMarker
+                .setLatLng([
+                    state.drop.lat,
+                    state.drop.lng
+                ]);
+
+        }else{
+
+            state.dropMarker =
+                L.marker(
+                    [
+                        state.drop.lat,
+                        state.drop.lng
+                    ],
+                    {
+                        icon
+                    }
+                )
+                .addTo(
+                    state.map
+                );
+
+        }
+
+    }
+
+
+    if(
+        validLocation(
+            state.driverLocation
+        )
+    ){
+
+        updateDriverMarker(
+            state.driverLocation
+        );
+
+    }
+
+
+    updateRouteLine();
+
+
+    const points = [];
+
+
+    if(
+        validLocation(
+            state.driverLocation
+        )
+    ){
+
+        points.push([
+            state.driverLocation.lat,
+            state.driverLocation.lng
+        ]);
+
+    }
+
+
+    if(
+        validLocation(
+            state.destinationType === "drop"
+                ? state.drop
+                : state.pickup
+        )
+    ){
+
+        const destination =
+            state.destinationType === "drop"
+                ? state.drop
+                : state.pickup;
+
+
+        points.push([
+            destination.lat,
+            destination.lng
+        ]);
+
+    }
+
+
+    if(
+        points.length === 2
+    ){
+
+        state.map.fitBounds(
+            points,
+            {
+                padding:[
+                    80,
+                    100
+                ]
+            }
+        );
+
+    }else if(
+        points.length === 1
+    ){
+
+        state.map.setView(
+            points[0],
+            16
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DRIVER MARKER
+========================================================= */
+
+function updateDriverMarker(
+    location
+){
+
+    if(
+        !state.map ||
+        !validLocation(location)
+    ){
+
+        return;
+
+    }
+
+
+    const position = [
+        location.lat,
+        location.lng
+    ];
+
+
+    const icon =
+        L.divIcon({
+
+            className:"",
+
+            html:
+                '<div class="driver-icon">🛵</div>',
+
+            iconSize:[46,46],
+
+            iconAnchor:[23,23]
+
+        });
+
+
+    if(
+        state.driverMarker
+    ){
+
+        state.driverMarker
+            .setLatLng(
+                position
+            );
+
+    }else{
+
+        state.driverMarker =
+            L.marker(
+                position,
+                {
+                    icon,
+                    zIndexOffset:1000
+                }
+            )
+            .addTo(
+                state.map
+            );
+
+    }
+
+
+    if(
+        state.accuracyCircle
+    ){
+
+        state.accuracyCircle
+            .setLatLng(
+                position
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   ROUTE VISUAL
+========================================================= */
+
+function updateRouteLine(){
+
+    if(
+        !state.map ||
+        !validLocation(
+            state.driverLocation
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const destination =
+        state.destinationType === "drop"
+            ? state.drop
+            : state.pickup;
+
+
+    if(
+        !validLocation(destination)
+    ){
+
+        return;
+
+    }
+
+
+    const points = [
+
+        [
+            state.driverLocation.lat,
+            state.driverLocation.lng
+        ],
+
+        [
+            destination.lat,
+            destination.lng
+        ]
+
+    ];
+
+
+    if(
+        state.routeLine
+    ){
+
+        state.routeLine
+            .setLatLngs(
+                points
+            );
+
+    }else{
+
+        state.routeLine =
+            L.polyline(
+                points,
+                {
+                    weight:5,
+                    opacity:.65,
+                    dashArray:"9 8"
+                }
+            )
+            .addTo(
+                state.map
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   GPS
+========================================================= */
+
+function startGps(){
+
+    if(
+        !navigator.geolocation
+    ){
+
+        showGpsWarning(
+            true,
+            "This device does not support GPS."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        state.watchId !== null
+    ){
+
+        return;
+
+    }
+
+
+    state.watchId =
+        navigator.geolocation.watchPosition(
+            onPosition,
+            onPositionError,
+            {
+                enableHighAccuracy:true,
+
+                maximumAge:2500,
+
+                timeout:15000
+            }
+        );
+
+}
+
+
+function onPosition(
+    position
+){
+
+    const coords =
+        position.coords;
+
+
+    const location = {
+
+        lat:
+            Number(
+                coords.latitude
+            ),
+
+        lng:
+            Number(
+                coords.longitude
+            )
+
+    };
+
+
+    if(
+        !validLocation(
+            location
+        )
+    ){
+
+        return;
+
+    }
+
+
+    state.previousLocation =
+        state.driverLocation;
+
+
+    state.driverLocation =
+        location;
+
+
+    /*
+     * Calculate current speed.
+     */
+
+    if(
+        Number.isFinite(
+            coords.speed
+        ) &&
+        coords.speed >= 0
+    ){
+
+        state.lastSpeedKmh =
+            coords.speed * 3.6;
+
+    }
+
+
+    showGpsWarning(
+        false
+    );
+
+
+    updateDriverMarker(
+        location
+    );
+
+
+    updateRouteLine();
+
+
+    updateStats();
+
+
+    /*
+     * First position:
+     * center map.
+     */
+
+    if(
+        !state.previousLocation
+    ){
+
+        state.map.setView(
+            [
+                location.lat,
+                location.lng
+            ],
+            17
+        );
+
+    }
+
+
+    sendLocation(
+        location
+    );
+
+}
+
+
+function onPositionError(
+error
+){
+
+    console.warn(
+        "GPS error",
+        error
+    );
+
+
+    let message =
+        "GPS signal unavailable. Keep location enabled.";
+
+
+    if(
+        error.code ===
+        1
+    ){
+
+        message =
+            "Location permission denied. Enable GPS permission for Go Bike.";
+
+    }
+
+
+    showGpsWarning(
+        true,
+        message
+    );
+
+}
+
+
+/* =========================================================
+   SEND LOCATION
+========================================================= */
+
+async function sendLocation(
+location
+){
+
+    const now =
+        Date.now();
+
+
+    /*
+     * Do not flood Firebase.
+     */
+
+    if(
+        now -
+        state.lastLocationSentAt <
+        state.locationInterval
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        state.lastLocationSendPromise
+    ){
+
+        return;
+
+    }
+
+
+    const api =
+        engine();
+
+
+    if(
+        !api ||
+        typeof api.updateDriverLocation !==
+        "function"
+    ){
+
+        return;
+
+    }
+
+
+    state.lastLocationSentAt =
+        now;
+
+
+    state.lastLocationSendPromise =
+        Promise.resolve(
+            api.updateDriverLocation(
+                state.rideId,
+                state.driverId,
+                location
+            )
+        )
+        .catch(
+            function(error){
+
+                console.warn(
+                    "Location sync failed:",
+                    error
+                );
+
+            }
+        )
+        .finally(
+            function(){
+
+                state.lastLocationSendPromise =
+                    null;
+
+            }
+        );
+
+
+    await state.lastLocationSendPromise;
+
+}
+
+
+/* =========================================================
+   GPS WARNING
+========================================================= */
+
+let gpsTimer =
+    null;
+
+
+function showGpsWarning(
+show,
+message
+){
+
+    const element =
+        $("gpsWarning");
+
+
+    if(
+        message
+    ){
+
+        element.textContent =
+            message;
+
+    }
+
+
+    if(show){
+
+        element.classList.add(
+            "show"
+        );
+
+        clearTimeout(
+            gpsTimer
+        );
+
+        gpsTimer =
+            setTimeout(
+                function(){
+
+                    element.classList.remove(
+                        "show"
+                    );
+
+                },
+                6000
+            );
+
+    }else{
+
+        element.classList.remove(
+            "show"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   MY LOCATION
+========================================================= */
+
+$("locationButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            if(
+                validLocation(
+                    state.driverLocation
+                )
+            ){
+
+                state.map.setView(
+                    [
+                        state.driverLocation.lat,
+                        state.driverLocation.lng
+                    ],
+                    17
+                );
+
+
+                this.classList.add(
+                    "active"
+                );
+
+
+                setTimeout(
+                    () =>
+                    this.classList.remove(
+                        "active"
+                    ),
+                    500
+                );
+
+
+                return;
+
+            }
+
+
+            showToast(
+                "Waiting for GPS location..."
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   FIT
+========================================================= */
+
+$("fitButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            const points = [];
+
+
+            if(
+                validLocation(
+                    state.driverLocation
+                )
+            ){
+
+                points.push([
+                    state.driverLocation.lat,
+                    state.driverLocation.lng
+                ]);
+
+            }
+
+
+            if(
+                validLocation(
+                    state.pickup
+                )
+            ){
+
+                points.push([
+                    state.pickup.lat,
+                    state.pickup.lng
+                ]);
+
+            }
+
+
+            if(
+                validLocation(
+                    state.drop
+                )
+            ){
+
+                points.push([
+                    state.drop.lat,
+                    state.drop.lng
+                ]);
+
+            }
+
+
+            if(
+                points.length > 1
+            ){
+
+                state.map.fitBounds(
+                    points,
+                    {
+                        padding:[70,70]
+                    }
+                );
+
+            }else{
+
+                showToast(
+                    "Route locations are unavailable."
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   NAVIGATION BUTTON
+========================================================= */
+
+$("navigationButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            openExternalNavigation();
+
+        }
+    );
+
+
+function openExternalNavigation(){
+
+    const destination =
+        state.destinationType === "drop"
+            ? state.drop
+            : state.pickup;
+
+
+    if(
+        !validLocation(
+            destination
+        )
+    ){
+
+        showToast(
+            "Navigation destination unavailable."
+        );
+
+        return;
+
+    }
+
+
+    let start = "";
+
+
+    if(
+        validLocation(
+            state.driverLocation
+        )
+    ){
+
+        start =
+            state.driverLocation.lat +
+            "," +
+            state.driverLocation.lng;
+
+    }
+
+
+    const route =
+        start
+            ? start +
+              ";" +
+              destination.lat +
+              "," +
+              destination.lng
+            : destination.lat +
+              "," +
+              destination.lng;
+
+
+    /*
+     * In-app mapping stays Leaflet/OpenStreetMap.
+     * This opens a standard OSM route page externally.
+     */
+
+    const url =
+        "https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=" +
+        encodeURIComponent(
+            route
+        );
+
+
+    try{
+
+        window.open(
+            url,
+            "_blank",
+            "noopener"
+        );
+
+    }catch(error){
+
+        window.location.href =
+            url;
+
+    }
+
+}
+
+
+/* =========================================================
+   RIDE DETAILS
+========================================================= */
+
+$("rideButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            window.location.href =
+                "ride-request.html";
+
+        }
+    );
+
+
+/* =========================================================
+   NAVIGATION MODE
+========================================================= */
+
+$("trafficButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            this.classList.toggle(
+                "active"
+            );
+
+
+            showToast(
+                this.classList.contains("active")
+                    ? "Navigation mode enabled."
+                    : "Navigation mode disabled."
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   BACK
+========================================================= */
+
+$("backButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            if(
+                state.phase ===
+                "COMPLETED" ||
+                state.phase ===
+                "CANCELLED"
+            ){
+
+                window.location.href =
+                    "home.html";
+
+                return;
+
+            }
+
+
+            window.location.href =
+                "ride-request.html";
+
+        }
+    );
+
+
+/* =========================================================
+   RETRY
+========================================================= */
+
+$("retryButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            $("error")
+                .classList.remove(
+                    "show"
+                );
+
+
+            $("loading")
+                .classList.remove(
+                    "hidden"
+                );
+
+
+            load();
+
+        }
+    );
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function showError(
+message
+){
+
+    $("loading")
+        .classList.add(
+            "hidden"
+        );
+
+
+    $("error")
+        .classList.add(
+            "show"
+        );
+
+
+    $("errorText")
+        .textContent =
+        message ||
+        "Live navigation could not be started.";
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer =
+    null;
+
+
+function showToast(
+message
+){
+
+    const toast =
+        $("toast");
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            function(){
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2800
+        );
+
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function getAddress(
+value,
+fallback
+){
+
+    if(!value){
+
+        return fallback;
+
+    }
+
+
+    return (
+        value.address ||
+        value.formattedAddress ||
+        value.name ||
+        fallback
+    );
+
+}
+
+
+function formatNumber(
+value
+){
+
+    const number =
+        Number(value);
+
+
+    if(
+        !Number.isFinite(number)
+    ){
+
+        return "0";
+
+    }
+
+
+    return Number.isInteger(number)
+        ? String(number)
+        : number.toFixed(1);
+
+}
+
+
+/* =========================================================
+   VISIBILITY
+========================================================= */
+
+document.addEventListener(
+    "visibilitychange",
+    function(){
+
+        if(
+            document.visibilityState ===
+            "visible"
+        ){
+
+            /*
+             * Refresh map after returning from
+             * external navigation.
+             */
+
+            if(
+                state.driverLocation
+            ){
+
+                updateDriverMarker(
+                    state.driverLocation
+                );
+
+                updateRouteLine();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CLEANUP
+========================================================= */
+
+window.addEventListener(
+    "beforeunload",
+    function(){
+
+        if(
+            state.unsubscribe
+        ){
+
+            try{
+
+                state.unsubscribe();
+
+            }catch(error){}
+
+        }
+
+
+        if(
+            state.watchId !==
+            null &&
+            navigator.geolocation
+        ){
+
+            navigator.geolocation.clearWatch(
+                state.watchId
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+function init(){
+
+    if(
+        state.initialized
+    ){
+
+        return;
+
+    }
+
+
+    state.initialized =
+        true;
+
+
+    initMap();
+
+
+    load();
+
+}
+
+
+init();
+
+})();
+
+</script>
+
+</body>
+  </html>
