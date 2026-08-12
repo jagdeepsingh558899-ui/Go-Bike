@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    >
+
+    <meta name="theme-color" content="#080808">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <title>Go Bike | Driver Map</title>
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIINfQ3m3E6Jf5V7K5YQ4V6kQ1QJ6Y7x3W0="
+        crossorigin=""
+    >
+
+    <style>
+        :root{
+            --black:#080808;
+            --panel:#111111;
+            --panel2:#171717;
+            --yellow:#ffd600;
+            --yellow2:#ffca00;
+            --white:#ffffff;
+            --muted:#8b8b8b;
+            --border:rgba(255,255,255,.09);
+            --green:#22c55e;
+            --red:#ff5252;
+        }
+
+        *{
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+        }
+
+        html,
+        body{
+            width:100%;
+            height:100%;
+            overflow:hidden;
+            background:var(--black);
+            color:var(--white);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+        }
+
+        body{
+            position:relative;
+        }
+
+        #map{
+            position:absolute;
+            inset:0;
+            width:100%;
+            height:100%;
+            z-index:1;
+            background:#dfe6e9;
+        }
+
+        .topbar{
+            position:absolute;
+            top:0;
+            left:0;
+            right:0;
+            z-index:1000;
+            padding:
+                calc(12px + env(safe-area-inset-top))
+                14px
+                12px;
+            pointer-events:none;
+        }
+
+        .topbar-inner{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            pointer-events:auto;
+        }
+
+        .icon-btn{
+            width:44px;
+            height:44px;
+            border:1px solid rgba(255,255,255,.08);
+            border-radius:14px;
+            background:rgba(8,8,8,.92);
+            color:var(--white);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            font-weight:900;
+            box-shadow:0 8px 25px rgba(0,0,0,.25);
+            backdrop-filter:blur(12px);
+            -webkit-backdrop-filter:blur(12px);
+            cursor:pointer;
+        }
+
+        .status-pill{
+            min-height:44px;
+            padding:0 14px;
+            border-radius:14px;
+            background:rgba(8,8,8,.92);
+            border:1px solid rgba(255,255,255,.08);
+            display:flex;
+            align-items:center;
+            gap:8px;
+            box-shadow:0 8px 25px rgba(0,0,0,.25);
+            backdrop-filter:blur(12px);
+            -webkit-backdrop-filter:blur(12px);
+            font-size:11px;
+            font-weight:900;
+        }
+
+        .status-dot{
+            width:9px;
+            height:9px;
+            border-radius:50%;
+            background:var(--red);
+            box-shadow:0 0 0 4px rgba(255,82,82,.12);
+        }
+
+        .status-pill.online .status-dot{
+            background:var(--green);
+            box-shadow:0 0 0 4px rgba(34,197,94,.12);
+        }
+
+        .locate-btn{
+            position:absolute;
+            right:14px;
+            bottom:245px;
+            z-index:1000;
+            width:48px;
+            height:48px;
+            border:1px solid rgba(0,0,0,.12);
+            border-radius:15px;
+            background:rgba(255,255,255,.96);
+            color:#111;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            font-weight:900;
+            box-shadow:0 8px 24px rgba(0,0,0,.2);
+            cursor:pointer;
+        }
+
+        .locate-btn.loading{
+            opacity:.6;
+            pointer-events:none;
+        }
+
+        .bottom-sheet{
+            position:absolute;
+            left:0;
+            right:0;
+            bottom:0;
+            z-index:1000;
+            padding:
+                10px
+                12px
+                calc(12px + env(safe-area-inset-bottom));
+            pointer-events:none;
+        }
+
+        .sheet{
+            pointer-events:auto;
+            width:100%;
+            max-width:680px;
+            margin:0 auto;
+            border-radius:25px 25px 18px 18px;
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(18,18,18,.98),
+                    rgba(10,10,10,.99)
+                );
+            border:1px solid rgba(255,255,255,.08);
+            box-shadow:
+                0 -12px 45px rgba(0,0,0,.28);
+            padding:15px;
+        }
+
+        .handle{
+            width:38px;
+            height:4px;
+            border-radius:10px;
+            background:#3c3c3c;
+            margin:0 auto 13px;
+        }
+
+        .location-row{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            min-height:52px;
+            padding:0 12px;
+            border-radius:15px;
+            background:#171717;
+            border:1px solid var(--border);
+        }
+
+        .location-icon{
+            width:30px;
+            height:30px;
+            border-radius:10px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:rgba(255,214,0,.12);
+            color:var(--yellow);
+            font-size:14px;
+            flex-shrink:0;
+        }
+
+        .location-content{
+            min-width:0;
+            flex:1;
+        }
+
+        .location-label{
+            font-size:9px;
+            color:var(--muted);
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.5px;
+        }
+
+        .location-value{
+            margin-top:2px;
+            font-size:12px;
+            font-weight:850;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        }
+
+        .accuracy{
+            margin-top:10px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            font-size:9px;
+            color:var(--muted);
+        }
+
+        .accuracy strong{
+            color:#ccc;
+        }
+
+        .online-row{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-top:12px;
+        }
+
+        .online-info{
+            min-width:0;
+        }
+
+        .online-title{
+            font-size:12px;
+            font-weight:900;
+        }
+
+        .online-subtitle{
+            margin-top:3px;
+            font-size:9px;
+            color:var(--muted);
+        }
+
+        .toggle{
+            position:relative;
+            width:54px;
+            height:31px;
+            flex-shrink:0;
+            border:0;
+            border-radius:20px;
+            background:#333;
+            cursor:pointer;
+            transition:.2s ease;
+        }
+
+        .toggle::after{
+            content:"";
+            position:absolute;
+            width:23px;
+            height:23px;
+            top:4px;
+            left:4px;
+            border-radius:50%;
+            background:#fff;
+            transition:.2s ease;
+        }
+
+        .toggle.active{
+            background:var(--yellow);
+        }
+
+        .toggle.active::after{
+            left:27px;
+            background:#080808;
+        }
+
+        .ride-warning{
+            display:none;
+            margin-top:10px;
+            padding:11px 12px;
+            border-radius:13px;
+            background:rgba(255,214,0,.08);
+            border:1px solid rgba(255,214,0,.15);
+            color:#ffe681;
+            font-size:9px;
+            line-height:1.45;
+        }
+
+        .ride-warning.show{
+            display:block;
+        }
+
+        .leaflet-control-attribution{
+            font-size:7px !important;
+        }
+
+        .leaflet-control-zoom{
+            display:none;
+        }
+
+        .driver-marker{
+            width:42px;
+            height:42px;
+            border-radius:50%;
+            background:var(--yellow);
+            border:4px solid #fff;
+            box-shadow:
+                0 4px 18px rgba(0,0,0,.35),
+                0 0 0 7px rgba(255,214,0,.18);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#080808;
+            font-size:17px;
+            font-weight:1000;
+        }
+
+        .pulse{
+            animation:pulse 1.8s infinite;
+        }
+
+        @keyframes pulse{
+            0%{
+                box-shadow:
+                    0 4px 18px rgba(0,0,0,.35),
+                    0 0 0 0 rgba(255,214,0,.4);
+            }
+
+            70%{
+                box-shadow:
+                    0 4px 18px rgba(0,0,0,.35),
+                    0 0 0 15px rgba(255,214,0,0);
+            }
+
+            100%{
+                box-shadow:
+                    0 4px 18px rgba(0,0,0,.35),
+                    0 0 0 0 rgba(255,214,0,0);
+            }
+        }
+
+        .toast{
+            position:absolute;
+            left:50%;
+            top:78px;
+            z-index:2000;
+            transform:
+                translate(-50%,-20px);
+            width:max-content;
+            max-width:calc(100% - 30px);
+            padding:11px 15px;
+            border-radius:13px;
+            background:rgba(8,8,8,.95);
+            border:1px solid rgba(255,255,255,.08);
+            color:#fff;
+            font-size:10px;
+            font-weight:800;
+            opacity:0;
+            pointer-events:none;
+            transition:.25s ease;
+        }
+
+        .toast.show{
+            opacity:1;
+            transform:
+                translate(-50%,0);
+        }
+
+        @media(max-height:680px){
+
+            .locate-btn{
+                bottom:205px;
+            }
+
+            .sheet{
+                padding:11px;
+            }
+
+            .location-row{
+                min-height:45px;
+            }
+
+            .online-row{
+                margin-top:8px;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<header class="topbar">
+    <div class="topbar-inner">
+
+        <button
+            id="backButton"
+            class="icon-btn"
+            type="button"
+            aria-label="Back">
+            ←
+        </button>
+
+        <div
+            id="statusPill"
+            class="status-pill">
+
+            <span class="status-dot"></span>
+
+            <span id="statusText">
+                Offline
+            </span>
+
+        </div>
+
+        <button
+            id="menuButton"
+            class="icon-btn"
+            type="button"
+            aria-label="Menu">
+            ☰
+        </button>
+
+    </div>
+</header>
+
+<button
+    id="locateButton"
+    class="locate-btn"
+    type="button"
+    aria-label="My location">
+    ⦿
+</button>
+
+<div
+    id="toast"
+    class="toast">
+</div>
+
+<section class="bottom-sheet">
+
+    <div class="sheet">
+
+        <div class="handle"></div>
+
+        <div class="location-row">
+
+            <div class="location-icon">
+                ●
+            </div>
+
+            <div class="location-content">
+
+                <div class="location-label">
+                    Your current location
+                </div>
+
+                <div
+                    id="locationText"
+                    class="location-value">
+                    Waiting for GPS location...
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="accuracy">
+
+            <span>
+                GPS accuracy:
+                <strong id="accuracyText">
+                    --
+                </strong>
+            </span>
+
+            <span id="gpsState">
+                Locating...
+            </span>
+
+        </div>
+
+        <div class="online-row">
+
+            <div class="online-info">
+
+                <div class="online-title">
+                    Driver availability
+                </div>
+
+                <div
+                    id="onlineSubtitle"
+                    class="online-subtitle">
+                    Go online to receive nearby ride requests.
+                </div>
+
+            </div>
+
+            <button
+                id="onlineToggle"
+                class="toggle"
+                type="button"
+                aria-label="Driver online status">
+            </button>
+
+        </div>
+
+        <div
+            id="rideWarning"
+            class="ride-warning">
+            An active ride was detected. Open Live Ride to continue pickup/drop navigation.
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- Leaflet -->
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin="">
+</script>
+
+
+<script>
+(function(){
+
+    "use strict";
+
+
+    /*
+     * =====================================================
+     * GO BIKE
+     * RIDER GENERAL MAP
+     *
+     * IMPORTANT:
+     *
+     * This page is NOT the active ride navigation page.
+     *
+     * Active ride:
+     * rider/live.html
+     *        ↓
+     * rider/live-map.html
+     *
+     * This page is for:
+     *
+     * - Driver current location
+     * - Online/offline state
+     * - General map
+     * - Location permission
+     * - Nearby driver context
+     *
+     * Leaflet + OpenStreetMap are used.
+     * =====================================================
+     */
+
+
+    const LIVE_PAGE =
+        "live.html";
+
+    const HOME_PAGE =
+        "home.html";
+
+    const MENU_PAGE =
+        "menu.html";
+
+
+    const STORAGE_ONLINE =
+        "goBikeDriverOnline";
+
+    const STORAGE_LOCATION =
+        "goBikeDriverLocation";
+
+    const STORAGE_ACTIVE_RIDE =
+        "goBikeActiveRide";
+
+
+    let map =
+        null;
+
+    let driverMarker =
+        null;
+
+    let accuracyCircle =
+        null;
+
+    let watchId =
+        null;
+
+    let currentPosition =
+        null;
+
+    let firstLocation =
+        true;
+
+    let locationTimeout =
+        null;
+
+
+    /*
+     * -----------------------------------------------------
+     * DOM
+     * -----------------------------------------------------
+     */
+
+    const $ =
+        id =>
+        document.getElementById(id);
+
+
+    /*
+     * -----------------------------------------------------
+     * TOAST
+     * -----------------------------------------------------
+     */
+
+    let toastTimer =
+        null;
+
+
+    function toast(
+        text
+    ){
+
+        const element =
+            $("toast");
+
+
+        element.textContent =
+            text;
+
+
+        element.classList.add(
+            "show"
+        );
+
+
+        clearTimeout(
+            toastTimer
+        );
+
+
+        toastTimer =
+            setTimeout(
+                function(){
+
+                    element.classList.remove(
+                        "show"
+                    );
+
+                },
+                2600
+            );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * MAP INITIALIZATION
+     * -----------------------------------------------------
+     */
+
+    function initMap(){
+
+        if(
+            typeof L ===
+            "undefined"
+        ){
+
+            toast(
+                "Map library could not load."
+            );
+
+            return;
+
+        }
+
+
+        map =
+            L.map(
+                "map",
+                {
+                    zoomControl:false,
+                    attributionControl:true,
+                    preferCanvas:true
+                }
+            );
+
+
+        L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+                maxZoom:19,
+                attribution:
+                    '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(
+            map
+        );
+
+
+        map.setView(
+            [20.5937,78.9629],
+            5
+        );
+
+
+        /*
+         * Small delay fixes Leaflet sizing problems when the
+         * page is opened inside a PWA/browser transition.
+         */
+
+        setTimeout(
+            function(){
+
+                map.invalidateSize(
+                    true
+                );
+
+            },
+            250
+        );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * DRIVER MARKER
+     * -----------------------------------------------------
+     */
+
+    function createDriverMarker(
+        latitude,
+        longitude
+    ){
+
+        if(!map){
+            return;
+        }
+
+
+        const icon =
+            L.divIcon(
+                {
+                    className:"",
+                    html:
+                        '<div class="driver-marker pulse">●</div>',
+                    iconSize:[42,42],
+                    iconAnchor:[21,21]
+                }
+            );
+
+
+        driverMarker =
+            L.marker(
+                [
+                    latitude,
+                    longitude
+                ],
+                {
+                    icon,
+                    zIndexOffset:1000
+                }
+            )
+            .addTo(
+                map
+            );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * UPDATE LOCATION ON MAP
+     * -----------------------------------------------------
+     */
+
+    function updateMapLocation(
+        latitude,
+        longitude,
+        accuracy
+    ){
+
+        if(!map){
+            return;
+        }
+
+
+        const latLng =
+            [
+                latitude,
+                longitude
+            ];
+
+
+        if(!driverMarker){
+
+            createDriverMarker(
+                latitude,
+                longitude
+            );
+
+        }else{
+
+            driverMarker.setLatLng(
+                latLng
+            );
+
+        }
+
+
+        if(!accuracyCircle){
+
+            accuracyCircle =
+                L.circle(
+                    latLng,
+                    {
+                        radius:
+                            Math.min(
+                                Math.max(
+                                    accuracy || 30,
+                                    10
+                                ),
+                                250
+                            ),
+                        color:"#ffd600",
+                        weight:1,
+                        opacity:.35,
+                        fillOpacity:.08
+                    }
+                )
+                .addTo(
+                    map
+                );
+
+        }else{
+
+            accuracyCircle.setLatLng(
+                latLng
+            );
+
+            accuracyCircle.setRadius(
+                Math.min(
+                    Math.max(
+                        accuracy || 30,
+                        10
+                    ),
+                    250
+                )
+            );
+
+        }
+
+
+        /*
+         * First valid location centers the map.
+         * After that we don't constantly steal the user's
+         * map view while they move around.
+         */
+
+        if(firstLocation){
+
+            firstLocation =
+                false;
+
+
+            map.setView(
+                latLng,
+                16,
+                {
+                    animate:true
+                }
+            );
+
+        }
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * FORMAT LOCATION
+     * -----------------------------------------------------
+     */
+
+    function formatCoordinates(
+        latitude,
+        longitude
+    ){
+
+        return (
+            latitude.toFixed(6) +
+            ", " +
+            longitude.toFixed(6)
+        );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * SAVE LOCATION
+     * -----------------------------------------------------
+     */
+
+    function saveLocation(
+        latitude,
+        longitude,
+        accuracy
+    ){
+
+        const location =
+            {
+                latitude,
+                longitude,
+                accuracy:
+                    Number.isFinite(
+                        accuracy
+                    )
+                    ? accuracy
+                    : null,
+                updatedAt:
+                    Date.now()
+            };
+
+
+        try{
+
+            localStorage.setItem(
+                STORAGE_LOCATION,
+                JSON.stringify(
+                    location
+                )
+            );
+
+        }catch(error){
+
+            console.warn(
+                "Go Bike location storage:",
+                error
+            );
+
+        }
+
+
+        /*
+         * Compatibility event for other Go Bike modules.
+         */
+
+        try{
+
+            window.dispatchEvent(
+                new CustomEvent(
+                    "gobike:driver-location",
+                    {
+                        detail:
+                            location
+                    }
+                )
+            );
+
+        }catch(error){}
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * GPS SUCCESS
+     * -----------------------------------------------------
+     */
+
+    function onLocationSuccess(
+        position
+    ){
+
+        clearTimeout(
+            locationTimeout
+        );
+
+
+        const coords =
+            position.coords;
+
+
+        const latitude =
+            Number(
+                coords.latitude
+            );
+
+
+        const longitude =
+            Number(
+                coords.longitude
+            );
+
+
+        const accuracy =
+            Number(
+                coords.accuracy
+            );
+
+
+        if(
+            !Number.isFinite(
+                latitude
+            ) ||
+            !Number.isFinite(
+                longitude
+            )
+        ){
+
+            onLocationError(
+                {
+                    code:0
+                }
+            );
+
+            return;
+
+        }
+
+
+        currentPosition =
+            {
+                latitude,
+                longitude,
+                accuracy
+            };
+
+
+        $("locationText")
+            .textContent =
+            formatCoordinates(
+                latitude,
+                longitude
+            );
+
+
+        $("accuracyText")
+            .textContent =
+            Number.isFinite(
+                accuracy
+            )
+            ? Math.round(
+                accuracy
+            ) + " m"
+            : "--";
+
+
+        $("gpsState")
+            .textContent =
+            "GPS active";
+
+
+        updateMapLocation(
+            latitude,
+            longitude,
+            accuracy
+        );
+
+
+        saveLocation(
+            latitude,
+            longitude,
+            accuracy
+        );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * GPS ERROR
+     * -----------------------------------------------------
+     */
+
+    function onLocationError(
+        error
+    ){
+
+        clearTimeout(
+            locationTimeout
+        );
+
+
+        let text =
+            "Location unavailable.";
+
+
+        if(
+            error &&
+            error.code === 1
+        ){
+
+            text =
+                "Location permission denied.";
+
+        }else if(
+            error &&
+            error.code === 2
+        ){
+
+            text =
+                "GPS position unavailable.";
+
+        }else if(
+            error &&
+            error.code === 3
+        ){
+
+            text =
+                "GPS request timed out.";
+
+        }
+
+
+        $("gpsState")
+            .textContent =
+            text;
+
+
+        if(
+            !currentPosition
+        ){
+
+            $("locationText")
+                .textContent =
+                "Unable to get current location.";
+
+        }
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * START LOCATION WATCH
+     * -----------------------------------------------------
+     */
+
+    function startLocationWatch(){
+
+        if(
+            !navigator.geolocation
+        ){
+
+            $("gpsState")
+                .textContent =
+                "GPS not supported.";
+
+            toast(
+                "This device does not support location."
+            );
+
+            return;
+
+        }
+
+
+        if(
+            watchId !== null
+        ){
+
+            navigator.geolocation.clearWatch(
+                watchId
+            );
+
+            watchId =
+                null;
+
+        }
+
+
+        $("gpsState")
+            .textContent =
+            "Locating...";
+
+
+        watchId =
+            navigator.geolocation.watchPosition(
+                onLocationSuccess,
+                onLocationError,
+                {
+                    enableHighAccuracy:true,
+                    maximumAge:5000,
+                    timeout:15000
+                }
+            );
+
+
+        /*
+         * A first-location timeout prevents the UI from
+         * looking frozen if GPS takes longer than expected.
+         */
+
+        locationTimeout =
+            setTimeout(
+                function(){
+
+                    if(
+                        !currentPosition
+                    ){
+
+                        $("gpsState")
+                            .textContent =
+                            "Waiting for GPS...";
+
+                    }
+
+                },
+                10000
+            );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * STOP LOCATION
+     * -----------------------------------------------------
+     */
+
+    function stopLocationWatch(){
+
+        if(
+            watchId !== null
+        ){
+
+            navigator.geolocation.clearWatch(
+                watchId
+            );
+
+            watchId =
+                null;
+
+        }
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * LOCATE BUTTON
+     * -----------------------------------------------------
+     */
+
+    function locateMe(){
+
+        const button =
+            $("locateButton");
+
+
+        button.classList.add(
+            "loading"
+        );
+
+
+        if(
+            currentPosition
+        ){
+
+            map.setView(
+                [
+                    currentPosition.latitude,
+                    currentPosition.longitude
+                ],
+                17,
+                {
+                    animate:true
+                }
+            );
+
+
+            button.classList.remove(
+                "loading"
+            );
+
+
+            return;
+
+        }
+
+
+        if(
+            !navigator.geolocation
+        ){
+
+            button.classList.remove(
+                "loading"
+            );
+
+
+            toast(
+                "Location is not supported."
+            );
+
+
+            return;
+
+        }
+
+
+        navigator.geolocation.getCurrentPosition(
+            function(position){
+
+                onLocationSuccess(
+                    position
+                );
+
+
+                if(currentPosition){
+
+                    map.setView(
+                        [
+                            currentPosition.latitude,
+                            currentPosition.longitude
+                        ],
+                        17,
+                        {
+                            animate:true
+                        }
+                    );
+
+                }
+
+
+                button.classList.remove(
+                    "loading"
+                );
+
+            },
+            function(error){
+
+                onLocationError(
+                    error
+                );
+
+
+                button.classList.remove(
+                    "loading"
+                );
+
+
+                toast(
+                    "Please allow location permission."
+                );
+
+            },
+            {
+                enableHighAccuracy:true,
+                maximumAge:0,
+                timeout:12000
+            }
+        );
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * ONLINE STATE
+     * -----------------------------------------------------
+     */
+
+    function getOnlineState(){
+
+        try{
+
+            return (
+                localStorage.getItem(
+                    STORAGE_ONLINE
+                ) ===
+                "true"
+            );
+
+        }catch(error){
+
+            return false;
+
+        }
+
+    }
+
+
+    function setOnlineState(
+        online
+    ){
+
+        try{
+
+            localStorage.setItem(
+                STORAGE_ONLINE,
+                online
+                    ? "true"
+                    : "false"
+            );
+
+        }catch(error){
+
+            console.warn(
+                "Go Bike online state:",
+                error
+            );
+
+        }
+
+
+        updateOnlineUI(
+            online
+        );
+
+
+        /*
+         * Other Go Bike modules can listen for this.
+         */
+
+        try{
+
+            window.dispatchEvent(
+                new CustomEvent(
+                    "gobike:driver-online",
+                    {
+                        detail:{
+                            online
+                        }
+                    }
+                )
+            );
+
+        }catch(error){}
+
+    }
+
+
+    function updateOnlineUI(
+        online
+    ){
+
+        const toggle =
+            $("onlineToggle");
+
+
+        const pill =
+            $("statusPill");
+
+
+        const statusText =
+            $("statusText");
+
+
+        const subtitle =
+            $("onlineSubtitle");
+
+
+        if(online){
+
+            toggle.classList.add(
+                "active"
+            );
+
+
+            pill.classList.add(
+                "online"
+            );
+
+
+            statusText.textContent =
+                "Online";
+
+
+            subtitle.textContent =
+                "You are available for nearby ride requests.";
+
+        }else{
+
+            toggle.classList.remove(
+                "active"
+            );
+
+
+            pill.classList.remove(
+                "online"
+            );
+
+
+            statusText.textContent =
+                "Offline";
+
+
+            subtitle.textContent =
+                "Go online to receive nearby ride requests.";
+
+        }
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * ACTIVE RIDE CHECK
+     * -----------------------------------------------------
+     */
+
+    function getActiveRide(){
+
+        const keys = [
+
+            STORAGE_ACTIVE_RIDE,
+            "gobikeActiveRide",
+            "activeGoBikeRide",
+            "activeRide",
+            "currentRide"
+
+        ];
+
+
+        for(
+            const key
+            of keys
+        ){
+
+            try{
+
+                const raw =
+                    sessionStorage.getItem(
+                        key
+                    );
+
+
+                if(raw){
+
+                    const ride =
+                        JSON.parse(
+                            raw
+                        );
+
+
+                    if(
+                        ride &&
+                        typeof ride ===
+                        "object"
+                    ){
+
+                        return ride;
+
+                    }
+
+                }
+
+            }catch(error){}
+
+
+            try{
+
+                const raw =
+                    localStorage.getItem(
+                        key
+                    );
+
+
+                if(raw){
+
+                    const ride =
+                        JSON.parse(
+                            raw
+                        );
+
+
+                    if(
+                        ride &&
+                        typeof ride ===
+                        "object"
+                    ){
+
+                        return ride;
+
+                    }
+
+                }
+
+            }catch(error){}
+
+        }
+
+
+        return null;
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * ACTIVE RIDE WARNING
+     * -----------------------------------------------------
+     */
+
+    function checkActiveRide(){
+
+        const ride =
+            getActiveRide();
+
+
+        if(!ride){
+
+            return;
+
+        }
+
+
+        const status =
+            String(
+                ride.status ||
+                ride.rideStatus ||
+                ""
+            )
+            .toLowerCase();
+
+
+        const closed = [
+
+            "completed",
+            "complete",
+            "finished",
+            "cancelled",
+            "canceled",
+            "rejected",
+            "declined"
+
+        ].includes(
+            status
+        );
+
+
+        if(closed){
+
+            return;
+
+        }
+
+
+        $("rideWarning")
+            .classList.add(
+                "show"
+            );
+
+
+        $("rideWarning")
+            .style.cursor =
+            "pointer";
+
+
+        $("rideWarning")
+            .onclick =
+            function(){
+
+                window.location.href =
+                    LIVE_PAGE;
+
+            };
+
+    }
+
+
+    /*
+     * -----------------------------------------------------
+     * BUTTON EVENTS
+     * -----------------------------------------------------
+     */
+
+    $("backButton")
+        .addEventListener(
+            "click",
+            function(){
+
+                window.location.href =
+                    HOME_PAGE;
+
+            }
+        );
+
+
+    $("menuButton")
+        .addEventListener(
+            "click",
+            function(){
+
+                window.location.href =
+                    MENU_PAGE;
+
+            }
+        );
+
+
+    $("locateButton")
+        .addEventListener(
+            "click",
+            locateMe
+        );
+
+
+    $("onlineToggle")
+        .addEventListener(
+            "click",
+            function(){
+
+                const current =
+                    getOnlineState();
+
+
+                setOnlineState(
+                    !current
+                );
+
+
+                toast(
+                    !current
+                        ? "You are now online."
+                        : "You are now offline."
+                );
+
+            }
+        );
+
+
+    /*
+     * -----------------------------------------------------
+     * VISIBILITY
+     * -----------------------------------------------------
+     *
+     * When the driver returns to this page, refresh the
+     * location and active ride state.
+     * -----------------------------------------------------
+     */
+
+    document.addEventListener(
+        "visibilitychange",
+        function(){
+
+            if(
+                document.visibilityState ===
+                "visible"
+            ){
+
+                checkActiveRide();
+
+
+                if(
+                    navigator.geolocation &&
+                    watchId === null
+                ){
+
+                    startLocationWatch();
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /*
+     * -----------------------------------------------------
+     * INIT
+     * -----------------------------------------------------
+     */
+
+    function init(){
+
+        initMap();
+
+        updateOnlineUI(
+            getOnlineState()
+        );
+
+        checkActiveRide();
+
+        startLocationWatch();
+
+    }
+
+
+    init();
+
+
+    /*
+     * -----------------------------------------------------
+     * CLEANUP
+     * -----------------------------------------------------
+     */
+
+    window.addEventListener(
+        "beforeunload",
+        function(){
+
+            stopLocationWatch();
+
+        }
+    );
+
+})();
+</script>
+
+</body>
+</html>
