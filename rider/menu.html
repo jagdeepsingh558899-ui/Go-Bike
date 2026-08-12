@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080808">
+
+<title>Go Bike | Driver Menu</title>
+
+<style>
+:root{
+    --black:#080808;
+    --panel:#111;
+    --panel2:#171717;
+    --yellow:#ffd600;
+    --white:#fff;
+    --muted:#777;
+    --border:rgba(255,255,255,.09);
+    --red:#ff5c5c;
+    --green:#28d477;
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    min-height:100%;
+    background:var(--black);
+    color:var(--white);
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,sans-serif;
+}
+
+body{
+    padding-bottom:
+        calc(25px + env(safe-area-inset-bottom));
+}
+
+button{
+    font:inherit;
+    -webkit-tap-highlight-color:transparent;
+}
+
+.page{
+    width:100%;
+    max-width:560px;
+    min-height:100vh;
+    margin:auto;
+    padding:
+        16px
+        15px
+        calc(30px + env(safe-area-inset-bottom));
+}
+
+/* ================= HEADER ================= */
+
+.header{
+    display:flex;
+    align-items:center;
+    gap:11px;
+}
+
+.back{
+    width:43px;
+    height:43px;
+
+    border:1px solid var(--border);
+    border-radius:14px;
+
+    background:var(--panel);
+    color:#fff;
+
+    font-size:20px;
+    cursor:pointer;
+}
+
+.header-title{
+    flex:1;
+}
+
+.header-title strong{
+    display:block;
+    font-size:17px;
+    font-weight:950;
+}
+
+.header-title span{
+    display:block;
+    margin-top:2px;
+    color:var(--muted);
+    font-size:8px;
+}
+
+/* ================= PROFILE ================= */
+
+.profile{
+    position:relative;
+
+    margin-top:18px;
+    padding:17px;
+
+    display:flex;
+    align-items:center;
+    gap:13px;
+
+    border:1px solid var(--border);
+    border-radius:20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #181818,
+            #101010
+        );
+
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.25);
+}
+
+.avatar{
+    width:58px;
+    height:58px;
+
+    flex:0 0 58px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:2px solid var(--yellow);
+    border-radius:50%;
+
+    background:#222;
+
+    color:var(--yellow);
+    font-size:24px;
+    font-weight:900;
+}
+
+.profile-info{
+    min-width:0;
+    flex:1;
+}
+
+.name{
+    overflow:hidden;
+
+    font-size:15px;
+    font-weight:950;
+
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.phone{
+    margin-top:4px;
+
+    color:#777;
+
+    font-size:8px;
+}
+
+.rating{
+    margin-top:7px;
+
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+
+    padding:5px 8px;
+
+    border-radius:8px;
+
+    background:rgba(255,214,0,.08);
+    color:var(--yellow);
+
+    font-size:7px;
+    font-weight:900;
+}
+
+.verify{
+    position:absolute;
+
+    top:14px;
+    right:14px;
+
+    padding:5px 7px;
+
+    border-radius:8px;
+
+    background:rgba(40,212,119,.10);
+    color:var(--green);
+
+    font-size:6px;
+    font-weight:950;
+
+    text-transform:uppercase;
+}
+
+/* ================= ONLINE ================= */
+
+.status{
+    margin-top:10px;
+    padding:12px 13px;
+
+    display:flex;
+    align-items:center;
+
+    border:1px solid var(--border);
+    border-radius:15px;
+
+    background:var(--panel);
+}
+
+.status-copy{
+    flex:1;
+}
+
+.status-copy strong{
+    display:block;
+    font-size:9px;
+}
+
+.status-copy span{
+    display:block;
+    margin-top:3px;
+    color:#666;
+    font-size:7px;
+}
+
+.status-pill{
+    padding:7px 10px;
+    border-radius:9px;
+
+    background:#252525;
+    color:#777;
+
+    font-size:7px;
+    font-weight:950;
+}
+
+.status-pill.online{
+    background:rgba(40,212,119,.10);
+    color:var(--green);
+}
+
+/* ================= SECTION ================= */
+
+.section-title{
+    margin:
+        20px 3px
+        8px;
+
+    color:#555;
+
+    font-size:7px;
+    font-weight:950;
+
+    letter-spacing:.8px;
+    text-transform:uppercase;
+}
+
+/* ================= MENU ================= */
+
+.menu{
+    overflow:hidden;
+
+    border:1px solid var(--border);
+    border-radius:18px;
+
+    background:var(--panel);
+}
+
+.item{
+    width:100%;
+    min-height:57px;
+
+    display:flex;
+    align-items:center;
+
+    padding:0 14px;
+
+    border:0;
+    border-bottom:1px solid var(--border);
+
+    background:transparent;
+    color:#fff;
+
+    text-align:left;
+
+    cursor:pointer;
+}
+
+.item:last-child{
+    border-bottom:0;
+}
+
+.icon{
+    width:36px;
+    height:36px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:#1c1c1c;
+
+    font-size:17px;
+}
+
+.item-copy{
+    min-width:0;
+    flex:1;
+
+    margin-left:11px;
+}
+
+.item-title{
+    display:block;
+
+    font-size:9px;
+    font-weight:850;
+}
+
+.item-sub{
+    display:block;
+
+    margin-top:3px;
+
+    color:#666;
+
+    font-size:7px;
+}
+
+.arrow{
+    color:#555;
+    font-size:16px;
+}
+
+/* ================= BADGE ================= */
+
+.menu-badge{
+    min-width:18px;
+    height:18px;
+
+    margin-right:8px;
+
+    padding:0 5px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:20px;
+
+    background:var(--yellow);
+    color:#111;
+
+    font-size:7px;
+    font-weight:950;
+}
+
+/* ================= LOGOUT ================= */
+
+.logout{
+    width:100%;
+    min-height:52px;
+
+    margin-top:18px;
+
+    border:1px solid rgba(255,92,92,.20);
+    border-radius:15px;
+
+    background:rgba(255,92,92,.06);
+    color:var(--red);
+
+    font-size:9px;
+    font-weight:950;
+
+    cursor:pointer;
+}
+
+.logout:disabled{
+    opacity:.5;
+}
+
+/* ================= FOOTER ================= */
+
+.footer{
+    padding:20px 5px 5px;
+
+    text-align:center;
+
+    color:#444;
+
+    font-size:7px;
+    line-height:1.6;
+}
+
+.logo{
+    color:#555;
+    font-weight:950;
+}
+
+.logo span{
+    color:var(--yellow);
+}
+
+/* ================= LOADING ================= */
+
+.loading{
+    position:fixed;
+    z-index:100;
+
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#080808;
+}
+
+.loading.hide{
+    display:none;
+}
+
+.loader{
+    width:34px;
+    height:34px;
+
+    border:3px solid rgba(255,255,255,.12);
+    border-top-color:var(--yellow);
+
+    border-radius:50%;
+
+    animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* ================= TOAST ================= */
+
+.toast{
+    position:fixed;
+    z-index:200;
+
+    left:50%;
+    bottom:24px;
+
+    max-width:calc(100% - 30px);
+
+    padding:10px 14px;
+
+    border:1px solid var(--border);
+    border-radius:12px;
+
+    background:#1a1a1a;
+
+    color:#ddd;
+
+    font-size:8px;
+    font-weight:800;
+
+    opacity:0;
+    pointer-events:none;
+
+    transform:
+        translate(-50%,10px);
+
+    transition:.2s;
+}
+
+.toast.show{
+    opacity:1;
+    transform:
+        translate(-50%,0);
+}
+</style>
+</head>
+
+<body>
+
+<main class="page">
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <button
+            id="backButton"
+            class="back"
+            type="button"
+            aria-label="Go back">
+            ←
+        </button>
+
+        <div class="header-title">
+            <strong>Driver Menu</strong>
+            <span>Manage your Go Bike account</span>
+        </div>
+
+    </header>
+
+
+    <!-- PROFILE -->
+
+    <section class="profile">
+
+        <div
+            id="avatar"
+            class="avatar">
+            👤
+        </div>
+
+        <div class="profile-info">
+
+            <div
+                id="driverName"
+                class="name">
+                Go Bike Driver
+            </div>
+
+            <div
+                id="driverPhone"
+                class="phone">
+                Loading account...
+            </div>
+
+            <div class="rating">
+                ★
+                <span id="driverRating">5.0</span>
+                Driver rating
+            </div>
+
+        </div>
+
+        <div
+            id="verification"
+            class="verify">
+            Verified
+        </div>
+
+    </section>
+
+
+    <!-- STATUS -->
+
+    <section class="status">
+
+        <div class="status-copy">
+
+            <strong>
+                Driver availability
+            </strong>
+
+            <span id="statusText">
+                Checking current status...
+            </span>
+
+        </div>
+
+        <div
+            id="statusPill"
+            class="status-pill">
+            OFFLINE
+        </div>
+
+    </section>
+
+
+    <!-- RIDES -->
+
+    <div class="section-title">
+        Rides & Earnings
+    </div>
+
+    <section class="menu">
+
+        <button
+            class="item"
+            type="button"
+            data-page="home.html">
+
+            <div class="icon">
+                🏠
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Driver Home
+                </span>
+
+                <span class="item-sub">
+                    Go online and receive ride requests
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+
+        <button
+            class="item"
+            type="button"
+            data-page="earnings.html">
+
+            <div class="icon">
+                💰
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Earnings
+                </span>
+
+                <span class="item-sub">
+                    Daily, weekly and monthly earnings
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+
+        <button
+            class="item"
+            type="button"
+            data-page="history.html">
+
+            <div class="icon">
+                📋
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Ride History
+                </span>
+
+                <span class="item-sub">
+                    View completed and cancelled rides
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+
+        <button
+            class="item"
+            type="button"
+            data-page="wallet.html">
+
+            <div class="icon">
+                💳
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Wallet
+                </span>
+
+                <span class="item-sub">
+                    Balance, payouts and transactions
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+    </section>
+
+
+    <!-- ACCOUNT -->
+
+    <div class="section-title">
+        Account
+    </div>
+
+    <section class="menu">
+
+        <button
+            class="item"
+            type="button"
+            data-page="profile.html">
+
+            <div class="icon">
+                👤
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Profile
+                </span>
+
+                <span class="item-sub">
+                    Personal information and driver details
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+
+        <button
+            id="notificationItem"
+            class="item"
+            type="button">
+
+            <div class="icon">
+                🔔
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Notifications
+                </span>
+
+                <span class="item-sub">
+                    Ride updates and important alerts
+                </span>
+
+            </div>
+
+            <span
+                id="notificationBadge"
+                class="menu-badge"
+                style="display:none">
+                0
+            </span>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+
+        <button
+            class="item"
+            type="button"
+            data-page="settings.html">
+
+            <div class="icon">
+                ⚙️
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Settings
+                </span>
+
+                <span class="item-sub">
+                    App, privacy and notification settings
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+    </section>
+
+
+    <!-- SUPPORT -->
+
+    <div class="section-title">
+        Support
+    </div>
+
+    <section class="menu">
+
+        <button
+            id="supportButton"
+            class="item"
+            type="button">
+
+            <div class="icon">
+                🆘
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Help & Support
+                </span>
+
+                <span class="item-sub">
+                    Get help with rides and account issues
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+
+        <button
+            id="termsButton"
+            class="item"
+            type="button">
+
+            <div class="icon">
+                📄
+            </div>
+
+            <div class="item-copy">
+
+                <span class="item-title">
+                    Terms & Privacy
+                </span>
+
+                <span class="item-sub">
+                    Go Bike policies and legal information
+                </span>
+
+            </div>
+
+            <span class="arrow">
+                ›
+            </span>
+
+        </button>
+
+    </section>
+
+
+    <!-- LOGOUT -->
+
+    <button
+        id="logoutButton"
+        class="logout"
+        type="button">
+
+        🚪 &nbsp; LOG OUT
+
+    </button>
+
+
+    <footer class="footer">
+
+        <div class="logo">
+            GO <span>BIKE</span>
+        </div>
+
+        <div>
+            Driver App
+        </div>
+
+        <div>
+            Version 1.0
+        </div>
+
+    </footer>
+
+</main>
+
+
+<div
+    id="loading"
+    class="loading">
+
+    <div class="loader"></div>
+
+</div>
+
+
+<div
+    id="toast"
+    class="toast">
+</div>
+
+
+<script>
+(function(){
+
+"use strict";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+    driverId:null,
+
+    online:false,
+
+    notifications:0,
+
+    initialized:false
+
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ =
+    id => document.getElementById(id);
+
+
+/* =========================================================
+   CENTRAL API
+========================================================= */
+
+function getApi(){
+
+    return (
+        window.GoBikeAuth ||
+        window.GoBikeDriver ||
+        window.GoBikeRideEngine ||
+        null
+    );
+
+}
+
+
+/* =========================================================
+   DRIVER ID
+========================================================= */
+
+function getDriverId(){
+
+    let id = null;
+
+
+    try{
+
+        id =
+            localStorage.getItem(
+                "goBikeDriverId"
+            ) ||
+            localStorage.getItem(
+                "driverId"
+            ) ||
+            localStorage.getItem(
+                "userId"
+            );
+
+    }catch(error){}
+
+
+    try{
+
+        if(
+            !id &&
+            window.firebase &&
+            firebase.auth &&
+            firebase.auth().currentUser
+        ){
+
+            id =
+                firebase.auth()
+                    .currentUser
+                    .uid;
+
+        }
+
+    }catch(error){}
+
+
+    return id;
+
+}
+
+
+/* =========================================================
+   DRIVER DATA
+========================================================= */
+
+function getCachedDriver(){
+
+    let driver = null;
+
+
+    try{
+
+        const raw =
+            localStorage.getItem(
+                "goBikeDriver"
+            );
+
+
+        if(raw){
+
+            driver =
+                JSON.parse(
+                    raw
+                );
+
+        }
+
+    }catch(error){}
+
+
+    if(!driver){
+
+        try{
+
+            const raw =
+                localStorage.getItem(
+                    "user"
+                );
+
+
+            if(raw){
+
+                driver =
+                    JSON.parse(
+                        raw
+                    );
+
+            }
+
+        }catch(error){}
+
+    }
+
+
+    return driver || {};
+
+}
+
+
+/* =========================================================
+   LOAD PROFILE
+========================================================= */
+
+async function loadProfile(){
+
+    const driver =
+        getCachedDriver();
+
+
+    if(
+        driver.name ||
+        driver.displayName
+    ){
+
+        renderProfile(
+            driver
+        );
+
+    }
+
+
+    const api =
+        getApi();
+
+
+    if(
+        !api ||
+        typeof api.getDriverProfile !==
+        "function" ||
+        !state.driverId
+    ){
+
+        return;
+
+    }
+
+
+    try{
+
+        const fresh =
+            await api.getDriverProfile(
+                state.driverId
+            );
+
+
+        if(fresh){
+
+            renderProfile(
+                fresh
+            );
+
+
+            try{
+
+                localStorage.setItem(
+                    "goBikeDriver",
+                    JSON.stringify(
+                        fresh
+                    )
+                );
+
+            }catch(error){}
+
+        }
+
+    }catch(error){
+
+        console.warn(
+            "Driver profile:",
+            error
+        );
+
+    }
+
+}
+
+
+function renderProfile(
+driver
+){
+
+    const name =
+        driver.name ||
+        driver.displayName ||
+        driver.fullName ||
+        "Go Bike Driver";
+
+
+    const phone =
+        driver.phone ||
+        driver.phoneNumber ||
+        driver.email ||
+        "Driver account";
+
+
+    const rating =
+        Number(
+            driver.rating ??
+            driver.averageRating ??
+            5
+        );
+
+
+    $("driverName")
+        .textContent =
+        name;
+
+
+    $("driverPhone")
+        .textContent =
+        phone;
+
+
+    $("driverRating")
+        .textContent =
+        Number.isFinite(rating)
+            ? rating.toFixed(1)
+            : "5.0";
+
+
+    const verified =
+        driver.verified ??
+        driver.isVerified ??
+        driver.approved ??
+        true;
+
+
+    $("verification")
+        .textContent =
+        verified
+            ? "Verified"
+            : "Pending";
+
+
+    $("verification")
+        .style.color =
+        verified
+            ? "var(--green)"
+            : "var(--yellow)";
+
+
+    $("verification")
+        .style.background =
+        verified
+            ? "rgba(40,212,119,.10)"
+            : "rgba(255,214,0,.10)";
+
+}
+
+
+/* =========================================================
+   ONLINE STATE
+========================================================= */
+
+function loadOnlineState(){
+
+    let online =
+        false;
+
+
+    try{
+
+        online =
+            localStorage.getItem(
+                "goBikeDriverOnline"
+            ) ===
+            "true";
+
+    }catch(error){}
+
+
+    state.online =
+        online;
+
+
+    renderOnlineState();
+
+}
+
+
+function renderOnlineState(){
+
+    $("statusPill")
+        .textContent =
+        state.online
+            ? "ONLINE"
+            : "OFFLINE";
+
+
+    $("statusPill")
+        .classList.toggle(
+            "online",
+            state.online
+        );
+
+
+    $("statusText")
+        .textContent =
+        state.online
+            ? "You are currently available for ride requests."
+            : "You are currently not receiving ride requests.";
+
+}
+
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+function loadNotifications(){
+
+    let count =
+        0;
+
+
+    try{
+
+        count =
+            Number(
+                localStorage.getItem(
+                    "goBikeDriverNotifications"
+                ) ||
+                0
+            );
+
+    }catch(error){}
+
+
+    state.notifications =
+        Math.max(
+            0,
+            count
+        );
+
+
+    renderNotificationBadge();
+
+}
+
+
+function renderNotificationBadge(){
+
+    const badge =
+        $("notificationBadge");
+
+
+    if(
+        state.notifications > 0
+    ){
+
+        badge.style.display =
+            "flex";
+
+
+        badge.textContent =
+            state.notifications > 9
+                ? "9+"
+                : String(
+                    state.notifications
+                  );
+
+    }else{
+
+        badge.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function navigate(
+page
+){
+
+    if(!page){
+
+        return;
+
+    }
+
+
+    window.location.href =
+        page;
+
+}
+
+
+document.querySelectorAll(
+    "[data-page]"
+).forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                navigate(
+                    button.dataset.page
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================================
+   BACK
+========================================================= */
+
+$("backButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            /*
+             * Prefer returning to driver home.
+             */
+
+            if(
+                document.referrer &&
+                document.referrer.includes(
+                    "/rider/"
+                )
+            ){
+
+                history.back();
+
+            }else{
+
+                navigate(
+                    "home.html"
+                );
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   NOTIFICATION
+========================================================= */
+
+$("notificationItem")
+    .addEventListener(
+        "click",
+        function(){
+
+            /*
+             * Notification page may be added
+             * later without changing this menu.
+             */
+
+            if(
+                fileAvailableHint(
+                    "notifications.html"
+                )
+            ){
+
+                navigate(
+                    "notifications.html"
+                );
+
+            }else{
+
+                showToast(
+                    "Notifications are available from Driver Home."
+                );
+
+            }
+
+        }
+    );
+
+
+function fileAvailableHint(
+file
+){
+
+    /*
+     * The project contains this page when
+     * deployed. We intentionally do not fetch
+     * it here because offline/PWA support
+     * should not depend on a network request.
+     */
+
+    return true;
+
+}
+
+
+/* =========================================================
+   SUPPORT
+========================================================= */
+
+$("supportButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            /*
+             * Keep compatibility with different
+             * RiderX/Go Bike support page names.
+             */
+
+            navigate(
+                "support.html"
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   TERMS
+========================================================= */
+
+$("termsButton")
+    .addEventListener(
+        "click",
+        function(){
+
+            navigate(
+                "../terms.html"
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+$("logoutButton")
+    .addEventListener(
+        "click",
+        logout
+    );
+
+
+async function logout(){
+
+    const button =
+        $("logoutButton");
+
+
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to log out?"
+        );
+
+
+    if(!confirmed){
+
+        return;
+
+    }
+
+
+    button.disabled =
+        true;
+
+    button.textContent =
+        "LOGGING OUT...";
+
+
+    /*
+     * If an active ride exists,
+     * never allow accidental logout.
+     */
+
+    let activeRide =
+        null;
+
+
+    try{
+
+        const raw =
+            sessionStorage.getItem(
+                "goBikeActiveRide"
+            );
+
+
+        if(raw){
+
+            activeRide =
+                JSON.parse(
+                    raw
+                );
+
+        }
+
+    }catch(error){}
+
+
+    if(activeRide){
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "🚪   LOG OUT";
+
+
+        showToast(
+            "Complete your active ride before logging out."
+        );
+
+        return;
+
+    }
+
+
+    const api =
+        getApi();
+
+
+    try{
+
+        /*
+         * Preferred central authentication API.
+         */
+
+        if(
+            api &&
+            typeof api.logout ===
+            "function"
+        ){
+
+            await api.logout();
+
+        }else if(
+            window.firebase &&
+            firebase.auth
+        ){
+
+            /*
+             * Firebase Auth fallback.
+             */
+
+            await firebase.auth()
+                .signOut();
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "Logout failed:",
+            error
+        );
+
+
+        button.disabled =
+            false;
+
+        button.textContent =
+            "🚪   LOG OUT";
+
+
+        showToast(
+            error.message ||
+            "Logout failed. Please try again."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Clear ONLY authentication/session
+     * caches owned by Go Bike.
+     *
+     * Do not remove unrelated application
+     * settings.
+     */
+
+    const keys = [
+
+        "goBikeDriverId",
+        "driverId",
+        "userId",
+        "goBikeDriver",
+        "goBikeDriverOnline",
+        "goBikeActiveRide",
+        "goBikeActiveRideId",
+        "goBikeDriverNotifications"
+
+    ];
+
+
+    keys.forEach(
+        key => {
+
+            try{
+
+                localStorage.removeItem(
+                    key
+                );
+
+            }catch(error){}
+
+
+            try{
+
+                sessionStorage.removeItem(
+                    key
+                );
+
+            }catch(error){}
+
+        }
+    );
+
+
+    /*
+     * Send user back to the central login
+     * page. This keeps customer/driver
+     * authentication separated by role.
+     */
+
+    window.location.replace(
+        "../auth/login.html?role=driver"
+    );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer =
+    null;
+
+
+function showToast(
+message
+){
+
+    const toast =
+        $("toast");
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            function(){
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2800
+        );
+
+}
+
+
+/* =========================================================
+   AUTH GUARD
+========================================================= */
+
+async function checkAuth(){
+
+    const api =
+        getApi();
+
+
+    /*
+     * If Firebase Auth is already loaded,
+     * use the actual Firebase session.
+     */
+
+    try{
+
+        if(
+            window.firebase &&
+            firebase.auth
+        ){
+
+            const user =
+                firebase.auth()
+                    .currentUser;
+
+
+            if(
+                !user &&
+                !state.driverId
+            ){
+
+                window.location.replace(
+                    "../auth/login.html?role=driver"
+                );
+
+                return false;
+
+            }
+
+        }
+
+    }catch(error){
+
+        console.warn(
+            "Auth check:",
+            error
+        );
+
+    }
+
+
+    /*
+     * Central Go Bike auth guard.
+     */
+
+    if(
+        api &&
+        typeof api.requireDriver ===
+        "function"
+    ){
+
+        try{
+
+            const allowed =
+                await api.requireDriver();
+
+
+            if(
+                allowed === false
+            ){
+
+                window.location.replace(
+                    "../auth/login.html?role=driver"
+                );
+
+                return false;
+
+            }
+
+        }catch(error){
+
+            console.warn(
+                "Driver guard:",
+                error
+            );
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+async function init(){
+
+    if(
+        state.initialized
+    ){
+
+        return;
+
+    }
+
+
+    state.initialized =
+        true;
+
+
+    state.driverId =
+        getDriverId();
+
+
+    const authenticated =
+        await checkAuth();
+
+
+    if(
+        !authenticated
+    ){
+
+        return;
+
+    }
+
+
+    loadOnlineState();
+
+    loadNotifications();
+
+    await loadProfile();
+
+
+    $("loading")
+        .classList.add(
+            "hide"
+        );
+
+}
+
+
+init();
+
+})();
+</script>
+
+</body>
+</html>
