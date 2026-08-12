@@ -1,0 +1,775 @@
+/* =========================================================
+   GO BIKE — GLOBAL DESIGN SYSTEM
+   ========================================================= */
+
+:root {
+  --black: #080808;
+  --panel: #111111;
+  --panel-light: #181818;
+  --yellow: #ffd600;
+  --white: #ffffff;
+  --muted: #8a8a8a;
+  --success: #22c55e;
+  --error: #ff5252;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  --max-width: 1180px;
+
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+
+  --font:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+
+/* =========================================================
+   SPLASH SCREEN
+   ========================================================= */
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--black);
+
+  transition:
+    opacity 0.5s ease,
+    visibility 0.5s ease;
+}
+
+.splash-screen.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-content {
+  width: min(90%, 360px);
+  text-align: center;
+}
+
+.logo-container {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 24px;
+
+  background: var(--yellow);
+
+  box-shadow:
+    0 0 50px rgba(255, 214, 0, 0.2);
+}
+
+.splash-logo {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+}
+
+.fallback-logo {
+  font-size: 42px;
+}
+
+.splash-content h1 {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.splash-content p {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.loading-line {
+  width: 110px;
+  height: 3px;
+  margin: 25px auto 0;
+
+  overflow: hidden;
+  border-radius: 10px;
+  background: #222;
+}
+
+.loading-line span {
+  display: block;
+  width: 45%;
+  height: 100%;
+
+  background: var(--yellow);
+
+  animation: loading 1.2s infinite ease-in-out;
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(330%);
+  }
+}
+
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+.app {
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(255, 214, 0, 0.07),
+      transparent 28%
+    ),
+    var(--black);
+}
+
+.hidden {
+  display: none !important;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.top-header {
+  width: 100%;
+  padding: 22px 5%;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 45px;
+  height: 45px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  background: var(--yellow);
+}
+
+.brand-logo img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.brand-fallback {
+  font-size: 22px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-text strong {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.brand-text small {
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 1.4px;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero {
+  width: min(1180px, 90%);
+  min-height: 650px;
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  align-items: center;
+  gap: 60px;
+}
+
+.hero-content {
+  max-width: 620px;
+}
+
+.eyebrow {
+  display: inline-block;
+
+  color: var(--yellow);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hero h2 {
+  margin-top: 18px;
+
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -3px;
+}
+
+.hero h2 span {
+  color: var(--yellow);
+}
+
+.hero-text {
+  max-width: 540px;
+  margin-top: 25px;
+
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.btn {
+  min-height: 50px;
+  padding: 0 25px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  color: var(--black);
+  background: var(--yellow);
+}
+
+.btn-primary:hover {
+  background: #ffe033;
+}
+
+.btn-secondary {
+  color: var(--white);
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+
+/* =========================================================
+   MAP PREVIEW
+   ========================================================= */
+
+.hero-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.map-preview {
+  position: relative;
+
+  width: min(100%, 500px);
+  aspect-ratio: 0.9;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 32px;
+
+  background:
+    linear-gradient(
+      120deg,
+      #161616 0%,
+      #0e0e0e 100%
+    );
+
+  box-shadow: var(--shadow);
+}
+
+.map-grid {
+  position: absolute;
+  inset: 0;
+
+  opacity: 0.25;
+
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,0.06) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.06) 1px,
+      transparent 1px
+    );
+
+  background-size: 45px 45px;
+
+  transform: rotate(-8deg) scale(1.2);
+}
+
+.route-line {
+  position: absolute;
+
+  left: 31%;
+  top: 19%;
+
+  width: 5px;
+  height: 65%;
+
+  background: var(--yellow);
+
+  border-radius: 20px;
+
+  transform:
+    rotate(25deg);
+}
+
+.map-pin {
+  position: absolute;
+
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 4px solid var(--black);
+  border-radius: 50%;
+
+  z-index: 3;
+}
+
+.map-pin span {
+  font-size: 9px;
+}
+
+.pickup-pin {
+  left: 25%;
+  top: 17%;
+
+  background: var(--white);
+}
+
+.drop-pin {
+  right: 26%;
+  bottom: 17%;
+
+  background: var(--yellow);
+}
+
+.bike-marker {
+  position: absolute;
+
+  left: 43%;
+  top: 48%;
+
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--yellow);
+
+  font-size: 25px;
+
+  box-shadow:
+    0 0 0 8px rgba(255, 214, 0, 0.12),
+    0 15px 35px rgba(0, 0, 0, 0.4);
+
+  animation: bikeFloat 2.5s infinite ease-in-out;
+}
+
+@keyframes bikeFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.map-label {
+  position: absolute;
+
+  padding: 7px 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: rgba(8, 8, 8, 0.9);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  z-index: 4;
+}
+
+.pickup-label {
+  left: 10%;
+  top: 12%;
+}
+
+.drop-label {
+  right: 10%;
+  bottom: 12%;
+}
+
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+
+.services,
+.how-it-works,
+.cta-section {
+  width: min(1180px, 90%);
+  margin: 0 auto;
+}
+
+.services,
+.how-it-works {
+  padding: 90px 0;
+}
+
+.section-heading h3 {
+  margin-top: 10px;
+
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.1;
+  font-weight: 850;
+}
+
+
+/* =========================================================
+   SERVICE CARD
+   ========================================================= */
+
+.service-card {
+  margin-top: 35px;
+  padding: 24px;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: var(--panel);
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.service-card:hover {
+  border-color: rgba(255, 214, 0, 0.35);
+  transform: translateY(-3px);
+}
+
+.service-icon {
+  width: 58px;
+  height: 58px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background: var(--yellow);
+
+  font-size: 25px;
+}
+
+.service-content {
+  flex: 1;
+}
+
+.service-content h4 {
+  font-size: 18px;
+}
+
+.service-content p {
+  margin-top: 4px;
+
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.service-arrow {
+  color: var(--yellow);
+  font-size: 25px;
+}
+
+
+/* =========================================================
+   STEPS
+   ========================================================= */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+
+  margin-top: 35px;
+}
+
+.step-card {
+  padding: 25px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  background: var(--panel);
+}
+
+.step-number {
+  color: var(--yellow);
+
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.step-card h4 {
+  margin-top: 35px;
+  font-size: 18px;
+}
+
+.step-card p {
+  margin-top: 10px;
+
+  color: var(--muted);
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   CTA
+   ========================================================= */
+
+.cta-section {
+  margin-bottom: 70px;
+  padding: 70px 8%;
+
+  border-radius: 30px;
+
+  background:
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(255, 214, 0, 0.18),
+      transparent 35%
+    ),
+    var(--panel);
+}
+
+.cta-content {
+  max-width: 550px;
+}
+
+.cta-content h3 {
+  margin-top: 12px;
+
+  font-size: clamp(38px, 5vw, 62px);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.cta-content p {
+  margin-top: 18px;
+
+  color: var(--muted);
+}
+
+.cta-content .btn {
+  margin-top: 28px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+  width: min(1180px, 90%);
+  margin: 0 auto;
+
+  padding: 30px 0 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-top: 1px solid var(--border);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand strong {
+  letter-spacing: 1.5px;
+}
+
+.footer-brand span,
+.footer p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.footer p {
+  text-align: right;
+}
+
+
+/* =========================================================
+   FOCUS / ACCESSIBILITY
+   ========================================================= */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
