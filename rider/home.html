@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#080808"
+  >
+
+  <title>Rider Home | Go Bike</title>
+
+  <link
+    rel="stylesheet"
+    href="../css/style.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="../css/responsive.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  >
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #080808;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    .rider-page {
+      min-height: 100dvh;
+      background: #080808;
+      padding-bottom: 78px;
+    }
+
+    /* HEADER */
+
+    .rider-header {
+      height: 66px;
+      padding: 0 16px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      background: #080808;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+
+      position: relative;
+      z-index: 1000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 12px;
+
+      background: #ffd600;
+      color: #080808;
+
+      font-size: 21px;
+    }
+
+    .brand-text {
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .notification-button {
+      width: 42px;
+      height: 42px;
+
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+
+      background: #111;
+      color: #fff;
+
+      font-size: 18px;
+    }
+
+    /* PROFILE */
+
+    .profile-section {
+      padding: 14px 16px;
+    }
+
+    .profile-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 14px;
+
+      border-radius: 17px;
+
+      background: #111;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .profile-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .profile-photo {
+      width: 46px;
+      height: 46px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      background: #222;
+
+      font-size: 22px;
+    }
+
+    .driver-name {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .driver-status {
+      margin-top: 4px;
+
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      color: #8a8a8a;
+      font-size: 11px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+
+      border-radius: 50%;
+      background: #777;
+    }
+
+    .status-dot.online {
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34,197,94,.6);
+    }
+
+    /* ONLINE BUTTON */
+
+    .online-section {
+      padding: 0 16px 14px;
+    }
+
+    .online-button {
+      width: 100%;
+      min-height: 55px;
+
+      border: 0;
+      border-radius: 15px;
+
+      background: #ffd600;
+      color: #080808;
+
+      font-size: 15px;
+      font-weight: 900;
+
+      cursor: pointer;
+    }
+
+    .online-button.offline {
+      background: #1b1b1b;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    .online-button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* APPROVAL */
+
+    .approval-card {
+      margin: 0 16px 14px;
+      padding: 12px 14px;
+
+      border-radius: 14px;
+
+      background: #151515;
+      border: 1px solid rgba(255,255,255,.08);
+
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    .approval-card strong {
+      color: #ffd600;
+    }
+
+    /* MAP */
+
+    .map-section {
+      padding: 0 12px;
+    }
+
+    #riderMap {
+      width: 100%;
+      height: 45vh;
+      min-height: 300px;
+
+      border-radius: 20px;
+
+      overflow: hidden;
+
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .leaflet-control-zoom {
+      margin-top: 10px !important;
+      margin-left: 10px !important;
+    }
+
+    .leaflet-control-zoom a {
+      background: #111 !important;
+      color: #fff !important;
+      border-color: #333 !important;
+    }
+
+    /* EARNINGS */
+
+    .stats-section {
+      padding: 14px 16px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat-card {
+      padding: 15px;
+
+      border-radius: 15px;
+
+      background: #111;
+      border: 1px solid rgba(255,255,255,.07);
+    }
+
+    .stat-label {
+      color: #777;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .stat-value {
+      margin-top: 7px;
+
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .stat-value.yellow {
+      color: #ffd600;
+    }
+
+    /* REQUEST INDICATOR */
+
+    .request-card {
+      display: none;
+
+      margin: 0 16px 14px;
+      padding: 16px;
+
+      border-radius: 18px;
+
+      background: #111;
+
+      border: 1px solid #ffd600;
+
+      box-shadow:
+        0 0 20px rgba(255,214,0,.08);
+    }
+
+    .request-card.show {
+      display: block;
+    }
+
+    .request-title {
+      color: #ffd600;
+
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .request-text {
+      margin-top: 8px;
+
+      color: #aaa;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .request-button {
+      width: 100%;
+      min-height: 45px;
+
+      margin-top: 12px;
+
+      border: 0;
+      border-radius: 12px;
+
+      background: #ffd600;
+      color: #080808;
+
+      font-weight: 900;
+    }
+
+    /* BOTTOM NAV */
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      height: 68px;
+
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+
+      background: rgba(8,8,8,.97);
+      border-top: 1px solid rgba(255,255,255,.1);
+
+      z-index: 2000;
+
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      gap: 4px;
+
+      border: 0;
+      background: transparent;
+
+      color: #777;
+
+      font-size: 10px;
+    }
+
+    .nav-item span:first-child {
+      font-size: 18px;
+    }
+
+    .nav-item.active {
+      color: #ffd600;
+    }
+
+    /* ERROR */
+
+    .error-message {
+      padding: 10px 16px;
+
+      text-align: center;
+
+      color: #ff5252;
+      font-size: 11px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <main class="rider-page">
+
+
+    <!-- HEADER -->
+
+    <header class="rider-header">
+
+      <div class="brand">
+
+        <div class="brand-icon">
+          🛵
+        </div>
+
+        <div class="brand-text">
+          GO BIKE
+        </div>
+
+      </div>
+
+
+      <button
+        class="notification-button"
+        id="notificationButton"
+        type="button"
+        aria-label="Notifications"
+      >
+        🔔
+      </button>
+
+    </header>
+
+
+    <!-- PROFILE -->
+
+    <section class="profile-section">
+
+      <div class="profile-card">
+
+        <div class="profile-left">
+
+          <div class="profile-photo">
+            👤
+          </div>
+
+          <div>
+
+            <div
+              id="driverName"
+              class="driver-name"
+            >
+              Go Bike Rider
+            </div>
+
+            <div class="driver-status">
+
+              <span
+                id="statusDot"
+                class="status-dot"
+              ></span>
+
+              <span id="statusText">
+                Offline
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ONLINE -->
+
+    <section class="online-section">
+
+      <button
+        id="onlineButton"
+        class="online-button"
+        type="button"
+      >
+        GO ONLINE
+      </button>
+
+    </section>
+
+
+    <!-- APPROVAL -->
+
+    <div
+      id="approvalCard"
+      class="approval-card"
+    >
+      Checking rider approval...
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div
+      id="errorMessage"
+      class="error-message"
+      role="alert"
+      aria-live="polite"
+    ></div>
+
+
+    <!-- REQUEST -->
+
+    <section
+      id="requestCard"
+      class="request-card"
+    >
+
+      <div class="request-title">
+        NEW PARCEL REQUEST
+      </div>
+
+      <div
+        id="requestText"
+        class="request-text"
+      >
+        A nearby parcel delivery is available.
+      </div>
+
+      <button
+        id="requestButton"
+        class="request-button"
+        type="button"
+      >
+        VIEW REQUEST
+      </button>
+
+    </section>
+
+
+    <!-- MAP -->
+
+    <section class="map-section">
+
+      <div id="riderMap"></div>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="stats-section">
+
+      <div class="stats-grid">
+
+        <div class="stat-card">
+
+          <div class="stat-label">
+            Today's Earnings
+          </div>
+
+          <div
+            id="todayEarnings"
+            class="stat-value yellow"
+          >
+            ₹0
+          </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <div class="stat-label">
+            Completed Rides
+          </div>
+
+          <div
+            id="completedRides"
+            class="stat-value"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+  </main>
+
+
+  <!-- BOTTOM NAV -->
+
+  <nav class="bottom-nav">
+
+    <button
+      class="nav-item active"
+      type="button"
+    >
+      <span>⌂</span>
+      <span>HOME</span>
+    </button>
+
+
+    <button
+      id="ridesNav"
+      class="nav-item"
+      type="button"
+    >
+      <span>🛵</span>
+      <span>RIDES</span>
+    </button>
+
+
+    <button
+      id="earningsNav"
+      class="nav-item"
+      type="button"
+    >
+      <span>₹</span>
+      <span>EARNINGS</span>
+    </button>
+
+
+    <button
+      id="profileNav"
+      class="nav-item"
+      type="button"
+    >
+      <span>👤</span>
+      <span>PROFILE</span>
+    </button>
+
+
+    <button
+      id="menuNav"
+      class="nav-item"
+      type="button"
+    >
+      <span>☰</span>
+      <span>MENU</span>
+    </button>
+
+  </nav>
+
+
+  <!-- LEAFLET -->
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+
+
+  <!-- FIREBASE -->
+
+  <script src="../firebase/firebase-config.js"></script>
+
+
+  <!-- RIDER LOGIC -->
+
+  <script
+    type="module"
+    src="../js/driver.js"
+  ></script>
+
+</body>
+
+</html>
